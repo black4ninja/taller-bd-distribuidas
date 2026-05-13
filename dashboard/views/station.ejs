@@ -15,6 +15,15 @@
       <%- intro.narrative_html %>
     </div>
 
+    <% if (intro.why_this_db_html) { %>
+      <details class="why-db" open>
+        <summary>💡 ¿Por qué este motor para estos datos?</summary>
+        <div class="why-db-content">
+          <%- intro.why_this_db_html %>
+        </div>
+      </details>
+    <% } %>
+
     <div class="links">
       <a class="btn" href="<%= intro.ui_url %>" target="_blank" rel="noopener">Abrir <%= intro.ui_label %> ↗</a>
       <a class="btn btn--ghost" href="/cheatsheet/<%= intro.cheatsheet %>" target="_blank">Cheatsheet <%= intro.cheatsheet %> 📖</a>

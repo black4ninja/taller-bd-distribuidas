@@ -151,6 +151,42 @@ h3 { font-size: 1.05rem; margin: 1.25rem 0 0.5rem; }
 
 .narrative p { margin: 0.5rem 0; }
 
+.why-db {
+  margin: 1.25rem 0;
+  padding: 1rem 1.2rem;
+  background: linear-gradient(135deg, rgba(255,209,102,0.08) 0%, rgba(255,107,53,0.05) 100%);
+  border: 1px solid rgba(255,209,102,0.3);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 8px;
+}
+.why-db summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--accent-2);
+  font-size: 1rem;
+  list-style: none;
+  user-select: none;
+}
+.why-db summary::-webkit-details-marker { display: none; }
+.why-db summary::before {
+  content: '▸ ';
+  display: inline-block;
+  transition: transform 0.15s;
+}
+.why-db[open] summary::before { transform: rotate(90deg); }
+.why-db-content {
+  margin-top: 0.85rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed rgba(255,209,102,0.2);
+  color: var(--text);
+  font-size: 0.94rem;
+}
+.why-db-content p { margin: 0.5rem 0; }
+.why-db-content ul { padding-left: 1.4rem; margin: 0.4rem 0; }
+.why-db-content li { margin: 0.3rem 0; }
+.why-db-content strong { color: var(--accent-2); }
+.why-db-content code { font-size: 0.85em; }
+
 .blocked { background: rgba(248,113,113,0.1); border: 1px solid var(--fail); padding: 1rem; border-radius: 8px; }
 
 .links { margin: 1rem 0; }

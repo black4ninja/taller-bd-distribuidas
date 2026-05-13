@@ -2,6 +2,20 @@
 
 > Para el taller, solo necesitas saber **SELECT**, **JOIN**, **WHERE** y **LIKE/ILIKE**.
 
+## ¿Cuándo usar PostgreSQL en la vida real?
+
+PostgreSQL (o cualquier RDBMS maduro) es **la elección por defecto** cuando:
+
+- Los datos tienen **relaciones estables** (usuario ↔ pedidos, factura ↔ items, autor ↔ libros).
+- Necesitas **integridad referencial** garantizada por el motor (foreign keys, constraints, triggers).
+- Las queries son **ad-hoc**: hoy filtras por A, mañana agrupas por B + JOIN con C. SQL es el lenguaje universal para eso.
+- **ACID es crítico**: dinero, inventario, registros médicos, cualquier dominio donde "perder un write" no es opción.
+- Necesitas **transacciones multi-row/multi-table** consistentes.
+
+Casos típicos: e-commerce (catálogo + órdenes + usuarios), banca, ERP, sistemas administrativos, dashboards de BI, gestión académica.
+
+**Cuándo NO es la mejor opción**: cache de alto throughput (→ Redis), búsqueda semántica de texto libre (→ vectorial), volúmenes masivos de logs con schema cambiante (→ documento o time-series).
+
 ## Conexión vía Adminer
 
 http://localhost:8081

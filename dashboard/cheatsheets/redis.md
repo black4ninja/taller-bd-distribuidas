@@ -2,6 +2,22 @@
 
 > Redis guarda pares **clave → valor**. Las claves son strings (suelen usar `:` como separador jerárquico, ej. `usuario:42:nombre`).
 
+## ¿Cuándo usar Redis en la vida real?
+
+Redis es **el motor más rápido del ecosistema** (todo en memoria, latencia sub-milisegundo). Casos clásicos:
+
+- **Cache de queries pesadas**: el resultado de una consulta SQL costosa se guarda en Redis con TTL de 60s. Si llega la misma petición en ese rango, sirves desde Redis en 1ms en vez de re-ejecutar el SQL.
+- **Sesiones de usuario**: tras login, guardas `session:<token> → user_data` con TTL. Más rápido que ir a DB en cada request.
+- **Contadores y rate limiting**: incrementar un contador atómicamente con `INCR` y limitarlo (`SET key val EX 60 NX`). Ej. "máximo 100 requests por minuto por IP".
+- **Colas de tareas ligeras**: estructuras `LIST` y `Streams` para job queues simples.
+- **Pub/Sub en tiempo real**: chat, notificaciones, eventos cross-servicio.
+- **Datos efímeros de alta frecuencia**: check-ins de torno, lecturas de sensores, métricas live de dashboards.
+- **Leaderboards y rankings**: `SORTED SET` (`ZADD`, `ZRANGE`) en O(log N) — perfecto para puntajes de juegos.
+
+Casos típicos: cualquier app que necesite respuesta < 10ms, sistemas con tráfico burst (Black Friday, partidos en vivo), microservicios que comparten estado efímero.
+
+**Cuándo NO**: como única fuente de verdad para datos críticos (es volátil; sí persiste, pero diseñado para "se puede regenerar"), reportes complejos con agregaciones (no es su fuerte), búsqueda por contenido textual.
+
 ## Conexión vía RedisInsight (paso a paso, primera vez)
 
 http://localhost:8083

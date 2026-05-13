@@ -2,6 +2,20 @@
 
 > MongoDB guarda **documentos JSON** en **colecciones** (equivalente a "tablas" pero sin esquema fijo).
 
+## ¿Cuándo usar MongoDB en la vida real?
+
+MongoDB (o cualquier base documental) brilla cuando:
+
+- **Schema evoluciona rápido**: productos con campos opcionales que cambian por categoría (un libro tiene "autor"; una camiseta tiene "talla" y "color"). En SQL eso explota con `ALTER TABLE` o tablas EAV horribles.
+- **Datos jerárquicos auto-contenidos**: un post de blog con sus comentarios anidados, un pedido con sus items, una página con sus widgets. En vez de N JOINs, lees 1 documento.
+- **Arrays como ciudadanos de primera**: "etiquetas", "permisos", "clientes de un entrenador". Indexables y consultables sin tabla intermedia.
+- **Escala horizontal natural**: redes sociales, eventos IoT, logs estructurados. Mongo sharda nativo; Postgres requiere setup avanzado (Citus, Aurora, etc).
+- **Time-to-market crítico**: prototipos donde el modelo de datos aún no está fijo. Mongo te deja iterar sin migraciones.
+
+Casos típicos: catálogos de e-commerce con productos heterogéneos, gestión de contenido (CMS), eventos de IoT/analytics, perfiles de usuario con preferencias variables, agregadores de logs aplicacionales.
+
+**Cuándo NO**: transacciones financieras críticas (Postgres es más sólido aunque Mongo ya las soporta), reportes con muchos JOINs (SQL es más natural), búsqueda semántica (→ vectorial).
+
 ## Conexión vía mongo-express
 
 http://localhost:8082

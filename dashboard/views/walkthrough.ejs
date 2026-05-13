@@ -5,6 +5,22 @@
   <h1>E0 · Walkthrough (ejemplo resuelto)</h1>
   <p class="muted">5 min. Esta estación NO requiere respuesta. Sólo léela para calibrarte: muestra cómo se interactúa con un motor de base de datos durante el taller.</p>
 
+  <details class="why-db" open>
+    <summary>💡 Concepto clave: polyglot persistence</summary>
+    <div class="why-db-content">
+      <p>El taller se llama <strong>bases de datos distribuidas</strong> y vas a tocar 4 motores diferentes. Esto no es accidente — es una decisión arquitectónica deliberada llamada <strong>polyglot persistence</strong>:</p>
+      <p>👉 <em>"Usa cada base de datos para lo que es mejor, en lugar de forzar todo en una sola."</em></p>
+      <p>Las empresas modernas (Netflix, Uber, Spotify, LinkedIn) operan así. Razones:</p>
+      <ul>
+        <li><strong>PostgreSQL</strong> es la opción por defecto para datos con esquemas y relaciones rígidas — la "fuente de verdad" del dominio.</li>
+        <li><strong>MongoDB</strong> brilla con datos semi-estructurados (posts, eventos, catálogos con campos variables).</li>
+        <li><strong>Redis</strong> es para datos efímeros, cache, sesiones y check-ins de alta frecuencia.</li>
+        <li><strong>Qdrant</strong> (o cualquier vectorial) es necesario cuando buscas por SIGNIFICADO, no por keywords.</li>
+      </ul>
+      <p>El trade-off es real: tu sistema gana eficiencia, pero pierde simplicidad (ahora tienes 4 motores que mantener, monitorear y sincronizar). En este taller, cada estación te muestra exactamente <em>por qué</em> los datos viven donde viven, con un callout "💡 ¿Por qué este motor?" en cada pantalla.</p>
+    </div>
+  </details>
+
   <h2>Paso 1 — Abre Adminer</h2>
   <p>Adminer es una UI web ligera para PostgreSQL/MySQL. Está corriendo en <a href="http://localhost:8081" target="_blank" rel="noopener">http://localhost:8081</a>.</p>
   <p>Login:</p>
