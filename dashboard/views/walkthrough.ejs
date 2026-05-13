@@ -1,0 +1,46 @@
+<%- include('partials/header', { pageTitle: 'E0 — Walkthrough' }) %>
+<a href="/" class="back">← Volver al índice</a>
+
+<section class="station-detail">
+  <h1>E0 · Walkthrough (ejemplo resuelto)</h1>
+  <p class="muted">5 min. Esta estación NO requiere respuesta. Sólo léela para calibrarte: muestra cómo se interactúa con un motor de base de datos durante el taller.</p>
+
+  <h2>Paso 1 — Abre Adminer</h2>
+  <p>Adminer es una UI web ligera para PostgreSQL/MySQL. Está corriendo en <a href="http://localhost:8081" target="_blank" rel="noopener">http://localhost:8081</a>.</p>
+  <p>Login:</p>
+  <pre><code>Sistema:    PostgreSQL
+Servidor:   postgres
+Usuario:    pg
+Contraseña: pg
+Base:       investigation</code></pre>
+
+  <h2>Paso 2 — Identifica las tablas</h2>
+  <p>Una vez dentro verás 3 tablas: <code>crime_scene_report</code>, <code>persons</code>, <code>interviews</code>. Haz click en <code>crime_scene_report</code> y luego en "Select data". Verás 1 sola fila.</p>
+
+  <h2>Paso 3 — Ejecuta tu primer SELECT</h2>
+  <p>En la barra superior haz click en "SQL command". Pega y ejecuta:</p>
+  <pre><code>SELECT date, city, type, description
+FROM crime_scene_report
+WHERE date = '2026-03-15' AND city = 'Monterrey';</code></pre>
+
+  <h2>Paso 4 — Lee la descripción del crimen</h2>
+  <p>El campo <code>description</code> te da TRES datos críticos que vas a usar el resto del taller:</p>
+  <ul>
+    <li><strong>Arma</strong>: <code>Cable USB-C</code> (anótalo para el flag final)</li>
+    <li><strong>Lugar</strong>: <code>Laboratorio CETEC</code> (anótalo para el flag final)</li>
+    <li><strong>Tres testigos</strong>: identificados por dirección o por <code>gym_member_id</code></li>
+  </ul>
+
+  <h2>Paso 5 — Patrón a usar el resto del taller</h2>
+  <p>Cada estación sigue este mismo patrón:</p>
+  <ol>
+    <li>Abre la UI gráfica del motor (links en la barra superior).</li>
+    <li>Consulta los cheatsheets si no recuerdas la sintaxis.</li>
+    <li>Si te atoras: usa pistas progresivas (1 → 2 → 3).</li>
+    <li>Submit la respuesta en el cuadro al final de cada estación.</li>
+  </ol>
+
+  <p>Cuando estés listo, vuelve al <a href="/">índice</a> y abre <strong>E1</strong>.</p>
+</section>
+
+<%- include('partials/footer') %>

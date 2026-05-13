@@ -1,0 +1,112 @@
+# Taller · Crime Scene Investigation: Bases de Datos Distribuidas
+
+> Taller práctico de **1 hora** para introducir bases de datos distribuidas a alumnos **sin conocimiento previo** de PostgreSQL, MongoDB, Redis ni motores vectoriales. Resuelves un caso de homicidio que tiene las evidencias repartidas en 4 motores.
+
+---
+
+## Para el alumno: lee primero
+
+1. Tienes **60 minutos**.
+2. **No necesitas saber** los motores de antemano. El taller te enseña mientras juegas.
+3. Vas a usar 5 interfaces web (todas locales): el dashboard del taller + 4 UIs gráficas para cada motor.
+4. Si te atoras, cada estación tiene **3 pistas progresivas**. Úsalas sin culpa.
+5. El objetivo final es identificar **asesino + arma + lugar** del crimen.
+
+## Quick start
+
+Requisitos: Docker Desktop o Docker Engine con `docker compose` v2+.
+
+```bash
+git clone <este-repo>
+cd taller-bd-distribuidas
+docker compose up -d
+```
+
+Primer arranque: ~3 min (descarga imágenes + corre seed con embeddings).
+Arranques posteriores: ~30s.
+
+**Verifica que todo esté arriba**:
+
+```bash
+./scripts/verify-setup.sh
+```
+
+**Abre el dashboard**: <http://localhost:3000>
+
+**Reset si algo se rompe**:
+
+```bash
+./scripts/reset.sh
+```
+
+## Flujo del taller (60 min)
+
+| Tiempo | Estación | Motor | Lo que aprenderás |
+|---|---|---|---|
+| 5 min | **E0** Walkthrough | PostgreSQL | Cómo abrir Adminer, hacer un SELECT, leer la descripción del caso |
+| ~10 min | **E1** Las entrevistas | PostgreSQL | `JOIN`, `WHERE`, `LIKE` para conectar tablas |
+| ~12 min | **E2** La colección oculta | MongoDB | Documentos JSON, `listCollections`, vulnerabilidad por falta de auth |
+| ~12 min | **E3** El informante anónimo | Redis | Key-value store, `KEYS *`, vulnerabilidad por falta de password |
+| ~10 min | **E4** Confesión semántica | Qdrant (vectorial) | Embeddings y búsqueda por similitud de significado |
+| 1 min | **/solve** Flag final | — | Submit `asesino + arma + lugar` |
+| 8 min | Debrief técnico | — | Discusión: CAP, consistencia, ¿por qué no todo en SQL? |
+
+## URLs locales
+
+| Servicio | URL |
+|---|---|
+| Dashboard del taller | <http://localhost:3000> |
+| Adminer (PostgreSQL UI) | <http://localhost:8081> |
+| mongo-express | <http://localhost:8082> |
+| RedisInsight | <http://localhost:8083> |
+| Qdrant UI | <http://localhost:6333/dashboard> |
+
+## Estructura del repo
+
+```
+taller-bd-distribuidas/
+├── README.md                  # estás aquí
+├── docker-compose.yml         # 4 motores + 4 UIs + seeder + dashboard
+├── .env.example               # credenciales (algunas débiles por diseño)
+├── docs/
+│   ├── WALKTHROUGH.md         # E0 paso a paso (LÉELO PRIMERO)
+│   ├── ENTREGABLE.md          # plantilla que entregas al final
+│   ├── INSTRUCTOR_NOTES.md    # ⚠️ NO ABRIR si eres alumno
+│   ├── ARQUITECTURA.md        # diagrama y por qué cada motor
+│   └── CHEATSHEETS/           # 1 referencia rápida por motor
+├── dashboard/                 # Node.js + Express con la narrativa
+├── seeder/                    # one-shot que puebla los 4 motores
+└── scripts/
+    ├── reset.sh
+    └── verify-setup.sh
+```
+
+## Para instructores
+
+Lee `docs/INSTRUCTOR_NOTES.md`. Incluye:
+- Cronograma detallado de 60 min
+- Solución completa por estación
+- Guion para el debrief
+- Checklist de validación pre-clase
+
+## Diseño pedagógico
+
+- **Scaffolding agresivo**: UIs gráficas (no CLI), cheatsheets por motor, walkthrough resuelto (E0).
+- **Pistas progresivas**: 3 niveles por estación. Quedan registradas pero no descuentan puntos.
+- **Narrativa breadcrumb**: cada estación da una pista que es input de la siguiente. No puedes saltarte una.
+- **Flag autovalidante**: el instructor no tiene que revisar a mano — el sistema lo valida.
+- **Vulnerabilidades intencionales**: 2 motores (Mongo y Redis) corren SIN auth. Explotar esas malas configuraciones es parte del aprendizaje.
+
+## Troubleshooting
+
+| Problema | Fix |
+|---|---|
+| Dashboard tarda en cargar | El seeder corre primero. Espera 1-2 min al primer arranque. |
+| mongo-express dice "connection refused" | `docker compose restart mongo-express` |
+| Qdrant collection vacía | `docker compose restart seeder` |
+| Embedding tarda 60s | Normal en frío. La imagen del dashboard cachea el modelo, así que no se repite. |
+| Nada funciona, quiero empezar de cero | `./scripts/reset.sh` |
+
+## Licencia
+
+MIT — úsalo y modifícalo para tus propios talleres.

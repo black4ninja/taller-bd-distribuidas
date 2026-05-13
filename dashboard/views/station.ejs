@@ -1,0 +1,115 @@
+<%- include('partials/header', { pageTitle: id + ' — ' + title }) %>
+
+<a href="/" class="back">← Volver al índice</a>
+
+<section class="station-detail">
+  <h1><%= id %>: <%= title %></h1>
+  <p class="motor"><strong>Motor:</strong> <%= intro.motor %></p>
+
+  <% if (blockedBy) { %>
+    <div class="blocked">
+      <p><strong>Esta estación está bloqueada.</strong> Completa la estación <%= blockedBy %> primero.</p>
+    </div>
+  <% } else { %>
+    <div class="narrative">
+      <%- intro.narrative.split('\n').map(p => `<p>${p}</p>`).join('') %>
+    </div>
+
+    <div class="links">
+      <a class="btn" href="<%= intro.ui_url %>" target="_blank" rel="noopener">Abrir <%= intro.ui_label %> ↗</a>
+      <a class="btn btn--ghost" href="/cheatsheet/<%= intro.cheatsheet %>" target="_blank">Cheatsheet <%= intro.cheatsheet %> 📖</a>
+    </div>
+
+    <div class="hints">
+      <h3>¿Atorado? Usa pistas progresivas</h3>
+      <p class="muted">Las pistas se registran en tu sesión. No descuentan puntos pero quedan visibles para el instructor.</p>
+      <div class="hint-buttons">
+        <button data-level="1">Pista 1 (suave)</button>
+        <button data-level="2">Pista 2 (media)</button>
+        <button data-level="3">Pista 3 (fuerte)</button>
+      </div>
+      <div id="hint-out" class="hint-out"></div>
+    </div>
+
+    <% if (showVectorWidget) { %>
+      <div class="vector-widget">
+        <h3>Búsqueda semántica en Qdrant</h3>
+        <p class="muted">Pega la frase de testimonio que encontraste en Redis. El servidor generará el embedding y consultará la collection <code>witness_testimonies</code>.</p>
+        <textarea id="vector-query" rows="4" placeholder="Pega aquí la frase..."></textarea>
+        <button id="vector-search">Buscar testimonios similares</button>
+        <div id="vector-out"></div>
+      </div>
+    <% } %>
+
+    <div class="submit-box">
+      <h3>Tu respuesta</h3>
+      <input type="text" id="answer" placeholder="Escribe la respuesta aquí" />
+      <button id="check">Validar</button>
+      <p id="check-result"></p>
+    </div>
+  <% } %>
+</section>
+
+<script>
+  const stationId = "<%= id %>";
+
+  function renderMarkdownish(text) {
+    return text
+      .replace(/```([\s\S]*?)```/g, (m, code) => `<pre><code>${code.replace(/</g,'&lt;')}</code></pre>`)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\n/g, '<br>');
+  }
+
+  document.querySelectorAll('.hint-buttons button').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const level = btn.dataset.level;
+      const r = await fetch(`/hints/${stationId}/${level}`);
+      const j = await r.json();
+      const out = document.getElementById('hint-out');
+      const div = document.createElement('div');
+      div.className = 'hint hint--' + level;
+      div.innerHTML = `<strong>Pista ${level}:</strong> ${renderMarkdownish(j.content || j.error)}`;
+      out.appendChild(div);
+    });
+  });
+
+  document.getElementById('check').addEventListener('click', async () => {
+    const answer = document.getElementById('answer').value;
+    const r = await fetch(`/station/${stationId}/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answer })
+    });
+    const j = await r.json();
+    const el = document.getElementById('check-result');
+    if (j.ok) {
+      el.innerHTML = '✓ Correcto — estación completada. <a href="/">Ver índice</a> para abrir la siguiente.';
+      el.className = 'ok';
+    } else {
+      el.innerHTML = '✗ ' + j.error;
+      el.className = 'fail';
+    }
+  });
+
+  const vsBtn = document.getElementById('vector-search');
+  if (vsBtn) {
+    vsBtn.addEventListener('click', async () => {
+      const query = document.getElementById('vector-query').value;
+      if (!query.trim()) return;
+      const out = document.getElementById('vector-out');
+      out.innerHTML = '<em>Generando embedding y consultando Qdrant... (~5s la primera vez)</em>';
+      const r = await fetch('/search-vectors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, top: 3 })
+      });
+      const j = await r.json();
+      if (j.error) { out.innerHTML = '✗ Error: ' + j.error; return; }
+      out.innerHTML = '<h4>Top 3 testimonios:</h4>' + j.top.map((t, i) =>
+        `<div class="testimony"><strong>#${i+1} · score ${t.score.toFixed(4)}</strong><br>${t.text}</div>`
+      ).join('');
+    });
+  }
+</script>
+
+<%- include('partials/footer') %>

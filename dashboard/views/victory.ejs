@@ -1,0 +1,32 @@
+<%- include('partials/header', { pageTitle: 'Caso cerrado' }) %>
+
+<section class="victory">
+  <h1>🎉 Caso resuelto</h1>
+  <p class="lede">Conectaste 4 paradigmas distintos para encontrar al asesino: relacional → documental → key-value → vectorial. Eso es <strong>bases de datos distribuidas</strong>.</p>
+
+  <div class="stats">
+    <div><strong><%= elapsed ?? '?' %></strong><span>minutos</span></div>
+    <div><strong><%= hints %></strong><span>pistas usadas</span></div>
+    <div><strong><%= progress.completed.length %>/4</strong><span>estaciones</span></div>
+  </div>
+
+  <h2>Resumen de la investigación</h2>
+  <ul class="recap">
+    <li><strong>E0 · PostgreSQL</strong> — leíste el <code>crime_scene_report</code>: 15-Mar, Lab CETEC, asesinato por Cable USB-C, 3 testigos.</li>
+    <li><strong>E1 · PostgreSQL</strong> — JOIN persons + interviews. 2 sospechosos físicos (Sofía Linares y David Hernández).</li>
+    <li><strong>E2 · MongoDB</strong> — Sin auth. Descubriste la colección oculta <code>_evidence_archive</code> con un chat-log que acusa al entrenador del gimnasio.</li>
+    <li><strong>E3 · Redis</strong> — Sin password. <code>KEYS *</code> reveló miles de claves; encontraste la <code>evidence:hidden:trainer_log</code> con testimonio anónimo.</li>
+    <li><strong>E4 · Qdrant</strong> — Búsqueda semántica reveló al verdadero asesino: <strong>Carlos Méndez</strong>, entrenador de Get Fit Now.</li>
+  </ul>
+
+  <h2>Pregunta para tu entregable</h2>
+  <ol class="reflection">
+    <li>Si hubieras puesto TODOS los datos en PostgreSQL, ¿qué problemas habrías tenido? (pista: búsqueda semántica, escalabilidad de logs).</li>
+    <li>¿Por qué tener Redis y MongoDB <em>sin auth</em> es catastrófico en producción aunque "esté dentro de la red privada"?</li>
+    <li>El asesino quedó identificado cruzando 4 motores. ¿Cómo le harías en producción para evitar inconsistencias entre ellos?</li>
+  </ol>
+
+  <a href="/" class="btn">Volver al índice</a>
+</section>
+
+<%- include('partials/footer') %>

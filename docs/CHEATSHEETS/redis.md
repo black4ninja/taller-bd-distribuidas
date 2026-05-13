@@ -1,0 +1,1 @@
+../../dashboard/cheatsheets/redis.md

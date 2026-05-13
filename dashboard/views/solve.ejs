@@ -1,0 +1,61 @@
+<%- include('partials/header', { pageTitle: 'Resolver el caso' }) %>
+<a href="/" class="back">← Volver al índice</a>
+
+<section class="station-detail">
+  <h1>Resolver el caso</h1>
+
+  <% if (locked) { %>
+    <div class="blocked">
+      <p><strong>Bloqueado.</strong> Completa primero las 4 estaciones (E1 → E4) antes de presentar el flag final.</p>
+      <p>Llevas <%= progress.completed.length %>/4.</p>
+    </div>
+  <% } else { %>
+    <p>Con la evidencia recolectada en los 4 motores, completa los 3 campos del flag final:</p>
+
+    <div class="solve-form">
+      <label>Nombre completo del asesino (de E4)
+        <input type="text" id="killer_name" />
+      </label>
+      <label>Arma usada (de la descripción de E0 / crime_scene_report)
+        <input type="text" id="weapon" />
+      </label>
+      <label>Lugar del crimen (de E0 / crime_scene_report)
+        <input type="text" id="location" />
+      </label>
+      <button id="solve-btn" class="btn btn--primary">Cerrar el caso</button>
+      <p id="solve-result"></p>
+    </div>
+  <% } %>
+</section>
+
+<script>
+  const btn = document.getElementById('solve-btn');
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      const payload = {
+        killer_name: document.getElementById('killer_name').value,
+        weapon:      document.getElementById('weapon').value,
+        location:    document.getElementById('location').value
+      };
+      const r = await fetch('/solve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const j = await r.json();
+      const el = document.getElementById('solve-result');
+      if (j.ok) {
+        window.location = '/victory';
+      } else {
+        const f = j.fields || {};
+        el.innerHTML = '✗ Aún hay errores: ' +
+          (f.killer === false ? '<span>asesino</span> ' : '') +
+          (f.weapon === false ? '<span>arma</span> ' : '') +
+          (f.location === false ? '<span>lugar</span>' : '');
+        el.className = 'fail';
+      }
+    });
+  }
+</script>
+
+<%- include('partials/footer') %>

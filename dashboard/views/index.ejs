@@ -1,0 +1,57 @@
+<%- include('partials/header', { pageTitle: 'Inicio' }) %>
+
+<section class="hero">
+  <h1>Crime Scene Investigation: Bases de Datos Distribuidas</h1>
+  <p class="lede">
+    Un investigador del ITESM Campus Monterrey fue encontrado muerto en el Laboratorio CETEC. Antes de morir, el equipo de seguridad distribuyó las evidencias en <strong>4 motores de base de datos distintos</strong>. Tu tarea: reunir las pistas y descubrir al asesino.
+  </p>
+  <p class="lede">
+    Tienes <strong>60 minutos</strong>. No necesitas conocer ningún motor de base de datos por adelantado: cada estación trae un <em>cheatsheet</em>, una UI gráfica y pistas progresivas.
+  </p>
+
+  <div class="meta-bar">
+    <span>Tiempo: <strong><%= elapsed ?? 0 %> min</strong></span>
+    <span>Pistas usadas: <strong><%= hints %></strong></span>
+    <span>Progreso: <strong><%= progress.completed.length %>/4</strong></span>
+  </div>
+</section>
+
+<section class="stations">
+  <h2>Estaciones</h2>
+
+  <div class="station-card station-card--walkthrough">
+    <div class="station-header">
+      <span class="station-id">E0</span>
+      <span class="station-title">Walkthrough — Lee primero</span>
+    </div>
+    <p>Una estación de ejemplo que explica cómo abrir Adminer, ejecutar un SELECT y leer el crime_scene_report. Te toma 5 min y te calibra para las demás.</p>
+    <a class="btn" href="/walkthrough">Abrir walkthrough</a>
+  </div>
+
+  <% stations.forEach((s, i) => { %>
+    <div class="station-card <%= s.completed ? 'station-card--done' : '' %>">
+      <div class="station-header">
+        <span class="station-id"><%= s.id %></span>
+        <span class="station-title"><%= s.title %></span>
+        <% if (s.completed) { %><span class="badge badge--done">✓ Resuelta</span><% } %>
+      </div>
+      <p><strong>Motor:</strong> <%= s.motor %></p>
+      <a class="btn" href="/station/<%= s.id %>">Abrir estación →</a>
+    </div>
+  <% }) %>
+
+  <div class="station-card station-card--final <%= canSolve ? '' : 'station-card--locked' %>">
+    <div class="station-header">
+      <span class="station-id">★</span>
+      <span class="station-title">Resolver el caso</span>
+    </div>
+    <% if (canSolve) { %>
+      <p>Tienes todas las pistas. Ingresa el asesino, el arma y el lugar para cerrar el caso.</p>
+      <a class="btn btn--primary" href="/solve">Submit final →</a>
+    <% } else { %>
+      <p>Bloqueado. Completa las 4 estaciones para desbloquear el submit final.</p>
+    <% } %>
+  </div>
+</section>
+
+<%- include('partials/footer') %>
