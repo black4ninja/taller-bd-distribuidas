@@ -12,7 +12,7 @@
     </div>
   <% } else { %>
     <div class="narrative">
-      <%- intro.narrative.split('\n').map(p => `<p>${p}</p>`).join('') %>
+      <%- intro.narrative_html %>
     </div>
 
     <div class="links">

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { marked } from 'marked';
 import { STATIONS, checkStation } from '../lib/validators.js';
 import { getProgress, saveProgress, markCompleted, ALL_STATIONS } from '../lib/progress.js';
 
@@ -28,7 +29,7 @@ El reporte oficial menciona a 3 testigos identificados por su dirección o núme
 Los 2 sospechosos están en redes sociales. Verifica sus coartadas en la colección \`social_posts\` (base \`investigation\`).
 Vas a ver que ambos tienen alibis sólidos esa noche — no son ellos.
 
-**El detalle clave**: mongo-express está corriendo SIN AUTENTICACIÓN. Aprovecha esto para explorar TODAS las colecciones (no solo las "públicas"). Hay una con datos que el investigador no documentó.
+**El detalle clave**: mongo-express está corriendo SIN AUTENTICACIÓN — cualquiera con acceso a la red puede ver TODAS las colecciones, incluyendo las que el equipo nunca documentó públicamente. No están "ocultas": están expuestas porque nadie configuró auth. Aprovecha esto y revisa todas las colecciones (las que empiezan con \`_\` son una pista visual de que son internas).
 
 **Submit**: el nombre EXACTO de una clave de Redis mencionada en la pista que encontraste.`
   },
@@ -71,7 +72,7 @@ router.get('/station/:id', (req, res) => {
   res.render('station', {
     id,
     title: station.title,
-    intro,
+    intro: { ...intro, narrative_html: marked.parse(intro.narrative) },
     progress,
     blockedBy: blockedBy || null,
     showVectorWidget: id === 'E4'

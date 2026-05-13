@@ -2,20 +2,25 @@
 
 > Redis guarda pares **clave → valor**. Las claves son strings (suelen usar `:` como separador jerárquico, ej. `usuario:42:nombre`).
 
-## Conexión vía RedisInsight
+## Conexión vía RedisInsight (paso a paso, primera vez)
 
 http://localhost:8083
 
-1. Click en "Add Redis Database".
-2. Selecciona "Connect to a Redis Database" → "Manually configure".
-3. Datos:
+1. **EULA**: la primera vez te muestra una pantalla de licencia. Acepta los términos (puedes desactivar el envío de analytics si quieres). Click "Submit".
+2. **Welcome screen** → click el botón "**+ Add Redis databases**" (arriba a la derecha) o "Add Database Manually" si lo ves.
+3. Si te ofrece "**Use pre-configured databases**" o autodiscovery, **ignóralo** y usa "**Add Database Manually**".
+4. Llena el formulario:
    ```
-   Host:     redis
-   Port:     6379
-   Password: (déjalo vacío — sin password, intencional para el taller)
-   Alias:    investigation
+   Host:                   redis
+   Port:                   6379
+   Database Alias:         investigation
+   Username:               (déjalo vacío)
+   Password:               (déjalo vacío — sin password, intencional para el taller)
    ```
-4. Click "Test connection" → debe pasar. Luego "Add Redis Database".
+5. Click "**Test Connection**". Debe mostrar "Connection is successful" en verde.
+6. Click "**Add Database**".
+7. Te lleva a la lista de DBs. Click el alias "**investigation**" para entrar.
+8. Una vez dentro, usa la pestaña "**Workbench**" (icono de consola) para correr comandos, o "**Browser**" para navegar keys con UI.
 
 ## Comandos esenciales
 

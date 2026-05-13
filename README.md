@@ -1,12 +1,14 @@
 # Taller · Crime Scene Investigation: Bases de Datos Distribuidas
 
-> Taller práctico de **1 hora** para introducir bases de datos distribuidas a alumnos **sin conocimiento previo** de PostgreSQL, MongoDB, Redis ni motores vectoriales. Resuelves un caso de homicidio que tiene las evidencias repartidas en 4 motores.
+> Taller práctico para introducir bases de datos distribuidas a alumnos **sin conocimiento previo** de PostgreSQL, MongoDB, Redis ni motores vectoriales. Resuelves un caso de homicidio que tiene las evidencias repartidas en 4 motores.
+>
+> **Duración**: 60 min para alumnos con base técnica · **70-80 min** es lo realista para alumnos sin experiencia previa con estos motores.
 
 ---
 
 ## Para el alumno: lee primero
 
-1. Tienes **60 minutos**.
+1. Tienes **60-80 minutos** según tu experiencia previa.
 2. **No necesitas saber** los motores de antemano. El taller te enseña mientras juegas.
 3. Vas a usar 5 interfaces web (todas locales): el dashboard del taller + 4 UIs gráficas para cada motor.
 4. Si te atoras, cada estación tiene **3 pistas progresivas**. Úsalas sin culpa.
@@ -17,7 +19,7 @@
 Requisitos: Docker Desktop o Docker Engine con `docker compose` v2+.
 
 ```bash
-git clone <este-repo>
+git clone https://github.com/black4ninja/taller-bd-distribuidas.git
 cd taller-bd-distribuidas
 docker compose up -d
 ```
