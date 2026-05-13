@@ -7,17 +7,19 @@ export const HINTS = {
   E1: {
     1: 'Abre Adminer en http://localhost:8081 (servidor: postgres, usuario: pg, pass: pg, db: investigation). ' +
        'Hay 3 tablas: crime_scene_report, persons, interviews. El crime_scene_report describe la dirección de 3 testigos.',
-    2: 'Necesitas un JOIN entre persons e interviews filtrando por dirección y por gym_member_id=14782. ' +
-       'Una vez tengas las entrevistas, las descripciones físicas que mencionan los testigos coinciden con la columna "notes" de otras personas (sospechosos).',
+    2: 'Necesitas un JOIN entre persons e interviews filtrando por dirección (las primeras 2 testigos) y por gym_member_id (la tercera — fíjate en el número que aparece en el crime_scene_report). ' +
+       'Una vez tengas las 3 entrevistas, las descripciones físicas mencionan a 2 sospechosos. La 3ra entrevista abre un hilo distinto (lee la palabra "entrenador").',
     3: '```sql\n' +
        'SELECT p.name, i.transcript\n' +
        'FROM persons p\n' +
        'JOIN interviews i ON i.person_id = p.id\n' +
        'WHERE p.address LIKE \'Calle Tecnológico%\'\n' +
        '   OR p.address LIKE \'Av. Eugenio Garza Sada%\'\n' +
-       '   OR p.gym_member_id = 14782;\n' +
+       '   OR p.gym_member_id = 14730;\n' +
        '```\n\n' +
-       'Luego, para sospechosos:\n' +
+       'Lee LAS TRES entrevistas con cuidado — incluyendo la de Diana (la tercera). ' +
+       'Las dos primeras dan descripciones físicas que llevan a 2 sospechosos visibles. La tercera abre un hilo distinto (la palabra clave es "entrenador") que vas a explotar en E2.\n\n' +
+       'Para sospechosos físicos:\n' +
        '```sql\n' +
        'SELECT name FROM persons WHERE notes ILIKE \'%rubio%\' OR notes ILIKE \'%rubia%\' OR notes ILIKE \'%barba%\';\n' +
        '```\n' +

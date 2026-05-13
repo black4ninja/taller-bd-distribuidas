@@ -36,7 +36,7 @@ SELECT * FROM persons WHERE address LIKE 'Av. Eugenio%';
 SELECT * FROM persons WHERE notes ILIKE '%barba%';
 
 -- Filtrar por valor numérico
-SELECT * FROM persons WHERE gym_member_id = 14782;
+SELECT * FROM persons WHERE gym_member_id = 14730;
 ```
 
 ## JOIN: conectar persons con interviews
@@ -45,7 +45,7 @@ SELECT * FROM persons WHERE gym_member_id = 14782;
 SELECT p.name, p.address, i.transcript
 FROM persons p
 JOIN interviews i ON i.person_id = p.id
-WHERE p.gym_member_id = 14782
+WHERE p.gym_member_id = 14730
    OR p.address LIKE 'Calle Tecnológico%'
    OR p.address LIKE 'Av. Eugenio Garza Sada%';
 ```

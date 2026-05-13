@@ -26,13 +26,15 @@ El reporte oficial menciona a 3 testigos identificados por su dirección o núme
     ui_label: 'mongo-express',
     cheatsheet: 'mongo',
     narrative: `
-Tienes 2 sospechosos físicos. Antes de acusar a alguien, verifica sus coartadas y busca quién tenía REAL motivo. Usa la base \`investigation\` en mongo-express.
+Tienes 2 sospechosos físicos (Sofía y David). Pero **relee la entrevista de Diana** — la tercera testigo: ella menciona específicamente al **entrenador personal de la víctima** "muy alterado, diciendo que iba a arreglar las cosas esa noche". Ese hilo es lo que vas a investigar en MongoDB.
 
-**Tarea 1 (alibis)**: filtra la colección \`social_posts\` para ver dónde estaban Sofía y David el 15 de marzo entre 22:00 y 23:30. Vas a confirmar que ambos tienen alibis sólidos — no son ellos.
+Usa mongo-express en la base \`investigation\`.
 
-**Tarea 2 (el verdadero culpable)**: la colección \`gym_members\` modela una relación 1-a-muchos donde cada entrenador tiene un campo \`clients\` que es un ARRAY con los \`member_id\` de sus clientes. La víctima tiene \`member_id: 14782\`. Encuentra al entrenador cuyo array \`clients\` contiene 14782. Eso te da al asesino.
+**Tarea 1 (alibis)**: filtra la colección \`social_posts\` por usuario. Los usernames siguen el patrón \`nombre_apellido\` en minúsculas (ej. \`sofia_linares\`, \`david_hernandez\`). Vas a confirmar que ambos sospechosos tienen alibis sólidos esa noche — no son ellos.
 
-**Pista de vulnerabilidad**: mongo-express corre sin auth (intencional). Si quieres más contexto sobre el motivo, revisa también la colección \`_evidence_archive\` — está expuesta porque nadie configuró autenticación.
+**Tarea 2 (el verdadero culpable — gating)**: en la colección \`gym_members\`, los entrenadores tienen un campo \`clients\` que es un ARRAY con los \`member_id\` de sus clientes. La víctima (Dr. Aguilar) tiene \`member_id: 14782\`. Encuentra al entrenador cuyo array \`clients\` contiene 14782 usando un filtro JSON. Eso te da al asesino.
+
+**Pista de vulnerabilidad**: mongo-express corre sin auth (intencional). Si quieres más contexto sobre el motivo (chat-log entre la víctima y un amigo, background check del sospechoso), revisa la colección \`_evidence_archive\` — está expuesta porque nadie configuró autenticación.
 
 **Submit**: el \`member_id\` (4 dígitos) del entrenador asesino.`
   },

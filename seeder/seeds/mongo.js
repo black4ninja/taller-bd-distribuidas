@@ -32,14 +32,15 @@ const SOCIAL_POSTS = [
 const GYM_MEMBERS = [
   { member_id: 14782, name: 'Ernesto Aguilar',  trainer_id: 9001, status: 'deceased',   join_date: '2024-01-15' },
   { member_id: 9001,  name: 'Carlos Méndez',    role: 'trainer',  status: 'active',     join_date: '2022-03-10', clients: [14782, 14745, 14790, 14820, 14760] },
-  { member_id: 9050,  name: 'Roberto Silva',    role: 'trainer',  status: 'active',     join_date: '2023-08-01', clients: [14801, 14810] },
+  { member_id: 9050,  name: 'Roberto Silva',    role: 'trainer',  status: 'active',     join_date: '2023-08-01', clients: [14801, 14810, 14730] },
   { member_id: 14745, name: 'Paola Gutierrez',  trainer_id: 9001, status: 'active',     join_date: '2024-06-20' },
   { member_id: 14820, name: 'Jorge Tapia',      trainer_id: 9001, status: 'active',     join_date: '2025-01-05' },
   { member_id: 14790, name: 'Brenda Ochoa',     trainer_id: 9001, status: 'active',     join_date: '2024-11-12' },
   { member_id: 14760, name: 'Karen Beltrán',    trainer_id: 9001, status: 'active',     join_date: '2024-09-01' },
   { member_id: 14755, name: 'Daniela Núñez',    trainer_id: 9050, status: 'active',     join_date: '2024-04-08' },
   { member_id: 14801, name: 'Andrea Ríos',      trainer_id: 9050, status: 'active',     join_date: '2024-02-14' },
-  { member_id: 14810, name: 'Lucía Domínguez',  trainer_id: 9050, status: 'active',     join_date: '2024-05-22' }
+  { member_id: 14810, name: 'Lucía Domínguez',  trainer_id: 9050, status: 'active',     join_date: '2024-05-22' },
+  { member_id: 14730, name: 'Diana Castro',     trainer_id: 9050, status: 'active',     join_date: '2024-03-01' }
 ];
 
 // Coleccion OCULTA — no se menciona en el dashboard ni en cheatsheets.

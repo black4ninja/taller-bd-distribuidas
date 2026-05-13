@@ -11,7 +11,7 @@ const PERSONS = [
   // Testigos identificados en crime_scene_report
   { name: 'Mauricio Robles',  address: 'Calle Tecnológico 1, Col. Tecnológico',    gym_member_id: null,  occupation: 'Profesor',     notes: 'Saca a pasear a su perro todas las noches' },
   { name: 'Laura Salinas',    address: 'Av. Eugenio Garza Sada 2300',              gym_member_id: null,  occupation: 'Doctora',      notes: 'Vecina del campus' },
-  { name: 'Diana Castro',     address: 'Calle Junco de la Vega 87',                gym_member_id: 14782, occupation: 'Estudiante',   notes: 'Asiste al gimnasio Get Fit Now' },
+  { name: 'Diana Castro',     address: 'Calle Junco de la Vega 87',                gym_member_id: 14730, occupation: 'Estudiante',   notes: 'Asiste al gimnasio Get Fit Now' },
 
   // Sospechosos visibles desde las entrevistas (E1) — INOCENTES (descartados en E2 por alibi)
   { name: 'Sofía Linares',    address: 'Av. Universidad 100',                      gym_member_id: null,  occupation: 'Estudiante',   notes: 'cabello rubio, suéter rosa frecuente, estudiante de Diseño' },
@@ -36,7 +36,7 @@ const PERSONS = [
   { name: 'Felipe Aragón',    address: 'Av. Lázaro Cárdenas 1100',                 gym_member_id: null,  occupation: 'Mecánico',     notes: 'delgado' },
   { name: 'Daniela Núñez',    address: 'Calle Zaragoza 60',                        gym_member_id: 14755, occupation: 'Periodista',   notes: 'usa lentes' },
   { name: 'Iván Lozano',      address: 'Av. Cuauhtémoc 880',                       gym_member_id: null,  occupation: 'Chef',         notes: null },
-  { name: 'Cecilia Rangel',   address: 'Calle Galeana 220',                        gym_member_id: 14801, occupation: 'Veterinaria',  notes: null },
+  { name: 'Cecilia Rangel',   address: 'Calle Galeana 220',                        gym_member_id: 14770, occupation: 'Veterinaria',  notes: null },
   { name: 'Tomás Fuentes',    address: 'Av. Pino Suárez 70',                       gym_member_id: null,  occupation: 'Plomero',      notes: 'tatuajes visibles' },
   { name: 'Karen Beltrán',    address: 'Calle Independencia 12',                   gym_member_id: 14760, occupation: 'Maestra',      notes: null },
   { name: 'Oscar Méndez',     address: 'Calle Hidalgo 90',                         gym_member_id: null,  occupation: 'Taxista',      notes: 'hermano del entrenador Carlos Méndez' },
@@ -110,7 +110,7 @@ export async function seedPostgres(log) {
       'Se identificaron tres testigos durante el levantamiento: ' +
       '(1) El primer testigo vive en la primera casa de Calle Tecnológico (Col. Tecnológico). ' +
       '(2) La segunda testigo reside en Av. Eugenio Garza Sada 2300. ' +
-      '(3) La tercera testigo es miembro #14782 del gimnasio "Get Fit Now". ' +
+      '(3) La tercera testigo es miembro #14730 del gimnasio "Get Fit Now". ' +
       'Recolectar entrevistas de los tres y cruzar nombres con sus descripciones físicas.'
     ]
   );
