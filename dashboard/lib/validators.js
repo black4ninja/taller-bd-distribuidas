@@ -32,9 +32,9 @@ export const STATIONS = {
     error_hint: 'Revisa las entrevistas en PostgreSQL. Hay 2 sospechosos físicos descritos por los testigos.'
   },
   E2: {
-    title: 'MongoDB — La colección oculta',
-    accept: ['evidence:hidden:trainer_log'],
-    error_hint: 'La respuesta es el nombre EXACTO de una clave de Redis mencionada en la pista del archivo oculto.'
+    title: 'MongoDB — Alibis y el entrenador',
+    accept: ['9001'],
+    error_hint: 'La respuesta es el member_id (4 dígitos) del entrenador cuyo array clients contiene a la víctima.'
   },
   E3: {
     title: 'Redis — La pista del informante',

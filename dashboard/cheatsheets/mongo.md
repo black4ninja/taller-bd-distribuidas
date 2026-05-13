@@ -25,12 +25,26 @@ mongo-express acepta filtros en formato JSON. Ejemplos:
 // Documentos de un usuario específico
 {"user": "sofia_linares"}
 
-// Posts del 15 de marzo
+// Posts del 15 de marzo (regex sobre string ISO)
 {"timestamp": {"$regex": "^2026-03-15"}}
 
 // Tipo específico
 {"type": "chat_log"}
+
+// Buscar un valor DENTRO de un array
+// (encuentra documentos donde el campo "clients" contiene 14782)
+{"clients": 14782}
+
+// Combinar condiciones (AND implícito)
+{"user": "sofia_linares", "location": {"$regex": "Cancún"}}
+
+// Posts en un rango de fechas
+{"timestamp": {"$gte": "2026-03-15T22:00", "$lt": "2026-03-15T23:30"}}
 ```
+
+**Detalle clave**: cuando el campo es un array (ej. `clients: [14782, 14745]`),
+filtrar por `{"campo": valor}` busca *dentro* del array. Esto es una de las
+razones para usar MongoDB sobre SQL: ahorra una tabla intermedia.
 
 ## Ver TODAS las colecciones (incluyendo ocultas)
 

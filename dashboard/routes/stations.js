@@ -26,12 +26,15 @@ El reporte oficial menciona a 3 testigos identificados por su dirección o núme
     ui_label: 'mongo-express',
     cheatsheet: 'mongo',
     narrative: `
-Los 2 sospechosos están en redes sociales. Verifica sus coartadas en la colección \`social_posts\` (base \`investigation\`).
-Vas a ver que ambos tienen alibis sólidos esa noche — no son ellos.
+Tienes 2 sospechosos físicos. Antes de acusar a alguien, verifica sus coartadas y busca quién tenía REAL motivo. Usa la base \`investigation\` en mongo-express.
 
-**El detalle clave**: mongo-express está corriendo SIN AUTENTICACIÓN — cualquiera con acceso a la red puede ver TODAS las colecciones, incluyendo las que el equipo nunca documentó públicamente. No están "ocultas": están expuestas porque nadie configuró auth. Aprovecha esto y revisa todas las colecciones (las que empiezan con \`_\` son una pista visual de que son internas).
+**Tarea 1 (alibis)**: filtra la colección \`social_posts\` para ver dónde estaban Sofía y David el 15 de marzo entre 22:00 y 23:30. Vas a confirmar que ambos tienen alibis sólidos — no son ellos.
 
-**Submit**: el nombre EXACTO de una clave de Redis mencionada en la pista que encontraste.`
+**Tarea 2 (el verdadero culpable)**: la colección \`gym_members\` modela una relación 1-a-muchos donde cada entrenador tiene un campo \`clients\` que es un ARRAY con los \`member_id\` de sus clientes. La víctima tiene \`member_id: 14782\`. Encuentra al entrenador cuyo array \`clients\` contiene 14782. Eso te da al asesino.
+
+**Pista de vulnerabilidad**: mongo-express corre sin auth (intencional). Si quieres más contexto sobre el motivo, revisa también la colección \`_evidence_archive\` — está expuesta porque nadie configuró autenticación.
+
+**Submit**: el \`member_id\` (4 dígitos) del entrenador asesino.`
   },
   E3: {
     motor: 'Redis (key-value, en memoria)',
@@ -39,10 +42,13 @@ Vas a ver que ambos tienen alibis sólidos esa noche — no son ellos.
     ui_label: 'RedisInsight',
     cheatsheet: 'redis',
     narrative: `
-Tienes el nombre de una clave. Pero Redis también está SIN PASSWORD — cualquiera con acceso a la red puede listar TODAS las claves con \`KEYS *\`.
-Conéctate, encuentra la clave y lee su valor (es JSON).
+Tienes el \`member_id\` del entrenador asesino (un número de 4 dígitos). El sistema de seguridad del gimnasio guarda check-ins en Redis con el patrón normal \`gym:checkin:trainer:<id>:<fecha>:<hora>\`.
 
-**Submit**: el nombre EXACTO de la collection en Qdrant que la nota interna te indica consultar.`
+Pero alguien dejó una clave **fuera del patrón estándar**: empieza con \`evidence:\` en lugar de \`gym:\`. Redis corre SIN PASSWORD (cualquiera con acceso a la red puede listar todas las claves), así que puedes encontrarla con \`KEYS evidence:*\`. Hay solo una.
+
+Lee su valor (es JSON con varios campos). Adentro, un campo apunta al SIGUIENTE motor.
+
+**Submit**: el nombre EXACTO de la collection vectorial en Qdrant que la nota interna te indica consultar.`
   },
   E4: {
     motor: 'Qdrant (vectorial)',

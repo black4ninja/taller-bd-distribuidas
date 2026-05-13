@@ -26,21 +26,29 @@ export const HINTS = {
 
   E2: {
     1: 'Abre mongo-express en http://localhost:8082 (sin login — vulnerabilidad intencional). ' +
-       'Hay una base "investigation". Revisa todas las colecciones (no solo las obvias).',
-    2: 'social_posts muestra que ambos sospechosos tienen alibi (Cancún / oficina). ' +
-       'Pero hay UNA colección cuyo nombre empieza con guión bajo "_" — esas suelen ser ocultas en convenciones de Mongo. Ábrela.',
-    3: 'La colección oculta es `_evidence_archive`. Abre los 3 documentos. ' +
-       'El documento `evidence_hint` contiene textualmente el nombre exacto de una clave de Redis que comienza con `evidence:`. ' +
-       'Ese nombre completo (con los dos puntos) es la respuesta a esta estación.'
+       'En la base "investigation" hay 3 colecciones: social_posts, gym_members y _evidence_archive. ' +
+       'Para la respuesta principal vas a trabajar con gym_members.',
+    2: 'En gym_members, los entrenadores tienen un campo `clients` que es un ARRAY con los member_id de sus clientes. ' +
+       'La víctima tiene member_id 14782. Necesitas encontrar al entrenador cuyo array `clients` contenga 14782. ' +
+       'En mongo-express, dentro de gym_members, usa el cuadro "search" arriba de la lista de documentos y pega un filtro JSON.',
+    3: 'En la barra de búsqueda de gym_members pega exactamente este filtro JSON:\n' +
+       '```json\n' +
+       '{"clients": 14782}\n' +
+       '```\n' +
+       'MongoDB busca el valor 14782 DENTRO del array clients de cada documento. ' +
+       'Te devolverá UN solo documento — el del asesino. Su campo `member_id` (4 dígitos) es la respuesta.\n\n' +
+       'Bonus opcional (alibis): en social_posts puedes pegar `{"user": "sofia_linares"}` o `{"user": "david_hernandez"}` para ver que ambos tienen alibi.'
   },
 
   E3: {
-    1: 'Abre RedisInsight en http://localhost:8083. Agrega una base de datos: Host=redis, Port=6379, sin password. ' +
-       'Una vez conectado, vas a ver cientos de keys distintas.',
-    2: 'El nombre exacto de la key te lo dio MongoDB en la estación anterior. Búscala directamente con GET o usando el filtro. ' +
-       'Su valor es un JSON con varios campos.',
-    3: 'En RedisInsight ejecuta:\n' +
+    1: 'Abre RedisInsight en http://localhost:8083. Sigue los pasos del cheatsheet para agregar la BD (Host=redis, Port=6379, sin password). ' +
+       'Hay cientos de keys; la mayoría son `gym:checkin:*` y otras "normales".',
+    2: 'La key del testimonio NO sigue el patrón normal del gimnasio. Empieza con `evidence:`. ' +
+       'En el Workbench de RedisInsight ejecuta `KEYS evidence:*` para listar SOLO las keys de ese patrón. ' +
+       'Hay exactamente UNA. Luego haz GET de esa key.',
+    3: 'En el Workbench ejecuta:\n' +
        '```\n' +
+       'KEYS evidence:*\n' +
        'GET evidence:hidden:trainer_log\n' +
        '```\n' +
        'El JSON resultante tiene un campo `instructions_for_investigator` que menciona el NOMBRE EXACTO de una collection en Qdrant ' +
