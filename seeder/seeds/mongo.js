@@ -58,10 +58,11 @@ const EVIDENCE_ARCHIVE = [
   {
     type: 'evidence_hint',
     classification: 'investigator_note',
+    redis_key: 'evidence:hidden:trainer_log',
     content:
       'Para confirmar el caso contra el entrenador Carlos Méndez (gym_member_id 9001) revisa los logs de check-in del gimnasio en Redis. ' +
-      'Hay una clave inusual fuera del patrón "gym:checkin:*" que contiene el testimonio anónimo que recibimos hoy. ' +
-      'Pista: el patrón empieza con "evidence:".'
+      'El testimonio anónimo que recibimos hoy quedó guardado FUERA del patrón gym:checkin:* en la clave exacta: evidence:hidden:trainer_log. ' +
+      'Cópiala literal cuando hagas GET en Redis.'
   },
   {
     type: 'background_check',
