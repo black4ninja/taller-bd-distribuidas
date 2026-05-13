@@ -6,9 +6,11 @@
 
 http://localhost:8083
 
-1. **EULA**: la primera vez te muestra una pantalla de licencia. Acepta los términos (puedes desactivar el envío de analytics si quieres). Click "Submit".
-2. **Welcome screen** → click el botón "**+ Add Redis databases**" (arriba a la derecha) o "Add Database Manually" si lo ves.
-3. Si te ofrece "**Use pre-configured databases**" o autodiscovery, **ignóralo** y usa "**Add Database Manually**".
+1. **EULA** (sólo la primera vez): si te aparece pantalla de licencia, acepta los términos. Puedes desactivar el envío de analytics si quieres. Click "Submit".
+2. **Pantalla "Redis Databases"** (vacía, dice "No databases yet, let's add one!").
+   - **NO** uses "Create free Cloud database" — eso requiere cuenta en Redis Cloud y no es lo que queremos.
+   - Click "**+ Add Redis database**" (botón grande en el centro) **o** "**+ Connect existing database**" (arriba). Ambos llevan al mismo formulario.
+3. **Si te muestra un selector** con opciones tipo "Redis Cloud / Redis Software / Redis Open Source", elige la opción para conectar a una BD que ya está corriendo (Redis Open Source / "Connect to your Redis database"). Si te muestra directamente el formulario, salta este paso.
 4. Llena el formulario:
    ```
    Host:                   redis
@@ -17,10 +19,10 @@ http://localhost:8083
    Username:               (déjalo vacío)
    Password:               (déjalo vacío — sin password, intencional para el taller)
    ```
-5. Click "**Test Connection**". Debe mostrar "Connection is successful" en verde.
-6. Click "**Add Database**".
+5. Click "**Test Connection**" (si el botón existe). Debe mostrar "Connection is successful" en verde.
+6. Click "**Add Redis database**" o "**Add Database**".
 7. Te lleva a la lista de DBs. Click el alias "**investigation**" para entrar.
-8. Una vez dentro, usa la pestaña "**Workbench**" (icono de consola) para correr comandos, o "**Browser**" para navegar keys con UI.
+8. Una vez dentro, usa la pestaña "**Workbench**" (icono de consola, ⚡) para correr comandos como `KEYS *` o `GET <key>`. Alternativa: pestaña "**Browser**" para navegar keys con UI.
 
 ## Comandos esenciales
 
