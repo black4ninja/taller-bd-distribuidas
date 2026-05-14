@@ -50,13 +50,13 @@ Los posts sociales y los miembros del gimnasio son **datos semi-estructurados co
 
 Si esto fuera SQL: \`ALTER TABLE\` cada vez que un post agregue un campo opcional, JOIN obligatorio para arrays de clientes, performance degrada con escala.`,
     narrative: `
-Identificaste a dos sospechosos físicos. Antes de ir tras ellos, hay que **verificar si tenían dónde estar la noche del crimen**. Los dos están activos en redes sociales y todo el mundo del gimnasio del campus tiene perfil ahí — esa información vive en un sistema documental, distinto al padrón policial: ahí caben posts con fotos, ubicaciones, listas de clientes por entrenador, conversaciones.
+Identificaste a dos sospechosos físicos. Antes de ir tras ellos hay que **verificar si tenían coartada esa noche** — y eso vive en un sistema documental separado del padrón policial: ahí están las redes sociales y los registros del gimnasio del campus, donde caben posts con fotos, ubicaciones, listas de clientes por entrenador, conversaciones.
 
-Si verificas las coartadas de tus dos sospechosos y encuentras que ambos tienen dónde estar... vas a tener que **regresar mentalmente al expediente y releer la declaración de la tercera testigo**. Ella mencionó a alguien específico — no a un sospechoso físico, sino a una **persona del entorno de la víctima** que estaba alterada esa noche y dijo que iba a "arreglar las cosas". Ese hilo no lo seguiste antes.
+Si las coartadas de tus dos sospechosos resultan sólidas, vas a tener que **regresar al expediente y releer la declaración de la tercera testigo**. Ella mencionó a alguien específico — no a un sospechoso físico, sino a una **persona del entorno de la víctima** que estaba alterada esa noche diciendo que iba a "arreglar las cosas". Tu siguiente paso: **identificar quién era exactamente el entrenador personal de la víctima**.
 
-El reporte público del caso confirma que la víctima era cliente regular del gimnasio Get Fit Now. Tu siguiente paso es **identificar quién era exactamente su entrenador personal**.
+**Detalle clave (vulnerabilidad real explotable)**: el servicio MongoDB del campus está corriendo **SIN autenticación**. El equipo de Fiscalía te dio acceso de shell vía la herramienta que ves abajo en esta página. **El sistema tiene más de 250 personas registradas y cientos de posts** — no vas a poder navegarlo visualmente. Tienes que **ejecutar queries reales** para extraer la información que necesitas.
 
-**Detalle clave (vulnerabilidad real)**: el servicio de MongoDB del campus está corriendo SIN autenticación — un error real de configuración del equipo de TI. Eso significa que puedes ver **todas las colecciones de datos**, no solo las que el equipo expuso oficialmente. Una de ellas — fuera del listado público — guarda chat-logs internos y reportes que te dan contexto del motivo del crimen.
+Hay además una colección oculta (fuera del listado público) con chat-logs y reportes que te dan contexto del motivo, también accesible porque no hay autenticación.
 
 **Submit**: el número de cliente (4 dígitos) del entrenador personal de la víctima.`
   },
@@ -133,7 +133,8 @@ router.get('/station/:id', (req, res) => {
     },
     progress,
     blockedBy: blockedBy || null,
-    showVectorWidget: id === 'E4'
+    showVectorWidget: id === 'E4',
+    showMongoShell: id === 'E2'
   });
 });
 

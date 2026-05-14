@@ -57,6 +57,19 @@
       <div id="hint-out" class="hint-out"></div>
     </div>
 
+    <% if (showMongoShell) { %>
+      <div class="case-file__section">
+        <h3>Shell de MongoDB (acceso vía servicio sin auth)</h3>
+        <div class="vector-widget">
+          <p class="muted">El servicio MongoDB del campus no requiere autenticación — tienes shell access. Métodos permitidos: <code>find</code>, <code>findOne</code>, <code>countDocuments</code>, <code>aggregate</code>, <code>distinct</code>. Colecciones disponibles: <code>gym_members</code>, <code>social_posts</code>, <code>_evidence_archive</code>. Los resultados se limitan a 100 docs.</p>
+          <p class="muted">Ejemplo: <code>db.gym_members.countDocuments({})</code></p>
+          <textarea id="mongo-query" rows="3" placeholder="db.gym_members.find({...})"></textarea>
+          <button id="mongo-run">Ejecutar query</button>
+          <div id="mongo-out"></div>
+        </div>
+      </div>
+    <% } %>
+
     <% if (showVectorWidget) { %>
       <div class="case-file__section">
         <h3>Búsqueda semántica en archivo de testimonios</h3>
@@ -118,6 +131,37 @@
       el.className = 'fail';
     }
   });
+
+  const mongoBtn = document.getElementById('mongo-run');
+  if (mongoBtn) {
+    function highlightJSON(text) {
+      return text.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/"([^"\\]*(?:\\.[^"\\]*)*)"(\s*:)/g, '<span style="color:#b8261c">"$1"</span>$2')
+        .replace(/:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/g, ': <span style="color:#2e7d32">"$1"</span>')
+        .replace(/\b(true|false|null)\b/g, '<span style="color:#8b6f10">$1</span>')
+        .replace(/(:\s*)(-?\d+(?:\.\d+)?)/g, '$1<span style="color:#8b6f10">$2</span>');
+    }
+    mongoBtn.addEventListener('click', async () => {
+      const query = document.getElementById('mongo-query').value;
+      if (!query.trim()) return;
+      const out = document.getElementById('mongo-out');
+      out.innerHTML = '<em>Ejecutando...</em>';
+      const r = await fetch('/mongo-shell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query })
+      });
+      const j = await r.json();
+      if (!j.ok) { out.innerHTML = '<pre style="color:#b8261c">✗ ' + (j.error || 'error') + '</pre>'; return; }
+      const meta = j.truncated
+        ? `<p class="muted">Mostrando primeros ${j.count} resultados (truncado a 100). Refina tu filtro para acotar.</p>`
+        : `<p class="muted">${j.count} resultado${j.count===1?'':'s'}.</p>`;
+      out.innerHTML = meta + '<pre>' + highlightJSON(JSON.stringify(j.result, null, 2)) + '</pre>';
+    });
+    document.getElementById('mongo-query').addEventListener('keydown', e => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') mongoBtn.click();
+    });
+  }
 
   const vsBtn = document.getElementById('vector-search');
   if (vsBtn) {

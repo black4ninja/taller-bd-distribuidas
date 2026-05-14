@@ -10,6 +10,7 @@ import hintsRouter from './routes/hints.js';
 import solveRouter from './routes/solve.js';
 import cheatsheetRouter from './routes/cheatsheet.js';
 import searchRouter from './routes/search.js';
+import mongoShellRouter from './routes/mongo-shell.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -64,6 +65,7 @@ app.use(hintsRouter);
 app.use(solveRouter);
 app.use(cheatsheetRouter);
 app.use(searchRouter);
+app.use(mongoShellRouter);
 
 app.use((req, res) => {
   res.status(404).render('404');
