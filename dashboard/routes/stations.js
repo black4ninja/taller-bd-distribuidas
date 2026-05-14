@@ -12,7 +12,8 @@ import {
   decrementCredibility,
   getPlayer,
   hintLevelUnlocked,
-  HINT_UNLOCK_SECONDS
+  HINT_UNLOCK_SECONDS,
+  checkAndApplyTimeout
 } from '../lib/game-state.js';
 
 const router = Router();
@@ -147,6 +148,7 @@ router.get('/station/:id', (req, res) => {
   if (!station || !intro) return res.status(404).send('Estación no existe');
 
   const pid = req.playerId;
+  checkAndApplyTimeout(pid);
   const player = getPlayer(pid);
 
   // Si game over, mostrar el screen de game over (no la estación)
@@ -189,10 +191,11 @@ router.get('/station/:id', (req, res) => {
 router.post('/station/:id/check', (req, res) => {
   const id = req.params.id.toUpperCase();
   const pid = req.playerId;
+  checkAndApplyTimeout(pid);
   const player = getPlayer(pid);
 
   if (player?.game_over) {
-    return res.status(403).json({ ok: false, game_over: true, error: 'Caso cerrado: credibilidad agotada.' });
+    return res.status(403).json({ ok: false, game_over: true, game_over_reason: player.game_over_reason, error: 'Caso cerrado.' });
   }
   // Bloqueo de orden
   const blockedBy = previousStationBlocking(pid, id);

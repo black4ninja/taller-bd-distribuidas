@@ -950,6 +950,74 @@ pre code { background: transparent; padding: 0; }
 
 .hud__chip--time { color: #c5a850; }
 .hud__chip--prog { color: #4ade80; }
+.hud__chip--dev {
+  background: #2a2a3a;
+  border-color: #6b6bff;
+  color: #b4b4ff;
+  cursor: pointer;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+.hud__chip--dev:hover { background: #3a3a52; color: #d4d4ff; }
+
+/* ─── Bomba countdown (slider con bomba que retrocede) ─── */
+.hud__bomb {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.7rem;
+  background: #2a2520;
+  border: 1px solid #44402c;
+  border-radius: 4px;
+  min-width: 220px;
+}
+.hud__bomb-time {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.82rem;
+  color: #c5a850;
+  letter-spacing: 0.04em;
+  min-width: 65px;
+  text-align: right;
+}
+.hud__bomb-track {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  background: #1a1a1a;
+  border-radius: 5px;
+  overflow: visible;
+}
+.hud__bomb-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #4ade80 0%, #c5a850 70%, #b8261c 100%);
+  border-radius: 5px;
+  transition: width 1s linear;
+}
+.hud__bomb-icon {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.1rem;
+  z-index: 2;
+  transition: left 1s linear;
+  filter: drop-shadow(0 0 2px rgba(0,0,0,0.6));
+}
+.hud__bomb--warn .hud__bomb-time   { color: #ffd166; }
+.hud__bomb--danger {
+  animation: bombPulse 0.7s ease-in-out infinite;
+}
+.hud__bomb--danger .hud__bomb-time { color: #ff6b6b; font-weight: 700; }
+.hud__bomb--exploded .hud__bomb-time { color: #b8261c; }
+.hud__bomb--exploded .hud__bomb-icon { content: '💥'; }
+@keyframes bombPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184,38,28,0); }
+  50%      { box-shadow: 0 0 10px 2px rgba(184,38,28,0.5); }
+}
 /* ─── Notes FAB (Floating Action Button) ─── */
 .notes-fab {
   position: fixed;

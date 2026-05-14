@@ -10,7 +10,11 @@ import {
   ALL_STATIONS,
   totalHintsUsed,
   elapsedSinceE1Open,
-  getPlayer
+  getPlayer,
+  deadlineRemainingSeconds,
+  checkAndApplyTimeout,
+  accelerateTime,
+  DEADLINE_SECONDS
 } from './lib/game-state.js';
 import stationsRouter, { STATION_INTRO } from './routes/stations.js';
 import hintsRouter from './routes/hints.js';
@@ -35,6 +39,7 @@ app.use(cookieParser(SESSION_SECRET));
 app.use(playerMiddleware);
 
 app.get('/', (req, res) => {
+  checkAndApplyTimeout(req.playerId);
   const player = getPlayer(req.playerId);
   if (player?.game_over) return res.render('game-over', { player });
 
@@ -61,8 +66,9 @@ app.get('/', (req, res) => {
 app.get('/walkthrough', (req, res) => res.render('walkthrough'));
 app.get('/caso',        (req, res) => res.render('caso'));
 
-// Estado público del jugador (para refresco en cliente — credibilidad, tiempo, progreso)
+// Estado público del jugador (para refresco en cliente — credibilidad, tiempo, progreso, deadline)
 app.get('/state', (req, res) => {
+  checkAndApplyTimeout(req.playerId);
   const player = getPlayer(req.playerId);
   const completed = getCompletedStations(req.playerId);
   const elapsedSec = elapsedSinceE1Open(req.playerId);
@@ -70,12 +76,31 @@ app.get('/state', (req, res) => {
     credibility: player?.credibility ?? 0,
     max_credibility: 5,
     game_over: !!player?.game_over,
+    game_over_reason: player?.game_over_reason || null,
     case_solved_at: player?.case_solved_at || null,
     completed,
     all_completed: ALL_STATIONS.every(s => completed.includes(s)),
     hints_used: totalHintsUsed(req.playerId),
     elapsed_seconds: elapsedSec,
-    elapsed_minutes: elapsedSec != null ? Math.round(elapsedSec / 60) : null
+    elapsed_minutes: elapsedSec != null ? Math.round(elapsedSec / 60) : null,
+    deadline_total_seconds: DEADLINE_SECONDS,
+    deadline_remaining_seconds: elapsedSec == null ? DEADLINE_SECONDS : deadlineRemainingSeconds(req.playerId),
+    deadline_started: elapsedSec != null
+  });
+});
+
+// DEV: acelerar el tiempo (suma ms al offset del jugador)
+app.post('/dev/accelerate', (req, res) => {
+  const seconds = Math.max(1, Math.min(parseInt(req.body?.seconds, 10) || 300, 7200));
+  accelerateTime(req.playerId, seconds * 1000);
+  checkAndApplyTimeout(req.playerId);
+  const player = getPlayer(req.playerId);
+  res.json({
+    ok: true,
+    added_seconds: seconds,
+    game_over: !!player?.game_over,
+    game_over_reason: player?.game_over_reason || null,
+    deadline_remaining_seconds: deadlineRemainingSeconds(req.playerId)
   });
 });
 

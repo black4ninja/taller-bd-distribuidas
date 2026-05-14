@@ -26,6 +26,16 @@
   <span id="hud-cred" class="hud__chip hud__chip--cred" title="Credibilidad — cada submit incorrecto resta">❤ <span id="hud-cred-value">—</span>/5</span>
   <span id="hud-time" class="hud__chip hud__chip--time" title="Tiempo desde que abriste E1">⏱ <span id="hud-time-value">—</span></span>
   <span id="hud-prog" class="hud__chip hud__chip--prog" title="Estaciones completadas">📂 <span id="hud-prog-value">—</span>/4</span>
+
+  <div id="hud-bomb" class="hud__bomb" title="Tiempo restante antes de que el asesino escape">
+    <span class="hud__bomb-time"><span id="hud-bomb-value">--:--:--</span></span>
+    <div class="hud__bomb-track">
+      <div id="hud-bomb-fill" class="hud__bomb-fill"></div>
+      <span id="hud-bomb-icon" class="hud__bomb-icon">💣</span>
+    </div>
+  </div>
+
+  <button id="dev-accel" class="hud__chip hud__chip--dev" type="button" title="DEV: acelerar el tiempo en 5 minutos">⏩ DEV +5m</button>
 </div>
 
 <button id="notes-toggle" class="notes-fab" type="button" title="Abrir cuaderno de notas" aria-label="Abrir cuaderno de notas">
@@ -63,25 +73,83 @@
     if (best) best.classList.add('active');
   })();
 
-  // ─── HUD: polling de estado del jugador ─────────────────────────
-  function fmtTime(s) {
-    if (s == null) return '—';
-    const m = Math.floor(s / 60), ss = s % 60;
-    return m + ':' + String(ss).padStart(2,'0');
-  }
+  // ─── HUD: estado del jugador con countdown smooth ─────────────────
+  function fmtMS(s)  { if (s == null) return '—'; const m=Math.floor(s/60),ss=s%60; return m+':'+String(ss).padStart(2,'0'); }
+  function fmtHMS(s) { if (s == null) return '--:--:--'; const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return [h,m,ss].map(x=>String(x).padStart(2,'0')).join(':'); }
+
+  window.__hudState = null;
+  window.__hudLastFetch = 0;
+
   async function refreshHud() {
     try {
       const j = await (await fetch('/state')).json();
-      document.getElementById('hud-cred-value').textContent = j.credibility ?? '—';
-      document.getElementById('hud-time-value').textContent = fmtTime(j.elapsed_seconds);
-      document.getElementById('hud-prog-value').textContent = j.completed?.length ?? 0;
-      const credEl = document.getElementById('hud-cred');
-      credEl.classList.toggle('hud__chip--low', (j.credibility ?? 5) <= 2);
-      if (j.game_over) credEl.classList.add('hud__chip--dead');
+      window.__hudState = j;
+      window.__hudLastFetch = Date.now();
+      applyHud(j);
+      if (j.game_over && window.location.pathname !== '/' && !window.location.pathname.startsWith('/game-over')) {
+        // Forzar redirect al index cuando ocurre game over (incluye timeout)
+        setTimeout(() => location.href = '/', 800);
+      }
     } catch {}
   }
+
+  function applyHud(j) {
+    document.getElementById('hud-cred-value').textContent = j.credibility ?? '—';
+    document.getElementById('hud-time-value').textContent = fmtMS(j.elapsed_seconds);
+    document.getElementById('hud-prog-value').textContent = j.completed?.length ?? 0;
+    const credEl = document.getElementById('hud-cred');
+    credEl.classList.toggle('hud__chip--low', (j.credibility ?? 5) <= 2 && !j.game_over);
+    credEl.classList.toggle('hud__chip--dead', !!j.game_over);
+
+    // Bomba: countdown HH:MM:SS + barra que retrocede
+    const bombVal = document.getElementById('hud-bomb-value');
+    const bombFill = document.getElementById('hud-bomb-fill');
+    const bombIcon = document.getElementById('hud-bomb-icon');
+    if (bombVal && bombFill && bombIcon) {
+      const total = j.deadline_total_seconds || 7200;
+      const remain = Math.max(0, j.deadline_remaining_seconds ?? total);
+      bombVal.textContent = fmtHMS(remain);
+      const pct = (remain / total) * 100;
+      bombFill.style.width = pct + '%';
+      bombIcon.style.left = pct + '%';
+      const wrap = document.getElementById('hud-bomb');
+      wrap.classList.toggle('hud__bomb--warn',    pct < 50 && pct >= 20);
+      wrap.classList.toggle('hud__bomb--danger',  pct < 20 && pct > 0);
+      wrap.classList.toggle('hud__bomb--exploded', pct === 0);
+    }
+  }
+
+  // Tick local cada segundo para que el countdown se vea fluido entre polls
+  function tickHud() {
+    const j = window.__hudState;
+    if (!j) return;
+    if (j.game_over || j.case_solved_at) { applyHud(j); return; }
+    const delta = Math.floor((Date.now() - window.__hudLastFetch) / 1000);
+    if (j.deadline_started && j.deadline_remaining_seconds != null) {
+      const proj = { ...j,
+        elapsed_seconds: (j.elapsed_seconds ?? 0) + delta,
+        deadline_remaining_seconds: Math.max(0, (j.deadline_remaining_seconds ?? 0) - delta)
+      };
+      applyHud(proj);
+    } else {
+      applyHud(j);
+    }
+  }
+
   refreshHud();
   setInterval(refreshHud, 5000);
+  setInterval(tickHud, 1000);
+
+  // ─── DEV: botón de aceleración ───────────────────────────────────
+  document.getElementById('dev-accel').addEventListener('click', async () => {
+    const r = await fetch('/dev/accelerate', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ seconds: 300 })
+    });
+    const j = await r.json();
+    refreshHud();
+    if (j.game_over) setTimeout(() => location.href = '/', 600);
+  });
 
   // ─── Notes drawer ───────────────────────────────────────────────
   const drawer = document.getElementById('notes-drawer');

@@ -8,7 +8,8 @@ import {
   decrementCredibility,
   recordSubmitAttempt,
   totalHintsUsed,
-  elapsedSinceE1Open
+  elapsedSinceE1Open,
+  checkAndApplyTimeout
 } from '../lib/game-state.js';
 
 const router = Router();
@@ -19,6 +20,7 @@ function allCompleted(playerId) {
 }
 
 router.get('/solve', (req, res) => {
+  checkAndApplyTimeout(req.playerId);
   const player = getPlayer(req.playerId);
   if (player?.game_over) return res.render('game-over', { player });
   const locked = !allCompleted(req.playerId);
@@ -26,9 +28,10 @@ router.get('/solve', (req, res) => {
 });
 
 router.post('/solve', (req, res) => {
+  checkAndApplyTimeout(req.playerId);
   const player = getPlayer(req.playerId);
   if (player?.game_over) {
-    return res.status(403).json({ ok: false, game_over: true });
+    return res.status(403).json({ ok: false, game_over: true, game_over_reason: player.game_over_reason });
   }
   if (!allCompleted(req.playerId)) {
     return res.status(403).json({ ok: false, error: 'Debes resolver las 4 estaciones primero.' });

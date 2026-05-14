@@ -4,6 +4,7 @@ import { stmts } from './db.js';
 export const ALL_STATIONS = ['E1', 'E2', 'E3', 'E4'];
 export const INITIAL_CREDIBILITY = 5;
 export const HINT_UNLOCK_SECONDS = { 1: 5 * 60, 2: 10 * 60, 3: 15 * 60 };
+export const DEADLINE_SECONDS = 2 * 60 * 60; // 2 horas para resolver el caso
 
 export function newPlayerId() { return crypto.randomUUID(); }
 export function ensurePlayer(playerId) { stmts.ensurePlayer.run(playerId); }
@@ -40,10 +41,13 @@ export function recordSubmitAttempt(playerId, stationId, answer, correct) {
   stmts.recordAttempt.run(playerId, stationId, String(answer ?? '').slice(0, 500), correct ? 1 : 0);
 }
 export function decrementCredibility(playerId) {
-  stmts.decrementCredibility.run(playerId);
+  // Si la decrementación va a terminar el juego, congela el elapsed acumulado.
+  const elapsed = computeLiveElapsed(playerId);
+  stmts.decrementCredibility.run(elapsed, playerId);
 }
 export function markCaseSolved(playerId) {
-  stmts.markCaseSolved.run(playerId);
+  const elapsed = computeLiveElapsed(playerId);
+  stmts.markCaseSolved.run(elapsed, playerId);
 }
 
 export function hintLevelUnlocked(openedAtIso, level) {
@@ -75,15 +79,43 @@ export function parseSqlTime(s) {
   return new Date(s.replace(' ', 'T') + 'Z').getTime();
 }
 
-export function elapsedSinceE1Open(playerId) {
+export function effectiveNowMs(playerId) {
+  const player = getPlayer(playerId);
+  return Date.now() + (player?.time_offset_ms || 0);
+}
+
+function computeLiveElapsed(playerId) {
   const opened = getStationOpenedAt(playerId, 'E1');
   if (!opened) return null;
+  return Math.max(0, Math.floor((effectiveNowMs(playerId) - parseSqlTime(opened)) / 1000));
+}
+
+export function elapsedSinceE1Open(playerId) {
   const player = getPlayer(playerId);
-  // Si el caso terminó (resuelto o game over), el timer se congela en ese momento.
-  let endMs = Date.now();
-  if (player?.case_solved_at) endMs = Math.min(endMs, parseSqlTime(player.case_solved_at));
-  if (player?.game_over_at)   endMs = Math.min(endMs, parseSqlTime(player.game_over_at));
-  return Math.max(0, Math.floor((endMs - parseSqlTime(opened)) / 1000));
+  // Si el caso terminó (game over o solved), el elapsed quedó congelado en SQLite.
+  if (player?.elapsed_at_end_seconds != null) return player.elapsed_at_end_seconds;
+  return computeLiveElapsed(playerId);
+}
+
+export function deadlineRemainingSeconds(playerId, totalSeconds = DEADLINE_SECONDS) {
+  const elapsed = elapsedSinceE1Open(playerId);
+  if (elapsed == null) return totalSeconds;
+  return Math.max(0, totalSeconds - elapsed);
+}
+
+export function checkAndApplyTimeout(playerId) {
+  const player = getPlayer(playerId);
+  if (!player || player.game_over || player.case_solved_at) return false;
+  const elapsed = computeLiveElapsed(playerId);
+  if (elapsed == null || DEADLINE_SECONDS - elapsed > 0) return false;
+  stmts.triggerTimeout.run(elapsed, playerId);
+  return true;
+}
+
+export function accelerateTime(playerId, ms) {
+  const player = getPlayer(playerId);
+  if (player?.game_over || player?.case_solved_at) return; // no acelerar después del fin
+  stmts.bumpTimeOffset.run(ms, playerId);
 }
 
 export function totalHintsUsed(playerId) {
