@@ -25,26 +25,28 @@ function matchesAny(answer, acceptedSet) {
 //   E2 → key oculta de Redis revelada por _evidence_archive de Mongo
 //   E3 → nombre de la collection vectorial encontrada DENTRO del valor de Redis
 //   E4 → nombre completo del asesino real
+const GENERIC_ERROR = 'Respuesta incorrecta. Revisa tu investigación y vuelve a intentarlo. Si te atoras, usa las pistas progresivas.';
+
 export const STATIONS = {
   E1: {
     title: 'PostgreSQL — Las entrevistas',
     accept: ['Sofía Linares', 'Sofia Linares', 'David Hernández', 'David Hernandez'],
-    error_hint: 'Revisa las entrevistas en PostgreSQL. Hay 2 sospechosos físicos descritos por los testigos.'
+    error_hint: GENERIC_ERROR
   },
   E2: {
     title: 'MongoDB — El handle del entrenador',
     accept: ['pro_coach_mtz'],
-    error_hint: 'La respuesta es el handle social (username) del entrenador personal de la víctima.'
+    error_hint: GENERIC_ERROR
   },
   E3: {
     title: 'Redis — La pista del informante',
     accept: ['witness_testimonies'],
-    error_hint: 'Lee el VALOR de la key. Adentro está el nombre de una collection vectorial que debes consultar en Qdrant.'
+    error_hint: GENERIC_ERROR
   },
   E4: {
     title: 'Qdrant — Confesión semántica',
     accept: ['Carlos Méndez', 'Carlos Mendez'],
-    error_hint: 'El testimonio con mayor score en Qdrant nombra al asesino real. Submit el nombre completo (Nombre Apellido).'
+    error_hint: GENERIC_ERROR
   }
 };
 
