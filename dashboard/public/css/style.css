@@ -907,6 +907,26 @@ pre code { background: transparent; padding: 0; }
 }
 .hint-modal__body pre code { background: transparent; color: inherit; padding: 0; }
 
+/* Botones dentro del modal: heredan colores del fondo crema */
+.hint-modal .btn {
+  background: #1a1a1a;
+  color: #f5f1e8;
+  border: 1px solid #1a1a1a;
+}
+.hint-modal .btn:hover { background: #333; }
+.hint-modal .btn--primary {
+  background: #b8261c;
+  border-color: #b8261c;
+  color: #fff;
+}
+.hint-modal .btn--primary:hover { background: #d32f23; }
+.hint-modal .btn--ghost {
+  background: transparent;
+  color: #1a1a1a;
+  border: 1px solid #8b6f10;
+}
+.hint-modal .btn--ghost:hover { background: rgba(0,0,0,0.05); border-color: #1a1a1a; }
+
 /* Bloqueo de copy-paste casual */
 .no-copy {
   user-select: none;
