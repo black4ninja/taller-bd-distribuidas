@@ -255,8 +255,10 @@ const EVIDENCE_ARCHIVE = [
     type: 'evidence_hint',
     classification: 'investigator_note',
     content:
-      'Recibimos un testimonio anónimo sobre el caso. Lo guardamos en Redis FUERA del patrón estándar gym:checkin:* ' +
-      'para que no se pierda entre los miles de check-ins diarios. Quien revise Redis con KEYS evidence:* lo encontrará.'
+      'La línea de denuncia anónima del campus recibió un testimonio sobre este caso. Las pistas entran al buffer de Redis ' +
+      'bajo el prefijo evidence:* antes de moverse al sistema permanente de la Fiscalía. ' +
+      'Como suspendimos el worker que las mueve al abrir la investigación (cadena de custodia), las pistas siguen en Redis. ' +
+      'Listar las keys con KEYS evidence:* las recupera.'
   },
   {
     type: 'background_check',

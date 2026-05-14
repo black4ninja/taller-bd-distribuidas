@@ -73,22 +73,27 @@ Hay además una colección oculta (fuera del listado público) con chat-logs y r
     why_this_db: `
 **¿Por qué Redis para estos datos?**
 
-Los check-ins de gimnasio, lecturas de cámara y métricas de temperatura son **datos de alta frecuencia con acceso ultra-rápido**:
+Redis tiene en producción **dos usos clásicos**, y el campus aprovecha ambos en la misma instancia:
 
-- **Latencia sub-milisegundo**: cada vez que alguien pasa la tarjeta en el torno, el sistema debe decidir "abrir o no" en menos de 100ms. Redis lo hace en memoria; PostgreSQL en disco difícilmente alcanza.
-- **Datos efímeros / time-series ligero**: \`gym:checkin:trainer:9001:2026-03-15T06:00\` es un dato que importa hoy pero no en 5 años. Redis tiene TTL nativo (auto-expiración) y patrones de keys jerárquicas.
-- **Tasa de escritura brutal**: en hora pico un gimnasio puede tener 50 check-ins/min, sin contar lecturas de cámara cada segundo. Redis maneja 100k+ ops/s en una sola instancia.
-- **Estructura simple**: key→value es suficiente; no necesitas relaciones complejas para "¿fichó el trainer X hoy?".
+1. **Cache / datos efímeros de alta frecuencia** — check-ins del torno, status de cámaras, métricas de temperatura. Cada vez que alguien pasa la tarjeta en el torno, el sistema debe decidir "abrir o no" en menos de 100ms. Redis lo hace en memoria; PostgreSQL en disco difícilmente alcanza.
+2. **Cola / buffer de ingestión** — cuando una app necesita ACEPTAR datos rápido y procesarlos después en batch. El web form de la línea de denuncia anónima del campus es un ejemplo: cuando alguien envía una pista, el servidor escribe a Redis (sub-milisegundo, no bloquea al usuario) y un worker batch la mueve cada hora a la base permanente de la Fiscalía. Patrón **producer-consumer** clásico.
 
-Por eso muchos sistemas reales **usan Redis y SQL juntos**: Redis para el "ahora" (cache, sesiones, métricas live), SQL para el "histórico" (reportes mensuales, análisis). La pista del informante quedó aquí porque el sistema del gimnasio guarda todo en Redis — incluido lo que no debería.`,
+Otras cualidades clave:
+- **TTL nativo**: las keys pueden auto-expirar (ideal para sesiones, tokens, métricas).
+- **Tasa de escritura brutal**: 100k+ ops/s en una sola instancia.
+- **Estructura simple**: key→value, sin relaciones complejas.
+
+Por eso muchos sistemas reales **usan Redis Y SQL juntos**: Redis para el "ahora" (cache, sesiones, colas, métricas live), SQL para el "histórico" (reportes, análisis, registros permanentes).
+
+En el caso: el testimonio anónimo entró por el formulario de denuncia y quedó en el buffer de Redis. El worker que lo iba a mover a la base permanente quedó **suspendido al abrirse la investigación** (para preservar cadena de custodia). Por eso sigue ahí.`,
     narrative: `
-El gimnasio del campus usa un sistema de check-in con tarjeta: cada entrada genera un registro. Las cámaras de seguridad, los sensores de temperatura y los contadores de uso también escriben aquí. Es un sistema optimizado para velocidad — necesita responder en milisegundos cuando alguien pasa la tarjeta del torno.
+El sistema Redis del campus aloja dos cosas: (1) los check-ins del gimnasio del campus (cada acceso, lecturas de cámara, temperatura) y (2) el **buffer de la línea de denuncia anónima** — un formulario web donde cualquiera puede mandar pistas; las pistas se escriben primero a Redis y un worker las mueve cada hora al sistema permanente de la Fiscalía.
 
-Tienes el número de cliente del nuevo sospechoso (del paso anterior). Por ahí puedes empezar a buscar entre los miles de registros del sistema. Pero hay algo más interesante esperándote: **alguien dejó un registro que no encaja con ningún patrón rutinario del sistema**. Los registros normales siguen formatos predecibles (acceso de gimnasio, lectura de cámara, métrica de temperatura), pero **una clave rompe ese patrón** y fue añadida fuera del flujo automático. Es información que alguien quiso preservar.
+Pero ese worker quedó **suspendido al abrirse la investigación** (para preservar la cadena de custodia). Eso significa que las pistas recibidas desde esa noche **siguen en Redis**, sin mover. Los administradores de TI guardan estas pistas bajo un prefijo distinto al de los check-ins rutinarios (\`gym:*\`, \`cam:*\`, \`temperature:*\`) para que sean fácil de localizar cuando el worker corra.
 
-Cuando la encuentres y leas su contenido, vas a tener **un testimonio anónimo en texto** — y ese testimonio te apunta directamente al sistema donde vas a confirmar la identidad del asesino.
+Tienes el número de cliente del nuevo sospechoso del paso anterior. Pero más importante: **busca entre las claves del sistema cualquier pista relacionada con este caso que haya quedado pendiente de mover**. Cuando la encuentres y leas su contenido, vas a tener un testimonio anónimo en texto — y ese testimonio te apunta directamente al sistema donde vas a confirmar la identidad del asesino.
 
-**Detalle clave (vulnerabilidad real)**: este sistema corre SIN contraseña — otro error real de configuración. Cualquiera con acceso a la red puede listar todas las claves del sistema y leer sus valores. En producción, esto sería catastrófico.
+**Detalle clave (vulnerabilidad real)**: este servicio corre SIN contraseña — un error real de configuración. Cualquiera con acceso a la red interna puede listar todas las claves y leer sus valores. En producción, esto sería catastrófico: estarías exponiendo no solo cache, sino los buffers de ingestión.
 
 **Submit**: el nombre exacto del archivo de testimonios que la nota interna te indica consultar a continuación.`
   },

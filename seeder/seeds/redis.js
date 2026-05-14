@@ -1,11 +1,13 @@
 import Redis from 'ioredis';
 
-// E3 explota la vulnerabilidad de "Redis sin password + KEYS *":
-// - ~80 keys de check-ins normales del gym (ruido obvio)
-// - ~10 keys de cámaras y temperatura (más ruido)
-// - 1 key "escondida" en el patrón `evidence:hidden:trainer_log` que contiene
-//   el testimonio anónimo a buscar semánticamente en Qdrant (E4)
-// La pista (`evidence:hidden:trainer_log`) viene desde la colección oculta de Mongo.
+// Redis del campus aloja DOS sistemas en la misma instancia:
+//   1. Cache de check-ins del gimnasio (gym:*, cam:*, temperature:*) — uso clásico de cache
+//   2. Buffer de la línea de denuncia anónima (evidence:*) — uso clásico de cola/buffer
+//      donde un worker mueve las pistas al sistema permanente cada hora.
+//
+// Al abrirse la investigación se suspendió el worker (cadena de custodia), por eso
+// la pista anónima sobre el caso sigue ahí. La narrativa cuadra: Redis sirve a
+// ambos use-cases reales y la presencia del testimonio tiene justificación.
 
 const TRAINERS = [9001, 9050, 9077];
 const MEMBERS = [14782, 14745, 14820, 14790, 14760, 14755, 14801, 14810];
@@ -53,18 +55,22 @@ function tempNoise() {
   return entries;
 }
 
-// La key clave (E3) — referenciada por la colección oculta de Mongo
+// Pista del buffer de la línea de denuncia anónima.
+// Estructura corresponde a un mensaje que el worker movería a la base
+// permanente de Fiscalía (incluyendo source y received timestamp).
 const HIDDEN_EVIDENCE = {
   key: 'evidence:hidden:trainer_log',
   value: JSON.stringify({
-    type: 'anonymous_testimony',
+    type: 'anonymous_tip',
+    source: 'campus_tip_line_web_form',
     received: '2026-03-16T03:00:00',
-    submitted_via: 'campus tip line',
+    pending_move_to_fiscalia: true,
+    note: 'Worker suspendido durante investigación abierta (cadena de custodia)',
     testimony:
       'Vi al entrenador entrar al laboratorio del CETEC esa noche con un cable y una mochila negra. ' +
       'Reconozco al entrenador del gimnasio Get Fit Now, lo he visto trabajar con los alumnos.',
     instructions_for_investigator:
-      'Esta es una pista textual. Para encontrar el NOMBRE COMPLETO del asesino, busca testimonios semánticamente similares en la colección "witness_testimonies" de Qdrant. El testimonio con score más alto contiene el nombre completo.'
+      'Esta pista llegó por la línea de denuncia. Para encontrar el NOMBRE COMPLETO del asesino, busca testimonios semánticamente similares en la colección "witness_testimonies" de Qdrant. El testimonio con score más alto contiene el nombre completo.'
   })
 };
 
