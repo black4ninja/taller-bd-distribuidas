@@ -87,15 +87,15 @@ Por eso muchos sistemas reales **usan Redis Y SQL juntos**: Redis para el "ahora
 
 En el caso: el testimonio anónimo entró por el formulario de denuncia y quedó en el buffer de Redis. El worker que lo iba a mover a la base permanente quedó **suspendido al abrirse la investigación** (para preservar cadena de custodia). Por eso sigue ahí.`,
     narrative: `
-El sistema Redis del campus aloja dos cosas: (1) los check-ins del gimnasio del campus (cada acceso, lecturas de cámara, temperatura) y (2) el **buffer de la línea de denuncia anónima** — un formulario web donde cualquiera puede mandar pistas; las pistas se escriben primero a Redis y un worker las mueve cada hora al sistema permanente de la Fiscalía.
+El sistema Redis del campus aloja tres cosas en la misma instancia: (1) cache de check-ins del gimnasio (\`gym:*\`, \`cam:*\`, \`temperature:*\`), (2) **buffer de la línea de denuncia anónima** del campus — las pistas que la gente envía por el formulario web entran aquí antes de pasar al sistema permanente de la Fiscalía, y (3) **documentación de pipelines del sistema** que dejó DevOps para que los servicios sepan cómo fluyen los datos entre componentes.
 
-Pero ese worker quedó **suspendido al abrirse la investigación** (para preservar la cadena de custodia). Eso significa que las pistas recibidas desde esa noche **siguen en Redis**, sin mover. Los administradores de TI guardan estas pistas bajo un prefijo distinto al de los check-ins rutinarios (\`gym:*\`, \`cam:*\`, \`temperature:*\`) para que sean fácil de localizar cuando el worker corra.
+El worker que mueve las pistas a Fiscalía quedó **suspendido al abrirse la investigación** (cadena de custodia). Las pistas siguen en el buffer. Hay varias — la gente reportó cosas distintas estos días (cafetería, bicicleta robada, ruidos en otro edificio, etc.). **Tu trabajo es leerlas para identificar la relevante a este caso**: una donde el testigo describa algo que conecte con la víctima y el entrenador.
 
-Tienes el número de cliente del nuevo sospechoso del paso anterior. Pero más importante: **busca entre las claves del sistema cualquier pista relacionada con este caso que haya quedado pendiente de mover**. Cuando la encuentres y leas su contenido, vas a tener un testimonio anónimo en texto — y ese testimonio te apunta directamente al sistema donde vas a confirmar la identidad del asesino.
+Cuando la identifiques, vas a tener el texto del testimonio. Pero ese texto, por sí solo, no nombra al asesino — solo lo describe. Para encontrar el nombre, vas a tener que pasar ese testimonio por un sistema de búsqueda semántica que indexa todos los testimonios históricos de la fiscalía. ¿Cuál sistema? **Eso te lo dice la documentación de pipelines de DevOps** — busca bajo el prefijo \`system:pipelines:*\`. Uno de esos pipelines describe el flujo de testimonios y nombra exactamente el archivo donde están indexados.
 
-**Detalle clave (vulnerabilidad real)**: este servicio corre SIN contraseña — un error real de configuración. Cualquiera con acceso a la red interna puede listar todas las claves y leer sus valores. En producción, esto sería catastrófico: estarías exponiendo no solo cache, sino los buffers de ingestión.
+**Detalle clave (vulnerabilidad real)**: este servicio corre SIN contraseña. Cualquiera con acceso a la red interna puede listar todas las claves y leer sus valores — exponiendo no solo cache, sino los buffers de ingestión Y la documentación de arquitectura del sistema.
 
-**Submit**: el nombre exacto del archivo de testimonios que la nota interna te indica consultar a continuación.`
+**Submit**: el nombre exacto del archivo de testimonios que aparece en la configuración del pipeline de búsqueda semántica.`
   },
   E4: {
     motor: 'Qdrant (vectorial)',

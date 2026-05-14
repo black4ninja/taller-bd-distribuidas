@@ -67,17 +67,28 @@ export const HINTS = {
 
   E3: {
     1: 'Abre RedisInsight en http://localhost:8083. Sigue los pasos del cheatsheet para agregar la BD (Host=redis, Port=6379, sin password). ' +
-       'Hay cientos de keys; la mayoría son `gym:checkin:*` y otras "normales".',
-    2: 'La key del testimonio NO sigue el patrón normal del gimnasio. Empieza con `evidence:`. ' +
-       'En el Workbench de RedisInsight ejecuta `KEYS evidence:*` para listar SOLO las keys de ese patrón. ' +
-       'Hay exactamente UNA. Luego haz GET de esa key.',
-    3: 'En el Workbench ejecuta:\n' +
+       'Hay cientos de keys agrupadas en varios prefijos: cache del gimnasio (`gym:*`, `cam:*`, `temperature:*`), ' +
+       'pistas pendientes del buffer de denuncia (`evidence:tip:*`), y documentación de pipelines (`system:pipelines:*`). ' +
+       'Para responder esta estación necesitas trabajar con los DOS últimos.',
+    2: 'Plan:\n\n' +
+       '1. Lista las pistas pendientes (`KEYS evidence:tip:*`) — hay como una docena, sobre temas distintos. Léelas (GET cada una) hasta identificar la relacionada con el caso (la que menciona laboratorio CETEC, entrenador, cable, mochila negra). El testimonio que contenga lo necesitarás en E4.\n\n' +
+       '2. Para saber a qué sistema externo va a parar la búsqueda semántica de testimonios, mira los pipelines documentados por DevOps (`KEYS system:pipelines:*`). Uno de ellos describe el flujo testimonios → embeddings → archivo. El nombre del archivo (collection) está como uno de los campos del JSON.',
+    3: 'Tres queries en el Workbench:\n\n' +
        '```\n' +
-       'KEYS evidence:*\n' +
-       'GET evidence:hidden:trainer_log\n' +
-       '```\n' +
-       'El JSON resultante tiene un campo `instructions_for_investigator` que menciona el NOMBRE EXACTO de una collection en Qdrant ' +
-       '(empieza con "witness_"). Ese nombre es la respuesta.'
+       '// 1. Listar todas las pistas pendientes\n' +
+       'KEYS evidence:tip:*\n' +
+       '\n' +
+       '// 2. Leer cada una hasta encontrar la del caso\n' +
+       '//    (la que menciona CETEC, entrenador, mochila negra).\n' +
+       '//    En el ejemplo: evidence:tip:20260316_0300_anon\n' +
+       'GET evidence:tip:20260316_0300_anon\n' +
+       '//    El campo `testimony` es la frase que vas a usar en E4.\n' +
+       '\n' +
+       '// 3. Buscar el pipeline de semantic search\n' +
+       'GET system:pipelines:semantic_search\n' +
+       '//    El campo `qdrant_collection` contiene el nombre\n' +
+       '//    exacto del archivo — esa es la respuesta de E3.\n' +
+       '```'
   },
 
   E4: {

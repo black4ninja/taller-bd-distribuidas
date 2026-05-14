@@ -255,10 +255,11 @@ const EVIDENCE_ARCHIVE = [
     type: 'evidence_hint',
     classification: 'investigator_note',
     content:
-      'La línea de denuncia anónima del campus recibió un testimonio sobre este caso. Las pistas entran al buffer de Redis ' +
-      'bajo el prefijo evidence:* antes de moverse al sistema permanente de la Fiscalía. ' +
-      'Como suspendimos el worker que las mueve al abrir la investigación (cadena de custodia), las pistas siguen en Redis. ' +
-      'Listar las keys con KEYS evidence:* las recupera.'
+      'La línea de denuncia anónima del campus recibió varias pistas estos días. Todas entran al buffer de Redis ' +
+      'bajo el prefijo evidence:tip:* antes de moverse al sistema permanente de la Fiscalía. ' +
+      'Como suspendimos el worker que las mueve al abrir la investigación (cadena de custodia), las pistas siguen en Redis sin procesar. ' +
+      'Hay que leerlas — la mayoría no es de este caso — para identificar la relevante. ' +
+      'Adicionalmente, los pipelines del sistema están documentados bajo el prefijo system:pipelines:* — ahí ven cómo fluyen los datos entre componentes.'
   },
   {
     type: 'background_check',
