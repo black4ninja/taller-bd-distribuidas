@@ -45,6 +45,10 @@ app.get('/walkthrough', (req, res) => {
   res.render('walkthrough');
 });
 
+app.get('/caso', (req, res) => {
+  res.render('caso');
+});
+
 app.get('/progress', (req, res) => {
   const progress = getProgress(req);
   res.json({
