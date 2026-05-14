@@ -82,11 +82,23 @@
 
     <% if (showVectorWidget) { %>
       <div class="case-file__section">
-        <h3>Búsqueda semántica en archivo de testimonios</h3>
+        <h3>Búsqueda semántica en archivo de testimonios (hybrid search)</h3>
         <div class="vector-widget">
-          <p class="muted">Pega la frase del testimonio anónimo encontrado en Redis. El sistema genera el embedding y consulta la colección <code>witness_testimonies</code> en Qdrant.</p>
+          <p class="muted">Qdrant permite combinar <strong>búsqueda vectorial</strong> (por significado) con <strong>filtros de payload</strong> (por metadatos estructurados). Pega la frase del testimonio anónimo y, si lo necesitas, restringe los resultados a una categoría específica.</p>
           <textarea id="vector-query" rows="4" placeholder="Pega aquí la frase del testimonio..."></textarea>
-          <button id="vector-search">Buscar testimonios similares</button>
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; margin: 0.5rem 0;">
+            <label style="font-family: Georgia, serif; font-size: 0.9rem;">
+              Filtrar por categoría:
+              <select id="vector-category" style="margin-left: 0.4rem; padding: 0.35rem 0.5rem; font-family: Georgia, serif;">
+                <option value="all">(sin filtro · todas)</option>
+                <option value="witness_account">witness_account</option>
+                <option value="anonymous_tip">anonymous_tip</option>
+                <option value="background_check">background_check</option>
+                <option value="social_media_intel">social_media_intel</option>
+              </select>
+            </label>
+            <button id="vector-search">Buscar testimonios similares</button>
+          </div>
           <div id="vector-out"></div>
         </div>
       </div>
@@ -188,17 +200,23 @@
     vsBtn.addEventListener('click', async () => {
       const query = document.getElementById('vector-query').value;
       if (!query.trim()) return;
+      const category = document.getElementById('vector-category').value;
       const out = document.getElementById('vector-out');
       out.innerHTML = '<em>Generando embedding y consultando Qdrant... (~5s la primera vez)</em>';
       const r = await fetch('/search-vectors', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, top: 3 })
+        body: JSON.stringify({ query, top: 5, category })
       });
       const j = await r.json();
       if (j.error) { out.innerHTML = '✗ Error: ' + j.error; return; }
-      out.innerHTML = '<h4>Top 3 testimonios:</h4>' + j.top.map((t, i) =>
-        `<div class="testimony"><strong>#${i+1} · score ${t.score.toFixed(4)}</strong><br>${t.text}</div>`
+      const filterLabel = j.filter ? `<span style="background:#b8261c;color:#f5f1e8;padding:0.1rem 0.5rem;border-radius:3px;font-size:0.8rem;">filtro: ${j.filter}</span>` : '<span class="muted" style="font-size:0.85rem;">sin filtro</span>';
+      out.innerHTML = `<h4>Top ${j.top.length} testimonios · ${filterLabel}</h4>` + j.top.map((t, i) =>
+        `<div class="testimony">
+          <strong>#${i+1} · score ${t.score.toFixed(4)}</strong>
+          <span style="background:rgba(0,0,0,0.06);padding:0.05rem 0.4rem;border-radius:3px;font-size:0.75rem;margin-left:0.5rem;">${t.category}</span>
+          <br>${t.text}
+        </div>`
       ).join('');
     });
   }

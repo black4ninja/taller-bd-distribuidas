@@ -114,11 +114,20 @@ Los testimonios anónimos son **texto libre que necesitas comparar por SIGNIFICA
 
 Aplicaciones reales: búsqueda de productos por descripción, retrieval para RAG (chatbots con LLMs), detección de duplicados, recomendación basada en contenido. Si tus datos son **texto, imágenes, audio o cualquier cosa que pueda volverse un embedding**, necesitas un vectorial.`,
     narrative: `
-La fiscalía recibió decenas de testimonios anónimos sobre el caso a través de su línea de denuncia. Los testimonios están indexados con embeddings semánticos — no se buscan por palabras exactas sino **por significado**. Esto importa: el testimonio que encontraste en el sistema del gimnasio describe al asesino sin nombrarlo. Necesitas localizar **otros testimonios que digan lo mismo con otras palabras** — incluyendo, esperamos, alguno que sí lo nombre por completo.
+La fiscalía mantiene un archivo central de testimonios sobre múltiples casos, indexado por **embeddings semánticos** — no se busca por palabras exactas sino **por significado**. Cada testimonio tiene una **categoría** que indica de qué tipo de registro proviene:
 
-Como tú no vas a calcular embeddings a mano (eso lo hace un modelo de machine learning), usa el **widget de búsqueda semántica que aparece abajo**: pega la frase del testimonio del paso anterior y el sistema buscará los testimonios más cercanos en significado dentro del archivo de la fiscalía. El que tenga el score más alto contendrá el nombre completo del asesino.
+- \`witness_account\` — declaraciones de testigos que pasaron por la fiscalía o por la línea anónima
+- \`anonymous_tip\` — pistas anónimas ya procesadas y archivadas
+- \`background_check\` — reportes formales con información de personas identificadas (matrículas, antecedentes, registros internos)
+- \`social_media_intel\` — análisis OSINT del equipo de inteligencia
 
-**Submit**: el nombre completo del asesino (nombre y apellido, tal como aparece textualmente en el testimonio con score más alto).`
+Aquí está lo importante: el testimonio anónimo que rescataste de Redis describe la escena pero **no nombra al asesino**. Si haces la búsqueda semántica sin más, los testimonios más similares van a ser **otras descripciones igual de anónimas** que tampoco lo nombran. **Los nombres completos de personas suelen vivir en los reportes formales** — en la categoría correcta.
+
+Eso es **hybrid search** (búsqueda vectorial + filtro estructurado), un patrón estándar en producción: combinas el "significado" (vector) con condiciones precisas sobre metadatos (categoría, fecha, fuente). El widget de abajo te permite hacerlo.
+
+**Plan**: (1) busca primero sin filtro y observa qué tipos de testimonios devuelve, (2) identifica qué categoría contendría el nombre del asesino, (3) repite la búsqueda restringida a esa categoría — el top-1 te dará el nombre completo.
+
+**Submit**: el nombre completo del asesino (nombre y apellido, tal como aparece textualmente en el testimonio con score más alto **bajo el filtro correcto**).`
   }
 };
 

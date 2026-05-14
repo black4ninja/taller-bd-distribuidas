@@ -92,12 +92,17 @@ export const HINTS = {
   },
 
   E4: {
-    1: 'Abre el dashboard de Qdrant en http://localhost:6333/dashboard. Verás la collection que descubriste en Redis. ' +
-       'No vas a buscar a mano: en ESTA página (dashboard del taller, abajo) hay un widget de búsqueda semántica.',
-    2: 'Usa el widget "Buscar testimonio similar" abajo. Pega la frase del campo `testimony` que encontraste en Redis. ' +
-       'Verás los 3 testimonios con mayor similitud semántica.',
-    3: 'Pega exactamente esta frase en el widget:\n\n' +
-       '> "Vi al entrenador entrar al laboratorio del CETEC esa noche con un cable y una mochila negra."\n\n' +
-       'El testimonio TOP (score más alto) menciona el NOMBRE COMPLETO del asesino. Submit ese nombre.'
+    1: 'Usa el widget de búsqueda semántica abajo. Empieza pegando la frase del campo `testimony` que rescataste de Redis. ' +
+       'NO uses filtro todavía — corre la búsqueda sin filtro primero para entender qué tipo de testimonios hay en el archivo.\n\n' +
+       'Vas a notar que los top resultados son **descripciones de la escena** (alguien que vio al entrenador, una bolsa negra, el laboratorio) pero **ninguno te da el nombre completo del asesino**.',
+    2: 'Los nombres de personas — con apellido, matrícula, antecedentes — viven en reportes formales, no en testimonios anónimos. ' +
+       'Qdrant permite **hybrid search**: vector + filtro de payload. Restringe la búsqueda a la categoría donde la fiscalía guarda los reportes formales.\n\n' +
+       'Mira las opciones del dropdown del widget. ¿Cuál suena a "reporte formal con datos de personas identificadas"?',
+    3: 'Plan completo:\n\n' +
+       '1. Pega esta frase en el widget (la del testimonio anónimo de Redis):\n\n' +
+       '> Vi al entrenador entrar al laboratorio del CETEC esa noche con un cable y una mochila negra.\n\n' +
+       '2. Selecciona en el dropdown la categoría **`background_check`** (donde están los reportes formales con matrículas y antecedentes).\n\n' +
+       '3. Ejecuta. El testimonio TOP bajo ese filtro nombra al asesino con nombre Y apellido. Submit ese nombre completo.\n\n' +
+       'Esto es **hybrid search** (vector + payload filter), un patrón real de producción en Qdrant, Pinecone, Weaviate. Sin el filtro, las descripciones anónimas dominan; con el filtro, surfaces los reportes que contienen información identificable.'
   }
 };

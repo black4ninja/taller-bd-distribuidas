@@ -14,7 +14,7 @@ async function getExtractor() {
 }
 
 router.post('/search-vectors', async (req, res) => {
-  const { query, top = 3, collection = 'witness_testimonies' } = req.body || {};
+  const { query, top = 5, collection = 'witness_testimonies', category = null } = req.body || {};
   if (!query || typeof query !== 'string') {
     return res.status(400).json({ error: 'query es requerido (string)' });
   }
@@ -23,19 +23,30 @@ router.post('/search-vectors', async (req, res) => {
     const output = await extract(query, { pooling: 'mean', normalize: true });
     const vector = Array.from(output.data);
 
-    const client = new QdrantClient({ url: process.env.QDRANT_URL });
-    const results = await client.search(collection, {
+    const searchArgs = {
       vector,
-      limit: Math.min(parseInt(top, 10) || 3, 10),
+      limit: Math.min(parseInt(top, 10) || 5, 15),
       with_payload: true
-    });
+    };
+    // Hybrid search: vector + payload filter por categoría
+    if (category && typeof category === 'string' && category !== 'all') {
+      searchArgs.filter = {
+        must: [{ key: 'category', match: { value: category } }]
+      };
+    }
+
+    const client = new QdrantClient({ url: process.env.QDRANT_URL });
+    const results = await client.search(collection, searchArgs);
     res.json({
       query,
+      filter: category || null,
       top: results.map(r => ({
         id: r.id,
         score: r.score,
         text: r.payload?.text,
-        witness_alias: r.payload?.witness_alias
+        category: r.payload?.category,
+        source: r.payload?.source,
+        date: r.payload?.date
       }))
     });
   } catch (err) {

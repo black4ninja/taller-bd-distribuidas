@@ -35,7 +35,24 @@ http://localhost:6333/dashboard
 
 **No tienes que generar embeddings a mano.** Eso es complejo y requiere un modelo.
 
-En la página de la estación E4 hay un widget de búsqueda. Pega el texto que encontraste como pista en Redis, pulsa "Buscar testimonios similares", y verás los 3 con mayor score.
+En la página de la estación E4 hay un widget de búsqueda. Pega el texto que encontraste como pista en Redis, pulsa "Buscar testimonios similares", y verás los 5 con mayor score.
+
+## Hybrid search (vector + payload filter)
+
+El widget también permite filtrar por categoría. Esto es **hybrid search** — combinas:
+- Búsqueda vectorial (por significado del texto)
+- Filtro de payload (por metadatos estructurados: `category`, `source`, `date`)
+
+En producción esto es estándar en Qdrant, Pinecone, Weaviate. Casos típicos:
+- Buscar productos similares + filtro `precio < 1000`
+- Buscar artículos relacionados + filtro `idioma=es AND fecha > 2024-01-01`
+- Buscar testimonios similares + filtro `categoría=background_check`
+
+En este taller los testimonios tienen 4 categorías:
+- `witness_account` — declaraciones de testigos (anónimas o no)
+- `anonymous_tip` — pistas anónimas archivadas
+- `background_check` — reportes formales con matrículas y antecedentes
+- `social_media_intel` — análisis OSINT
 
 ## ¿Qué hace internamente el widget?
 
