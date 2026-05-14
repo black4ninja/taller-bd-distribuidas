@@ -133,6 +133,9 @@ services:
       MONGO_URL: mongodb://mongo:27017
       REDIS_URL: redis://redis:6379
       QDRANT_URL: http://qdrant:6333
+      GAME_DB_PATH: /data/game.db
+    volumes:
+      - dashboard_state:/data
     depends_on:
       seeder:
         condition: service_completed_successfully
@@ -143,3 +146,4 @@ volumes:
   redis_data:
   redisinsight_data:
   qdrant_data:
+  dashboard_state:

@@ -1,30 +1,58 @@
 import { Router } from 'express';
 import { checkFlag } from '../lib/validators.js';
-import { getProgress, allCompleted, elapsedMinutes, totalHintsUsed } from '../lib/progress.js';
+import {
+  getCompletedStations,
+  ALL_STATIONS,
+  markCaseSolved,
+  getPlayer,
+  decrementCredibility,
+  recordSubmitAttempt,
+  totalHintsUsed,
+  elapsedSinceE1Open
+} from '../lib/game-state.js';
 
 const router = Router();
 
+function allCompleted(playerId) {
+  const done = new Set(getCompletedStations(playerId));
+  return ALL_STATIONS.every(s => done.has(s));
+}
+
 router.get('/solve', (req, res) => {
-  const progress = getProgress(req);
-  res.render('solve', { progress, locked: !allCompleted(progress) });
+  const player = getPlayer(req.playerId);
+  if (player?.game_over) return res.render('game-over', { player });
+  const locked = !allCompleted(req.playerId);
+  res.render('solve', { player, locked });
 });
 
 router.post('/solve', (req, res) => {
-  const progress = getProgress(req);
-  if (!allCompleted(progress)) {
+  const player = getPlayer(req.playerId);
+  if (player?.game_over) {
+    return res.status(403).json({ ok: false, game_over: true });
+  }
+  if (!allCompleted(req.playerId)) {
     return res.status(403).json({ ok: false, error: 'Debes resolver las 4 estaciones primero.' });
   }
   const { killer_name, weapon, location } = req.body || {};
   const result = checkFlag({ killer: killer_name, weapon, location });
-  res.json(result);
+  recordSubmitAttempt(req.playerId, 'SOLVE', `${killer_name}|${weapon}|${location}`, result.ok);
+  if (result.ok) {
+    markCaseSolved(req.playerId);
+    return res.json(result);
+  }
+  decrementCredibility(req.playerId);
+  const updated = getPlayer(req.playerId);
+  return res.json({ ...result, credibility: updated.credibility, game_over: !!updated.game_over });
 });
 
 router.get('/victory', (req, res) => {
-  const progress = getProgress(req);
+  const player = getPlayer(req.playerId);
+  const elapsedSec = elapsedSinceE1Open(req.playerId);
   res.render('victory', {
-    progress,
-    elapsed: elapsedMinutes(progress),
-    hints: totalHintsUsed(progress)
+    player,
+    elapsedMinutes: elapsedSec != null ? Math.round(elapsedSec / 60) : null,
+    hintsCount: totalHintsUsed(req.playerId),
+    completedCount: getCompletedStations(req.playerId).length
   });
 });
 

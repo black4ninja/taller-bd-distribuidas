@@ -21,25 +21,132 @@
     <a class="ext" href="http://localhost:6333/dashboard" target="_blank" rel="noopener">Qdrant</a>
   </nav>
 </header>
+
+<div id="hud" class="hud">
+  <span id="hud-cred"   class="hud__chip hud__chip--cred"  title="Credibilidad — cada submit incorrecto resta">❤ <span id="hud-cred-value">—</span>/5</span>
+  <span id="hud-time"   class="hud__chip hud__chip--time"  title="Tiempo desde que abriste E1">⏱ <span id="hud-time-value">—</span></span>
+  <span id="hud-prog"   class="hud__chip hud__chip--prog"  title="Estaciones completadas">📂 <span id="hud-prog-value">—</span>/4</span>
+  <button id="notes-toggle" class="hud__chip hud__chip--notes" type="button" title="Abrir cuaderno de notas">📝 Notas</button>
+</div>
+
+<aside id="notes-drawer" class="notes-drawer" hidden>
+  <div class="notes-drawer__overlay" data-notes-close></div>
+  <div class="notes-drawer__panel">
+    <div class="notes-drawer__header">
+      <h3>📝 Cuaderno de notas</h3>
+      <button class="notes-drawer__close" data-notes-close aria-label="Cerrar">×</button>
+    </div>
+    <form id="note-form" class="notes-drawer__form">
+      <textarea id="note-input" rows="3" placeholder="Anota algo del caso (sospechosos, IDs, queries, deducciones)..." maxlength="2000"></textarea>
+      <button type="submit">+ Agregar nota</button>
+    </form>
+    <ul id="notes-list" class="notes-drawer__list"></ul>
+  </div>
+</aside>
+
 <script>
-  // Marcar pestaña activa según la ruta actual
+  // Marcar pestaña activa según la ruta
   (function() {
     const path = window.location.pathname;
     const links = document.querySelectorAll('#main-nav a[data-path]');
-    let bestMatch = null;
-    let bestLen = -1;
+    let best = null, bestLen = -1;
     links.forEach(a => {
       const p = a.getAttribute('data-path');
-      if (path === p || (p !== '/' && path.startsWith(p))) {
-        if (p.length > bestLen) { bestMatch = a; bestLen = p.length; }
-      } else if (p === '/' && path === '/') {
-        if (p.length > bestLen) { bestMatch = a; bestLen = p.length; }
+      if ((p === '/' && path === '/') || (p !== '/' && (path === p || path.startsWith(p)))) {
+        if (p.length > bestLen) { best = a; bestLen = p.length; }
       }
     });
-    if (bestMatch) bestMatch.classList.add('active');
-    else if (path.startsWith('/station/')) {
-      // Las estaciones no tienen su propia entrada en el nav — no destacar nada
-    }
+    if (best) best.classList.add('active');
   })();
+
+  // ─── HUD: polling de estado del jugador ─────────────────────────
+  function fmtTime(s) {
+    if (s == null) return '—';
+    const m = Math.floor(s / 60), ss = s % 60;
+    return m + ':' + String(ss).padStart(2,'0');
+  }
+  async function refreshHud() {
+    try {
+      const j = await (await fetch('/state')).json();
+      document.getElementById('hud-cred-value').textContent = j.credibility ?? '—';
+      document.getElementById('hud-time-value').textContent = fmtTime(j.elapsed_seconds);
+      document.getElementById('hud-prog-value').textContent = j.completed?.length ?? 0;
+      const credEl = document.getElementById('hud-cred');
+      credEl.classList.toggle('hud__chip--low', (j.credibility ?? 5) <= 2);
+      if (j.game_over) credEl.classList.add('hud__chip--dead');
+    } catch {}
+  }
+  refreshHud();
+  setInterval(refreshHud, 5000);
+
+  // ─── Notes drawer ───────────────────────────────────────────────
+  const drawer = document.getElementById('notes-drawer');
+  document.getElementById('notes-toggle').addEventListener('click', () => { drawer.hidden = false; loadNotes(); });
+  drawer.querySelectorAll('[data-notes-close]').forEach(el => el.addEventListener('click', () => drawer.hidden = true));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !drawer.hidden) drawer.hidden = true; });
+
+  async function loadNotes() {
+    const r = await fetch('/notes');
+    const j = await r.json();
+    const ul = document.getElementById('notes-list');
+    if (!j.notes.length) {
+      ul.innerHTML = '<li class="notes-empty">No tienes notas todavía. Anota lo que encuentres — IDs, queries, deducciones.</li>';
+      return;
+    }
+    ul.innerHTML = j.notes.map(n => `
+      <li class="note" data-id="${n.id}">
+        <div class="note-content" contenteditable="false">${escapeHtml(n.content)}</div>
+        <div class="note-actions">
+          <small>${n.updated_at}</small>
+          <button data-action="edit">✎</button>
+          <button data-action="save" hidden>✓</button>
+          <button data-action="cancel" hidden>✗</button>
+          <button data-action="delete">🗑</button>
+        </div>
+      </li>
+    `).join('');
+  }
+  function escapeHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  document.getElementById('note-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const input = document.getElementById('note-input');
+    const content = input.value.trim();
+    if (!content) return;
+    await fetch('/notes', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({content}) });
+    input.value = '';
+    loadNotes();
+  });
+
+  document.getElementById('notes-list').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const li = e.target.closest('li.note');
+    const id = li.dataset.id;
+    const contentEl = li.querySelector('.note-content');
+    const action = btn.dataset.action;
+    if (action === 'edit') {
+      contentEl.contentEditable = 'true';
+      contentEl.focus();
+      li.querySelector('[data-action="edit"]').hidden = true;
+      li.querySelector('[data-action="save"]').hidden = false;
+      li.querySelector('[data-action="cancel"]').hidden = false;
+      li.dataset.original = contentEl.textContent;
+    } else if (action === 'save') {
+      const newContent = contentEl.textContent.trim();
+      await fetch('/notes/' + id, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({content: newContent}) });
+      loadNotes();
+    } else if (action === 'cancel') {
+      contentEl.textContent = li.dataset.original || '';
+      loadNotes();
+    } else if (action === 'delete') {
+      if (!confirm('¿Borrar esta nota?')) return;
+      await fetch('/notes/' + id, { method: 'DELETE' });
+      loadNotes();
+    }
+  });
 </script>
+
 <main>

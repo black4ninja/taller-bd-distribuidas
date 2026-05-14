@@ -48,22 +48,11 @@
 
     <div class="case-file__section">
       <h3>Notas del investigador (pistas progresivas)</h3>
-      <p class="muted">Las consultas a archivo se registran en tu expediente personal pero no descuentan puntos. Úsalas si te atoras.</p>
-      <div class="hint-buttons">
-        <button class="hint-btn" data-level="1">Pista 1</button>
-        <button class="hint-btn" data-level="2">Pista 2</button>
-        <button class="hint-btn" data-level="3">Pista 3</button>
-      </div>
-    </div>
-
-    <div id="hint-modal" class="hint-modal" hidden>
-      <div class="hint-modal__overlay" data-close></div>
-      <div class="hint-modal__content" role="dialog" aria-modal="true" aria-labelledby="hint-modal-title">
-        <div class="hint-modal__header">
-          <h3 id="hint-modal-title">Pista</h3>
-          <button class="hint-modal__close" data-close aria-label="Cerrar">×</button>
-        </div>
-        <div class="hint-modal__body no-copy" id="hint-modal-body" oncontextmenu="return false"></div>
+      <p class="muted">Las pistas se desbloquean por tiempo: Pista 1 a los <strong>5 min</strong>, Pista 2 a los <strong>10 min</strong>, Pista 3 a los <strong>15 min</strong> después de abrir este folio. Esto te incentiva a investigar primero.</p>
+      <div class="hint-buttons" id="hint-buttons" data-opened-at="<%= openedAt %>">
+        <button class="hint-btn" data-level="1" data-unlock="<%= HINT_UNLOCK_SECONDS[1] %>" disabled>Pista 1</button>
+        <button class="hint-btn" data-level="2" data-unlock="<%= HINT_UNLOCK_SECONDS[2] %>" disabled>Pista 2</button>
+        <button class="hint-btn" data-level="3" data-unlock="<%= HINT_UNLOCK_SECONDS[3] %>" disabled>Pista 3</button>
       </div>
     </div>
 
@@ -113,6 +102,18 @@
   <% } %>
 </section>
 
+<!-- Modal de pistas -->
+<div id="hint-modal" class="hint-modal" hidden>
+  <div class="hint-modal__overlay" data-close></div>
+  <div class="hint-modal__content" role="dialog" aria-modal="true" aria-labelledby="hint-modal-title">
+    <div class="hint-modal__header">
+      <h3 id="hint-modal-title">Pista</h3>
+      <button class="hint-modal__close" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="hint-modal__body no-copy" id="hint-modal-body" oncontextmenu="return false"></div>
+  </div>
+</div>
+
 <script>
   const stationId = "<%= id %>";
 
@@ -123,47 +124,100 @@
       .replace(/\n/g, '<br>');
   }
 
+  // ─── Hint timers ─────────────────────────────────────────────────
+  const hintWrap = document.getElementById('hint-buttons');
+  const openedAtRaw = hintWrap ? hintWrap.dataset.openedAt : null;
+  const openedAtMs = openedAtRaw ? (function(s){
+    if (!s) return Date.now();
+    if (s.endsWith('Z') || s.includes('T')) return new Date(s).getTime();
+    return new Date(s.replace(' ','T')+'Z').getTime();
+  })(openedAtRaw) : null;
+
+  function fmtCountdown(sec) {
+    sec = Math.max(0, Math.ceil(sec));
+    const m = Math.floor(sec/60), s = sec % 60;
+    return m + ':' + String(s).padStart(2,'0');
+  }
+
+  function tickHintTimers() {
+    if (!hintWrap || !openedAtMs) return;
+    const elapsed = (Date.now() - openedAtMs) / 1000;
+    document.querySelectorAll('.hint-btn').forEach(btn => {
+      const need = parseInt(btn.dataset.unlock, 10);
+      const remain = need - elapsed;
+      const level = btn.dataset.level;
+      if (remain <= 0) {
+        btn.disabled = false;
+        btn.textContent = 'Pista ' + level;
+        btn.classList.add('hint-btn--unlocked');
+      } else {
+        btn.disabled = true;
+        btn.textContent = 'Pista ' + level + ' · disponible en ' + fmtCountdown(remain);
+      }
+    });
+  }
+  if (hintWrap) {
+    tickHintTimers();
+    setInterval(tickHintTimers, 1000);
+  }
+
   // ─── Modal de pistas ─────────────────────────────────────────────
   const hintModal = document.getElementById('hint-modal');
   const hintTitle = document.getElementById('hint-modal-title');
   const hintBody  = document.getElementById('hint-modal-body');
-
   function openHintModal() { hintModal.hidden = false; document.body.style.overflow = 'hidden'; }
   function closeHintModal() { hintModal.hidden = true; document.body.style.overflow = ''; }
-
   hintModal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeHintModal));
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !hintModal.hidden) closeHintModal(); });
 
   document.querySelectorAll('.hint-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
+      if (btn.disabled) return;
       const level = btn.dataset.level;
-      hintTitle.textContent = `Pista ${level}`;
+      hintTitle.textContent = 'Pista ' + level;
       hintBody.innerHTML = '<em>Cargando…</em>';
       openHintModal();
-      const r = await fetch(`/hints/${stationId}/${level}`);
+      const r = await fetch('/hints/' + stationId + '/' + level);
       const j = await r.json();
-      hintBody.innerHTML = renderMarkdownish(j.content || j.error);
+      if (r.status === 423) {
+        hintBody.innerHTML = 'Pista bloqueada. Disponible en ' + fmtCountdown(j.remainingSec) + '.';
+      } else {
+        hintBody.innerHTML = renderMarkdownish(j.content || j.error || 'sin contenido');
+      }
     });
   });
 
-  document.getElementById('check').addEventListener('click', async () => {
-    const answer = document.getElementById('answer').value;
-    const r = await fetch(`/station/${stationId}/check`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ answer })
+  // ─── Submit ─────────────────────────────────────────────────────
+  const checkBtn = document.getElementById('check');
+  if (checkBtn) {
+    checkBtn.addEventListener('click', async () => {
+      const answer = document.getElementById('answer').value;
+      const r = await fetch('/station/' + stationId + '/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answer })
+      });
+      const j = await r.json();
+      const el = document.getElementById('check-result');
+      if (j.ok) {
+        el.innerHTML = '✓ Informe aceptado — folio cerrado. <a href="/">Volver al expediente</a> para abrir el siguiente.';
+        el.className = 'ok';
+        if (typeof refreshHud === 'function') refreshHud();
+      } else if (j.game_over) {
+        el.innerHTML = '✗ Credibilidad agotada. <a href="/">Caso cerrado</a>.';
+        el.className = 'fail';
+        setTimeout(() => location.href = '/', 1500);
+      } else {
+        let msg = '✗ ' + (j.error || 'Respuesta incorrecta');
+        if (typeof j.credibility === 'number') msg += ' · credibilidad restante: ' + j.credibility + '/5';
+        el.innerHTML = msg;
+        el.className = 'fail';
+        if (typeof refreshHud === 'function') refreshHud();
+      }
     });
-    const j = await r.json();
-    const el = document.getElementById('check-result');
-    if (j.ok) {
-      el.innerHTML = '✓ Informe aceptado — folio cerrado. <a href="/">Volver al expediente</a> para abrir el siguiente.';
-      el.className = 'ok';
-    } else {
-      el.innerHTML = '✗ ' + j.error;
-      el.className = 'fail';
-    }
-  });
+  }
 
+  // ─── MongoDB shell (E2) ─────────────────────────────────────────
   const mongoBtn = document.getElementById('mongo-run');
   if (mongoBtn) {
     function highlightJSON(text) {
@@ -179,14 +233,13 @@
       const out = document.getElementById('mongo-out');
       out.innerHTML = '<em>Ejecutando...</em>';
       const r = await fetch('/mongo-shell', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query })
       });
       const j = await r.json();
       if (!j.ok) { out.innerHTML = '<pre style="color:#b8261c">✗ ' + (j.error || 'error') + '</pre>'; return; }
       const meta = j.truncated
-        ? `<p class="muted">Mostrando primeros ${j.count} resultados (truncado a 100). Refina tu filtro para acotar.</p>`
+        ? `<p class="muted">Mostrando primeros ${j.count} resultados (truncado a 100).</p>`
         : `<p class="muted">${j.count} resultado${j.count===1?'':'s'}.</p>`;
       out.innerHTML = meta + '<pre>' + highlightJSON(JSON.stringify(j.result, null, 2)) + '</pre>';
     });
@@ -195,6 +248,7 @@
     });
   }
 
+  // ─── Vector search (E4) ─────────────────────────────────────────
   const vsBtn = document.getElementById('vector-search');
   if (vsBtn) {
     vsBtn.addEventListener('click', async () => {
@@ -204,8 +258,7 @@
       const out = document.getElementById('vector-out');
       out.innerHTML = '<em>Generando embedding y consultando Qdrant... (~5s la primera vez)</em>';
       const r = await fetch('/search-vectors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query, top: 5, category })
       });
       const j = await r.json();

@@ -5,18 +5,19 @@
   <p class="lede">Conectaste 4 paradigmas distintos para encontrar al asesino: relacional → documental → key-value → vectorial. Eso es <strong>bases de datos distribuidas</strong>.</p>
 
   <div class="stats">
-    <div><strong><%= elapsed ?? '?' %></strong><span>minutos</span></div>
-    <div><strong><%= hints %></strong><span>pistas usadas</span></div>
-    <div><strong><%= progress.completed.length %>/4</strong><span>estaciones</span></div>
+    <div><strong><%= elapsedMinutes ?? '?' %></strong><span>minutos desde E1</span></div>
+    <div><strong><%= player?.credibility ?? 5 %>/5</strong><span>credibilidad final</span></div>
+    <div><strong><%= hintsCount %></strong><span>pistas usadas</span></div>
+    <div><strong><%= completedCount %>/4</strong><span>estaciones</span></div>
   </div>
 
   <h2>Resumen de la investigación</h2>
   <ul class="recap">
     <li><strong>E0 · PostgreSQL</strong> — leíste el <code>crime_scene_report</code>: 15-Mar, Lab CETEC, asesinato por Cable USB-C, 3 testigos.</li>
-    <li><strong>E1 · PostgreSQL</strong> — JOIN persons + interviews. 2 sospechosos físicos (Sofía Linares y David Hernández).</li>
-    <li><strong>E2 · MongoDB</strong> — Sin auth. Descubriste la colección oculta <code>_evidence_archive</code> con un chat-log que acusa al entrenador del gimnasio.</li>
-    <li><strong>E3 · Redis</strong> — Sin password. <code>KEYS *</code> reveló miles de claves; encontraste la <code>evidence:hidden:trainer_log</code> con testimonio anónimo.</li>
-    <li><strong>E4 · Qdrant</strong> — Búsqueda semántica reveló al verdadero asesino: <strong>Carlos Méndez</strong>, entrenador de Get Fit Now.</li>
+    <li><strong>E1 · PostgreSQL</strong> — JOIN persons + interviews. 2 sospechosos físicos.</li>
+    <li><strong>E2 · MongoDB</strong> — Sin auth. Cross-collection lookup (gym_members ↔ social_posts) reveló el handle del entrenador del víctima.</li>
+    <li><strong>E3 · Redis</strong> — Sin password. Identificaste la pista relevante entre múltiples en el buffer de denuncia + leíste la documentación de pipelines para encontrar la collection de Qdrant.</li>
+    <li><strong>E4 · Qdrant</strong> — Hybrid search (vector + payload filter). Razonaste en el lenguaje del archivo formal para encontrar al asesino entre múltiples candidatos.</li>
   </ul>
 
   <h2>Pregunta para tu entregable</h2>

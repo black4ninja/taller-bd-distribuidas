@@ -1,9 +1,17 @@
 FROM node:20-bookworm-slim
 
+# Build tools necesarios para better-sqlite3 si no hay prebuild para la plataforma
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 make g++ \
+ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY package.json ./
 RUN npm install --omit=dev
+
+# Directorio para la BD de estado del juego (no expuesta al alumno)
+RUN mkdir -p /data
 
 COPY . .
 

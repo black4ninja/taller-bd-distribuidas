@@ -7,7 +7,6 @@
   <% if (locked) { %>
     <div class="blocked">
       <p><strong>Bloqueado.</strong> Completa primero las 4 estaciones (E1 → E4) antes de presentar el flag final.</p>
-      <p>Llevas <%= progress.completed.length %>/4.</p>
     </div>
   <% } else { %>
     <p>Con la evidencia recolectada en los 4 motores, completa los 3 campos del flag final:</p>
@@ -46,13 +45,17 @@
       const el = document.getElementById('solve-result');
       if (j.ok) {
         window.location = '/victory';
+      } else if (j.game_over) {
+        el.innerHTML = '✗ Credibilidad agotada. <a href="/">Caso cerrado</a>.';
+        el.className = 'fail';
+        setTimeout(() => location.href = '/', 1500);
       } else {
         const f = j.fields || {};
-        el.innerHTML = '✗ Aún hay errores: ' +
-          (f.killer === false ? '<span>asesino</span> ' : '') +
-          (f.weapon === false ? '<span>arma</span> ' : '') +
-          (f.location === false ? '<span>lugar</span>' : '');
+        let msg = '✗ Respuesta incorrecta';
+        if (typeof j.credibility === 'number') msg += ' · credibilidad restante: ' + j.credibility + '/5';
+        el.innerHTML = msg;
         el.className = 'fail';
+        if (typeof refreshHud === 'function') refreshHud();
       }
     });
   }

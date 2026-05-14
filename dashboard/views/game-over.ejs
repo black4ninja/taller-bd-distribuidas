@@ -1,0 +1,25 @@
+<%- include('partials/header', { pageTitle: 'Game Over' }) %>
+
+<section class="paper-bg case-file" style="text-align:center;">
+  <div class="stamp" style="border-color:#b8261c;color:#b8261c;">
+    <div class="stamp__label">CASO RETIRADO</div>
+    <div class="stamp__code">GAME OVER</div>
+    <div class="stamp__meta">CREDIBILIDAD AGOTADA</div>
+  </div>
+
+  <h1 style="color:#b8261c;">Credibilidad agotada</h1>
+  <p class="case-file__motor">La fiscalía perdió la confianza en tu investigación y te retiró el caso.</p>
+
+  <div class="case-file__section">
+    <h3>¿Qué pasó?</h3>
+    <p>Acumulaste demasiados informes incorrectos. Cada submit equivocado deteriora tu credibilidad como investigador. Cuando llega a 0, el caso pasa a otro equipo.</p>
+    <p class="muted">En investigación real esto pasa: cada acusación infundada cuesta tiempo, recursos, y la reputación de la fiscalía. Por eso pensar antes de submit importa más que adivinar rápido.</p>
+  </div>
+
+  <div class="case-file__section">
+    <h3>¿Puedes intentar otra vez?</h3>
+    <p>Esta sesión está cerrada. Pídele al instructor que reinicie tu estado, o limpia las cookies de tu navegador para empezar con un identificador nuevo y credibilidad fresca.</p>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

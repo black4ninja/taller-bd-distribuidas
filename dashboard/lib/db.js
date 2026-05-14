@@ -1,0 +1,90 @@
+import Database from 'better-sqlite3';
+import path from 'node:path';
+import fs from 'node:fs';
+
+const DB_PATH = process.env.GAME_DB_PATH || './game.db';
+const DB_DIR = path.dirname(DB_PATH);
+if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
+
+const db = new Database(DB_PATH);
+db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS players (
+    player_id      TEXT PRIMARY KEY,
+    created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
+    credibility    INTEGER NOT NULL DEFAULT 5,
+    game_over      INTEGER NOT NULL DEFAULT 0,
+    case_solved_at TEXT
+  );
+
+  CREATE TABLE IF NOT EXISTS station_opens (
+    player_id  TEXT NOT NULL,
+    station_id TEXT NOT NULL,
+    opened_at  TEXT DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (player_id, station_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS stations_completed (
+    player_id    TEXT NOT NULL,
+    station_id   TEXT NOT NULL,
+    completed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (player_id, station_id)
+  );
+
+  CREATE TABLE IF NOT EXISTS submit_attempts (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id     TEXT NOT NULL,
+    station_id    TEXT NOT NULL,
+    answer        TEXT,
+    correct       INTEGER NOT NULL,
+    submitted_at  TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_attempts_player ON submit_attempts(player_id);
+
+  CREATE TABLE IF NOT EXISTS hint_uses (
+    player_id  TEXT NOT NULL,
+    station_id TEXT NOT NULL,
+    level      INTEGER NOT NULL,
+    used_at    TEXT DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (player_id, station_id, level)
+  );
+
+  CREATE TABLE IF NOT EXISTS notes (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id   TEXT NOT NULL,
+    content     TEXT NOT NULL,
+    created_at  TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_notes_player ON notes(player_id);
+`);
+
+export const stmts = {
+  ensurePlayer:        db.prepare('INSERT OR IGNORE INTO players (player_id) VALUES (?)'),
+  getPlayer:           db.prepare('SELECT * FROM players WHERE player_id = ?'),
+  decrementCredibility:db.prepare('UPDATE players SET credibility = MAX(0, credibility - 1), game_over = CASE WHEN credibility - 1 <= 0 THEN 1 ELSE 0 END WHERE player_id = ?'),
+  markCaseSolved:      db.prepare('UPDATE players SET case_solved_at = CURRENT_TIMESTAMP WHERE player_id = ? AND case_solved_at IS NULL'),
+
+  recordOpen:          db.prepare('INSERT OR IGNORE INTO station_opens (player_id, station_id) VALUES (?, ?)'),
+  getOpen:             db.prepare('SELECT opened_at FROM station_opens WHERE player_id = ? AND station_id = ?'),
+
+  markComplete:        db.prepare('INSERT OR IGNORE INTO stations_completed (player_id, station_id) VALUES (?, ?)'),
+  getCompletedList:    db.prepare('SELECT station_id, completed_at FROM stations_completed WHERE player_id = ?'),
+  isComplete:          db.prepare('SELECT 1 AS yes FROM stations_completed WHERE player_id = ? AND station_id = ?'),
+
+  recordAttempt:       db.prepare('INSERT INTO submit_attempts (player_id, station_id, answer, correct) VALUES (?, ?, ?, ?)'),
+  countAttempts:       db.prepare('SELECT COUNT(*) AS n FROM submit_attempts WHERE player_id = ?'),
+  countFailedAttempts: db.prepare('SELECT COUNT(*) AS n FROM submit_attempts WHERE player_id = ? AND correct = 0'),
+
+  markHint:            db.prepare('INSERT OR IGNORE INTO hint_uses (player_id, station_id, level) VALUES (?, ?, ?)'),
+  getHintsUsed:        db.prepare('SELECT station_id, level, used_at FROM hint_uses WHERE player_id = ?'),
+
+  listNotes:           db.prepare('SELECT id, content, created_at, updated_at FROM notes WHERE player_id = ? ORDER BY id DESC'),
+  addNote:             db.prepare('INSERT INTO notes (player_id, content) VALUES (?, ?)'),
+  updateNote:          db.prepare('UPDATE notes SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND player_id = ?'),
+  deleteNote:          db.prepare('DELETE FROM notes WHERE id = ? AND player_id = ?')
+};
+
+export default db;

@@ -16,9 +16,10 @@
   </p>
 
   <div class="case-status-bar">
-    <span><small>Tiempo</small><strong><%= elapsed ?? 0 %> min</strong></span>
+    <span><small>Tiempo (desde E1)</small><strong><%= elapsed %> min</strong></span>
+    <span><small>Credibilidad</small><strong><%= player?.credibility ?? 5 %>/5 ❤</strong></span>
     <span><small>Pistas usadas</small><strong><%= hints %></strong></span>
-    <span><small>Progreso</small><strong><%= progress.completed.length %>/4 estaciones</strong></span>
+    <span><small>Progreso</small><strong><%= completedCount %>/4 estaciones</strong></span>
     <span><small>Estado</small><strong><%= canSolve ? 'Listo para cerrar' : 'En curso' %></strong></span>
   </div>
 

@@ -1,12 +1,22 @@
 import { Router } from 'express';
 import { marked } from 'marked';
 import { STATIONS, checkStation } from '../lib/validators.js';
-import { getProgress, saveProgress, markCompleted, ALL_STATIONS } from '../lib/progress.js';
+import {
+  ALL_STATIONS,
+  recordStationOpen,
+  getStationOpenedAt,
+  isStationCompleted,
+  markStationCompleted,
+  previousStationBlocking,
+  recordSubmitAttempt,
+  decrementCredibility,
+  getPlayer,
+  hintLevelUnlocked,
+  HINT_UNLOCK_SECONDS
+} from '../lib/game-state.js';
 
 const router = Router();
 
-// Narrativa específica de cada estación.
-// Diseñada para que un alumno sin experiencia previa pueda entender QUÉ hacer.
 const STATION_INTRO = {
   E1: {
     motor: 'PostgreSQL (relacional)',
@@ -136,10 +146,26 @@ router.get('/station/:id', (req, res) => {
   const intro = STATION_INTRO[id];
   if (!station || !intro) return res.status(404).send('Estación no existe');
 
-  const progress = getProgress(req);
-  const idx = ALL_STATIONS.indexOf(id);
-  const previousStations = ALL_STATIONS.slice(0, idx);
-  const blockedBy = previousStations.find(p => !progress.completed.includes(p));
+  const pid = req.playerId;
+  const player = getPlayer(pid);
+
+  // Si game over, mostrar el screen de game over (no la estación)
+  if (player?.game_over) {
+    return res.render('game-over', { player });
+  }
+
+  // ¿Bloqueada por estación anterior?
+  const blockedBy = previousStationBlocking(pid, id);
+  if (!blockedBy) {
+    recordStationOpen(pid, id);
+  }
+  const openedAt = getStationOpenedAt(pid, id);
+
+  // Calcular timers de pistas
+  const hintStatus = {};
+  for (const level of [1, 2, 3]) {
+    hintStatus[level] = hintLevelUnlocked(openedAt, level);
+  }
 
   res.render('station', {
     id,
@@ -149,8 +175,12 @@ router.get('/station/:id', (req, res) => {
       narrative_html: marked.parse(intro.narrative),
       why_this_db_html: intro.why_this_db ? marked.parse(intro.why_this_db) : null
     },
-    progress,
+    player,
     blockedBy: blockedBy || null,
+    openedAt,
+    hintStatus,
+    HINT_UNLOCK_SECONDS,
+    completed: isStationCompleted(pid, id),
     showVectorWidget: id === 'E4',
     showMongoShell: id === 'E2'
   });
@@ -158,15 +188,36 @@ router.get('/station/:id', (req, res) => {
 
 router.post('/station/:id/check', (req, res) => {
   const id = req.params.id.toUpperCase();
+  const pid = req.playerId;
+  const player = getPlayer(pid);
+
+  if (player?.game_over) {
+    return res.status(403).json({ ok: false, game_over: true, error: 'Caso cerrado: credibilidad agotada.' });
+  }
+  // Bloqueo de orden
+  const blockedBy = previousStationBlocking(pid, id);
+  if (blockedBy) {
+    return res.status(403).json({ ok: false, error: `Tienes que cerrar primero la estación ${blockedBy}.` });
+  }
+
   const { answer } = req.body || {};
   const result = checkStation(id, answer);
-  const progress = getProgress(req);
+  recordSubmitAttempt(pid, id, answer, result.ok);
 
   if (result.ok) {
-    markCompleted(progress, id);
-    saveProgress(res, progress);
+    markStationCompleted(pid, id);
+    return res.json({ ok: true });
   }
-  res.json(result);
+
+  // Falló — decrementar credibilidad
+  decrementCredibility(pid);
+  const updated = getPlayer(pid);
+  return res.json({
+    ok: false,
+    error: result.error,
+    credibility: updated.credibility,
+    game_over: !!updated.game_over
+  });
 });
 
 export default router;
