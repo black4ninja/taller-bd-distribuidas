@@ -8,7 +8,7 @@ import {
   decrementCredibility,
   recordSubmitAttempt,
   totalHintsUsed,
-  elapsedSinceE1Open,
+  elapsedSinceStart,
   checkAndApplyTimeout
 } from '../lib/game-state.js';
 
@@ -50,7 +50,8 @@ router.post('/solve', (req, res) => {
 
 router.get('/victory', (req, res) => {
   const player = getPlayer(req.playerId);
-  const elapsedSec = elapsedSinceE1Open(req.playerId);
+  const player2 = getPlayer(req.playerId);
+  const elapsedSec = player2?.started_at ? elapsedSinceStart(req.playerId) : null;
   res.render('victory', {
     player,
     elapsedMinutes: elapsedSec != null ? Math.round(elapsedSec / 60) : null,

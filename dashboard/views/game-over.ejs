@@ -36,9 +36,24 @@
   <% } %>
 
   <div class="case-file__section">
-    <h3>¿Puedes intentar otra vez?</h3>
-    <p>Esta sesión está cerrada. Pídele al instructor que reinicie tu estado, o limpia las cookies de tu navegador para empezar con un identificador nuevo, credibilidad fresca y reloj reiniciado.</p>
+    <h3>¿Intentar otra vez?</h3>
+    <p>El reloj y la credibilidad arrancan desde cero. La fiscalía abrirá un nuevo expediente con un investigador distinto (tu identificador cambia para que no haya conflicto con esta sesión).</p>
+    <button id="new-game-btn" class="btn btn--primary" style="font-size: 1.05rem; padding: 0.85rem 1.8rem; margin-top: 1rem;">
+      ▶ Iniciar nuevo caso
+    </button>
   </div>
 </section>
+
+<script>
+  document.getElementById('new-game-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('new-game-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Asignando caso nuevo...';
+    const r = await fetch('/new-game', { method: 'POST' });
+    const j = await r.json();
+    if (j.ok) location.href = j.redirect || '/';
+    else { btn.disabled = false; btn.textContent = '▶ Iniciar nuevo caso'; }
+  });
+</script>
 
 <%- include('partials/footer') %>

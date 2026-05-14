@@ -84,18 +84,28 @@ export function effectiveNowMs(playerId) {
   return Date.now() + (player?.time_offset_ms || 0);
 }
 
-function computeLiveElapsed(playerId) {
-  const opened = getStationOpenedAt(playerId, 'E1');
-  if (!opened) return null;
-  return Math.max(0, Math.floor((effectiveNowMs(playerId) - parseSqlTime(opened)) / 1000));
+export function isGameStarted(playerId) {
+  return !!getPlayer(playerId)?.started_at;
 }
 
-export function elapsedSinceE1Open(playerId) {
+export function startGame(playerId) {
+  stmts.startGame.run(playerId);
+}
+
+function computeLiveElapsed(playerId) {
   const player = getPlayer(playerId);
-  // Si el caso terminó (game over o solved), el elapsed quedó congelado en SQLite.
+  if (!player?.started_at) return null;
+  return Math.max(0, Math.floor((effectiveNowMs(playerId) - parseSqlTime(player.started_at)) / 1000));
+}
+
+export function elapsedSinceStart(playerId) {
+  const player = getPlayer(playerId);
   if (player?.elapsed_at_end_seconds != null) return player.elapsed_at_end_seconds;
   return computeLiveElapsed(playerId);
 }
+
+// Alias retrocompatible (algunas vistas viejas pueden importar este nombre)
+export const elapsedSinceE1Open = elapsedSinceStart;
 
 export function deadlineRemainingSeconds(playerId, totalSeconds = DEADLINE_SECONDS) {
   const elapsed = elapsedSinceE1Open(playerId);

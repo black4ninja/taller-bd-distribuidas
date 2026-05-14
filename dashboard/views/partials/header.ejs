@@ -94,14 +94,29 @@
   }
 
   function applyHud(j) {
+    const started = !!j.started;
     document.getElementById('hud-cred-value').textContent = j.credibility ?? '—';
-    document.getElementById('hud-time-value').textContent = fmtMS(j.elapsed_seconds);
     document.getElementById('hud-prog-value').textContent = j.completed?.length ?? 0;
     const credEl = document.getElementById('hud-cred');
     credEl.classList.toggle('hud__chip--low', (j.credibility ?? 5) <= 2 && !j.game_over);
     credEl.classList.toggle('hud__chip--dead', !!j.game_over);
 
-    // Bomba: countdown HH:MM:SS + barra que retrocede
+    // Time chip + bomba: ocultas hasta que el juego inicie
+    const timeChip = document.getElementById('hud-time');
+    const bombWrap = document.getElementById('hud-bomb');
+    const devBtn   = document.getElementById('dev-accel');
+    if (!started) {
+      if (timeChip) timeChip.style.display = 'none';
+      if (bombWrap) bombWrap.style.display = 'none';
+      if (devBtn)   devBtn.style.display   = 'none';
+      return;
+    }
+    if (timeChip) timeChip.style.display = '';
+    if (bombWrap) bombWrap.style.display = '';
+    if (devBtn)   devBtn.style.display   = '';
+
+    document.getElementById('hud-time-value').textContent = fmtMS(j.elapsed_seconds);
+
     const bombVal = document.getElementById('hud-bomb-value');
     const bombFill = document.getElementById('hud-bomb-fill');
     const bombIcon = document.getElementById('hud-bomb-icon');
@@ -112,10 +127,9 @@
       const pct = (remain / total) * 100;
       bombFill.style.width = pct + '%';
       bombIcon.style.left = pct + '%';
-      const wrap = document.getElementById('hud-bomb');
-      wrap.classList.toggle('hud__bomb--warn',    pct < 50 && pct >= 20);
-      wrap.classList.toggle('hud__bomb--danger',  pct < 20 && pct > 0);
-      wrap.classList.toggle('hud__bomb--exploded', pct === 0);
+      bombWrap.classList.toggle('hud__bomb--warn',    pct < 50 && pct >= 20);
+      bombWrap.classList.toggle('hud__bomb--danger',  pct < 20 && pct > 0);
+      bombWrap.classList.toggle('hud__bomb--exploded', pct === 0);
     }
   }
 

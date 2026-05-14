@@ -1,0 +1,55 @@
+<%- include('partials/header', { pageTitle: 'Iniciar investigación' }) %>
+
+<section class="paper-bg case-file" style="text-align:center;">
+
+  <div class="stamp">
+    <div class="stamp__label">EXPEDIENTE NUEVO</div>
+    <div class="stamp__code">CSI-2026-0315</div>
+    <div class="stamp__meta">CASO ASIGNADO · LISTO PARA INICIAR</div>
+  </div>
+
+  <h1>Bienvenido, investigador</h1>
+
+  <p class="case-file__motor" style="max-width: 650px; margin: 0 auto 1.5rem;">
+    Un investigador del ITESM Campus Monterrey fue encontrado muerto la noche del 15 de marzo en el Laboratorio CETEC. Las evidencias del caso están distribuidas en <strong>4 motores de base de datos</strong>. Tu trabajo: reunirlas y descubrir al asesino — antes de que escape.
+  </p>
+
+  <div class="case-file__section" style="text-align: left; max-width: 650px; margin: 1.5rem auto;">
+    <h3>Antes de empezar</h3>
+    <ul style="line-height: 1.8;">
+      <li>📰 Lee el <a href="/caso">expediente público</a> del caso — contexto narrativo, lugares y personajes.</li>
+      <li>🎓 Revisa el <a href="/walkthrough">tutorial E0</a> — 5 min, te calibra para los 4 motores.</li>
+    </ul>
+  </div>
+
+  <div class="case-file__section" style="text-align: left; max-width: 650px; margin: 1.5rem auto;">
+    <h3>Reglas del juego</h3>
+    <ul style="line-height: 1.8;">
+      <li>⏱ <strong>Tienes 2 horas</strong> desde el momento que inicies. Cuando el reloj llegue a 0, el asesino escapa al extranjero.</li>
+      <li>❤ Empiezas con <strong>5 puntos de credibilidad</strong>. Cada submit incorrecto te resta 1. Si llega a 0, la fiscalía te retira el caso.</li>
+      <li>🧠 Las <strong>pistas progresivas</strong> de cada estación se desbloquean por tiempo: nivel 1 a los 5 min, nivel 2 a los 10 min, nivel 3 a los 15 min de abrir la estación.</li>
+      <li>📝 Usa el <strong>cuaderno de notas</strong> (botón flotante 📝 abajo a la derecha) para guardar lo que vayas descubriendo.</li>
+      <li>🔒 Las estaciones se desbloquean en orden: E1 → E2 → E3 → E4 → flag final.</li>
+    </ul>
+  </div>
+
+  <button id="start-game-btn" class="btn btn--primary" style="font-size: 1.15rem; padding: 1rem 2.2rem; margin-top: 1.5rem;">
+    ▶ Iniciar investigación
+  </button>
+  <p class="muted" style="margin-top: 0.85rem; font-size: 0.9rem;">El reloj de 2 horas empieza apenas pulses el botón.</p>
+
+</section>
+
+<script>
+  document.getElementById('start-game-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('start-game-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Iniciando...';
+    const r = await fetch('/start-game', { method: 'POST' });
+    const j = await r.json();
+    if (j.ok) location.href = j.redirect || '/';
+    else { btn.disabled = false; btn.textContent = '▶ Iniciar investigación'; }
+  });
+</script>
+
+<%- include('partials/footer') %>
