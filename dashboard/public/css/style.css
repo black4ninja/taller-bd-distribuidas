@@ -812,6 +812,110 @@ pre code { background: transparent; padding: 0; }
 }
 .paper-bg .hint-out .hint strong { color: #8b6f10; }
 
+/* ─── Modal de pistas ─── */
+.hint-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.hint-modal[hidden] { display: none; }
+.hint-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(2px);
+  cursor: pointer;
+}
+.hint-modal__content {
+  position: relative;
+  background: #fffaee;
+  color: #1a1a1a;
+  border: 2px solid #c5a850;
+  border-radius: 6px;
+  max-width: 720px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  font-family: Georgia, "Times New Roman", serif;
+  animation: hintModalIn 0.18s ease-out;
+}
+@keyframes hintModalIn {
+  from { transform: translateY(10px) scale(0.98); opacity: 0; }
+  to   { transform: translateY(0) scale(1);     opacity: 1; }
+}
+.hint-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.2rem;
+  background: #c5a850;
+  color: #2a2010;
+  border-bottom: 1px solid #a08530;
+}
+.hint-modal__header h3 {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.95rem;
+  color: #2a2010;
+  border: none;
+  padding: 0;
+}
+.hint-modal__close {
+  background: transparent;
+  border: none;
+  color: #2a2010;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  border-radius: 4px;
+}
+.hint-modal__close:hover { background: rgba(0,0,0,0.1); }
+.hint-modal__body {
+  padding: 1.3rem 1.5rem;
+  overflow-y: auto;
+  line-height: 1.6;
+  color: #1a1a1a;
+  font-size: 0.98rem;
+}
+.hint-modal__body strong { color: #8b6f10; }
+.hint-modal__body code {
+  background: rgba(184,38,28,0.1);
+  color: #b8261c;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+.hint-modal__body pre {
+  background: #2a2620;
+  color: #f5f1e8;
+  border: 1px solid #44402c;
+  padding: 0.85rem 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 0.6rem 0;
+}
+.hint-modal__body pre code { background: transparent; color: inherit; padding: 0; }
+
+/* Bloqueo de copy-paste casual */
+.no-copy {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+.no-copy * { user-select: none; }
+
 .paper-bg .vector-widget {
   background: #fff;
   border: 1px solid #c9c1ad;

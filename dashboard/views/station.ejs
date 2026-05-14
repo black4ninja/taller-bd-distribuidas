@@ -50,11 +50,21 @@
       <h3>Notas del investigador (pistas progresivas)</h3>
       <p class="muted">Las consultas a archivo se registran en tu expediente personal pero no descuentan puntos. Úsalas si te atoras.</p>
       <div class="hint-buttons">
-        <button data-level="1">Pista 1 (suave)</button>
-        <button data-level="2">Pista 2 (media)</button>
-        <button data-level="3">Pista 3 (fuerte)</button>
+        <button class="hint-btn" data-level="1">Pista 1</button>
+        <button class="hint-btn" data-level="2">Pista 2</button>
+        <button class="hint-btn" data-level="3">Pista 3</button>
       </div>
-      <div id="hint-out" class="hint-out"></div>
+    </div>
+
+    <div id="hint-modal" class="hint-modal" hidden>
+      <div class="hint-modal__overlay" data-close></div>
+      <div class="hint-modal__content" role="dialog" aria-modal="true" aria-labelledby="hint-modal-title">
+        <div class="hint-modal__header">
+          <h3 id="hint-modal-title">Pista</h3>
+          <button class="hint-modal__close" data-close aria-label="Cerrar">×</button>
+        </div>
+        <div class="hint-modal__body no-copy" id="hint-modal-body" oncontextmenu="return false"></div>
+      </div>
     </div>
 
     <% if (showMongoShell) { %>
@@ -101,16 +111,26 @@
       .replace(/\n/g, '<br>');
   }
 
-  document.querySelectorAll('.hint-buttons button').forEach(btn => {
+  // ─── Modal de pistas ─────────────────────────────────────────────
+  const hintModal = document.getElementById('hint-modal');
+  const hintTitle = document.getElementById('hint-modal-title');
+  const hintBody  = document.getElementById('hint-modal-body');
+
+  function openHintModal() { hintModal.hidden = false; document.body.style.overflow = 'hidden'; }
+  function closeHintModal() { hintModal.hidden = true; document.body.style.overflow = ''; }
+
+  hintModal.querySelectorAll('[data-close]').forEach(el => el.addEventListener('click', closeHintModal));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !hintModal.hidden) closeHintModal(); });
+
+  document.querySelectorAll('.hint-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const level = btn.dataset.level;
+      hintTitle.textContent = `Pista ${level}`;
+      hintBody.innerHTML = '<em>Cargando…</em>';
+      openHintModal();
       const r = await fetch(`/hints/${stationId}/${level}`);
       const j = await r.json();
-      const out = document.getElementById('hint-out');
-      const div = document.createElement('div');
-      div.className = 'hint hint--' + level;
-      div.innerHTML = `<strong>Pista ${level}:</strong> ${renderMarkdownish(j.content || j.error)}`;
-      out.appendChild(div);
+      hintBody.innerHTML = renderMarkdownish(j.content || j.error);
     });
   });
 
