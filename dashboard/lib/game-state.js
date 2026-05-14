@@ -78,7 +78,12 @@ export function parseSqlTime(s) {
 export function elapsedSinceE1Open(playerId) {
   const opened = getStationOpenedAt(playerId, 'E1');
   if (!opened) return null;
-  return Math.floor((Date.now() - parseSqlTime(opened)) / 1000);
+  const player = getPlayer(playerId);
+  // Si el caso terminó (resuelto o game over), el timer se congela en ese momento.
+  let endMs = Date.now();
+  if (player?.case_solved_at) endMs = Math.min(endMs, parseSqlTime(player.case_solved_at));
+  if (player?.game_over_at)   endMs = Math.min(endMs, parseSqlTime(player.game_over_at));
+  return Math.max(0, Math.floor((endMs - parseSqlTime(opened)) / 1000));
 }
 
 export function totalHintsUsed(playerId) {

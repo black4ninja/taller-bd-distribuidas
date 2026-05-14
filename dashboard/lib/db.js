@@ -16,6 +16,7 @@ db.exec(`
     created_at     TEXT DEFAULT CURRENT_TIMESTAMP,
     credibility    INTEGER NOT NULL DEFAULT 5,
     game_over      INTEGER NOT NULL DEFAULT 0,
+    game_over_at   TEXT,
     case_solved_at TEXT
   );
 
@@ -61,10 +62,22 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_notes_player ON notes(player_id);
 `);
 
+// Migración idempotente: agrega game_over_at si la tabla players ya existía sin esa columna
+const cols = db.prepare("PRAGMA table_info(players)").all().map(r => r.name);
+if (!cols.includes('game_over_at')) {
+  db.exec('ALTER TABLE players ADD COLUMN game_over_at TEXT');
+}
+
 export const stmts = {
   ensurePlayer:        db.prepare('INSERT OR IGNORE INTO players (player_id) VALUES (?)'),
   getPlayer:           db.prepare('SELECT * FROM players WHERE player_id = ?'),
-  decrementCredibility:db.prepare('UPDATE players SET credibility = MAX(0, credibility - 1), game_over = CASE WHEN credibility - 1 <= 0 THEN 1 ELSE 0 END WHERE player_id = ?'),
+  decrementCredibility:db.prepare(`
+    UPDATE players SET
+      credibility = MAX(0, credibility - 1),
+      game_over = CASE WHEN credibility - 1 <= 0 THEN 1 ELSE 0 END,
+      game_over_at = CASE WHEN credibility - 1 <= 0 AND game_over_at IS NULL THEN CURRENT_TIMESTAMP ELSE game_over_at END
+    WHERE player_id = ?
+  `),
   markCaseSolved:      db.prepare('UPDATE players SET case_solved_at = CURRENT_TIMESTAMP WHERE player_id = ? AND case_solved_at IS NULL'),
 
   recordOpen:          db.prepare('INSERT OR IGNORE INTO station_opens (player_id, station_id) VALUES (?, ?)'),
