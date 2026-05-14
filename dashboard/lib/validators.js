@@ -34,7 +34,7 @@ export const STATIONS = {
   E2: {
     title: 'MongoDB — El handle del entrenador',
     accept: ['pro_coach_mtz'],
-    error_hint: 'La respuesta es el handle social (username) del entrenador del víctima. Vive en social_posts, no en gym_members — necesitas correlacionar ambas colecciones.'
+    error_hint: 'La respuesta es el handle social (username) del entrenador personal de la víctima.'
   },
   E3: {
     title: 'Redis — La pista del informante',
