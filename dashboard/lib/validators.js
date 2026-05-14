@@ -13,9 +13,11 @@ function normalize(str) {
 function matchesAny(answer, acceptedSet) {
   const a = normalize(answer);
   if (!a) return false;
+  // Acepta: igualdad exacta, o answer contiene a accepted completo (ej. "el asesino es Carlos Méndez" matchea "Carlos Méndez").
+  // NO acepta accepted parcial dentro de answer (ej. "Carlos" no debe pasar como "Carlos Méndez").
   return acceptedSet.some(accepted => {
     const n = normalize(accepted);
-    return a === n || a.includes(n) || n.includes(a);
+    return a === n || a.includes(n);
   });
 }
 

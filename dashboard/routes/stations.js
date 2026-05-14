@@ -114,20 +114,23 @@ Los testimonios anónimos son **texto libre que necesitas comparar por SIGNIFICA
 
 Aplicaciones reales: búsqueda de productos por descripción, retrieval para RAG (chatbots con LLMs), detección de duplicados, recomendación basada en contenido. Si tus datos son **texto, imágenes, audio o cualquier cosa que pueda volverse un embedding**, necesitas un vectorial.`,
     narrative: `
-La fiscalía mantiene un archivo central de testimonios sobre múltiples casos, indexado por **embeddings semánticos** — no se busca por palabras exactas sino **por significado**. Cada testimonio tiene una **categoría** que indica de qué tipo de registro proviene:
+La fiscalía mantiene un archivo central de testimonios indexado por **embeddings semánticos** — no se busca por palabras exactas sino **por significado**. Cada testimonio tiene una **categoría**:
 
-- \`witness_account\` — declaraciones de testigos que pasaron por la fiscalía o por la línea anónima
+- \`witness_account\` — declaraciones de testigos (anónimas o no)
 - \`anonymous_tip\` — pistas anónimas ya procesadas y archivadas
-- \`background_check\` — reportes formales con información de personas identificadas (matrículas, antecedentes, registros internos)
+- \`background_check\` — reportes formales con datos identificables (matrículas, clientes, antecedentes)
 - \`social_media_intel\` — análisis OSINT del equipo de inteligencia
 
-Aquí está lo importante: el testimonio anónimo que rescataste de Redis describe la escena pero **no nombra al asesino**. Si haces la búsqueda semántica sin más, los testimonios más similares van a ser **otras descripciones igual de anónimas** que tampoco lo nombran. **Los nombres completos de personas suelen vivir en los reportes formales** — en la categoría correcta.
+**Aquí no hay atajos**: si copias y pegas la frase del testimonio anónimo de Redis, vas a recibir más descripciones similares de la escena (witness_accounts), pero **ninguna nombra al asesino**. Los reportes formales que SÍ contienen nombres no mencionan "CETEC" ni "mochila" — son registros secos con matrículas, clientes, antecedentes. Una búsqueda semántica plana NO va a relacionarlos directamente con la frase del testigo.
 
-Eso es **hybrid search** (búsqueda vectorial + filtro estructurado), un patrón estándar en producción: combinas el "significado" (vector) con condiciones precisas sobre metadatos (categoría, fecha, fuente). El widget de abajo te permite hacerlo.
+Esto es **trabajo de detective**. Tienes que pensar: **¿qué hace único al asesino?** No la mochila ni el lugar — esos son detalles circunstanciales. El asesino tiene una **relación específica con la víctima**: era su entrenador personal. Esa relación está documentada en exactamente UN reporte formal.
 
-**Plan**: (1) busca primero sin filtro y observa qué tipos de testimonios devuelve, (2) identifica qué categoría contendría el nombre del asesino, (3) repite la búsqueda restringida a esa categoría — el top-1 te dará el nombre completo.
+**Sugerencia de flujo**:
+1. Primera búsqueda — pega la frase de Redis sin filtro. Observa: la escena se describe pero nadie tiene nombre.
+2. Cambia de query. Piensa en qué texto **describiría** al asesino en un reporte formal (su relación con la víctima, no la escena del crimen). Restringe por categoría a los reportes formales para reducir ruido.
+3. Va a haber **varios reportes parecidos** (varios Carlos, varios Aguilar, varios instructores del mismo gimnasio). Lee bien: solo UNO tiene los datos que conectan con la víctima específicamente.
 
-**Submit**: el nombre completo del asesino (nombre y apellido, tal como aparece textualmente en el testimonio con score más alto **bajo el filtro correcto**).`
+**Submit**: el **nombre completo** del asesino (nombre Y apellido). Submit parcial como "Carlos" no es aceptado — hay varios Carlos en los reportes.`
   }
 };
 

@@ -92,17 +92,20 @@ export const HINTS = {
   },
 
   E4: {
-    1: 'Usa el widget de búsqueda semántica abajo. Empieza pegando la frase del campo `testimony` que rescataste de Redis. ' +
-       'NO uses filtro todavía — corre la búsqueda sin filtro primero para entender qué tipo de testimonios hay en el archivo.\n\n' +
-       'Vas a notar que los top resultados son **descripciones de la escena** (alguien que vio al entrenador, una bolsa negra, el laboratorio) pero **ninguno te da el nombre completo del asesino**.',
-    2: 'Los nombres de personas — con apellido, matrícula, antecedentes — viven en reportes formales, no en testimonios anónimos. ' +
-       'Qdrant permite **hybrid search**: vector + filtro de payload. Restringe la búsqueda a la categoría donde la fiscalía guarda los reportes formales.\n\n' +
-       'Mira las opciones del dropdown del widget. ¿Cuál suena a "reporte formal con datos de personas identificadas"?',
-    3: 'Plan completo:\n\n' +
-       '1. Pega esta frase en el widget (la del testimonio anónimo de Redis):\n\n' +
-       '> Vi al entrenador entrar al laboratorio del CETEC esa noche con un cable y una mochila negra.\n\n' +
-       '2. Selecciona en el dropdown la categoría **`background_check`** (donde están los reportes formales con matrículas y antecedentes).\n\n' +
-       '3. Ejecuta. El testimonio TOP bajo ese filtro nombra al asesino con nombre Y apellido. Submit ese nombre completo.\n\n' +
-       'Esto es **hybrid search** (vector + payload filter), un patrón real de producción en Qdrant, Pinecone, Weaviate. Sin el filtro, las descripciones anónimas dominan; con el filtro, surfaces los reportes que contienen información identificable.'
+    1: 'Hay 18 reportes formales (`background_check`) en el archivo. Muchos son de instructores del Get Fit Now. ' +
+       'Varios se llaman Carlos (Vega, Treviño, Romero, Méndez). Varios tienen apellido Aguilar (Ricardo, Pedro). Varios tienen reportes previos. ' +
+       'NO puedes simplemente pegar la frase de Redis — los reportes formales no contienen "CETEC" ni "mochila negra", están descritos en otros términos. ' +
+       'Empieza filtrando por categoría `background_check` y pega una query que describa al asesino por su RELACIÓN con el caso, no por la escena.',
+    2: 'El asesino tiene una característica única en los reportes: **la víctima (Dr. Ernesto Aguilar) era su cliente principal asignado**. ' +
+       'Ningún otro instructor tiene ese cliente. Una query semántica que mencione esa relación específica va a surfacear el reporte correcto.\n\n' +
+       'Prueba algo como: `instructor cuyo cliente principal era Dr. Ernesto Aguilar` o `entrenador de la víctima fallecida con antecedentes`. ' +
+       'Filtra por `background_check`. El top-1 será el asesino.',
+    3: 'Path exacto:\n\n' +
+       '1. Selecciona categoría **`background_check`** en el dropdown.\n' +
+       '2. Pega en el widget:\n\n' +
+       '> instructor cuyo cliente principal era Dr. Ernesto Aguilar con antecedentes de agresión\n\n' +
+       '3. Ejecuta. El top-1 nombra al asesino con nombre Y apellido completo.\n\n' +
+       'Tu queryng semántica tiene que **describir al asesino en el lenguaje del reporte formal** (matrícula, cliente, antecedentes), no en el lenguaje del testigo (escena, mochila, lugar). Esto es razonar sobre cómo está modelada la información en el archivo, no solo pegar lo primero que tienes.\n\n' +
+       'Submit el **nombre completo** (Nombre Apellido). El validador no acepta "Carlos" solo — hay 4 Carlos distintos en los reportes.'
   }
 };
