@@ -465,3 +465,351 @@ pre code { background: transparent; padding: 0; }
 .dossier .btn { background: #1a1a1a; color: #f5f1e8; border-color: #1a1a1a; margin-top: 1.5rem; }
 .dossier .btn:hover { background: #333; }
 
+/* ──────────────────────────────────────────────────
+   TEMA PAPEL EXPEDIENTE — index, stations, walkthrough
+   ────────────────────────────────────────────────── */
+
+.paper-bg {
+  background: #f5f1e8;
+  color: #1a1a1a;
+  padding: 2.25rem 2.5rem 2.75rem;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 0 80px rgba(0,0,0,0.04);
+  font-family: Georgia, "Times New Roman", serif;
+  position: relative;
+  margin-bottom: 2rem;
+}
+.paper-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(transparent 0, transparent 28px, rgba(0,0,0,0.025) 28px, rgba(0,0,0,0.025) 29px);
+  pointer-events: none;
+  border-radius: 6px;
+}
+.paper-bg > * { position: relative; z-index: 1; }
+
+.paper-bg h1 { color: #1a1a1a; font-family: Georgia, serif; font-size: 2.2rem; line-height: 1.15; border-bottom: 4px double #1a1a1a; padding-bottom: 0.7rem; margin: 0.4rem 0 0.85rem; }
+.paper-bg h2 { color: #1a1a1a; font-family: Georgia, serif; font-size: 1.4rem; margin: 1.8rem 0 0.5rem; border-bottom: 1px solid #ccc6b9; padding-bottom: 0.3rem; }
+.paper-bg h3 { color: #1a1a1a; font-family: Georgia, serif; font-size: 1.05rem; }
+.paper-bg p, .paper-bg li { color: #2a2a2a; line-height: 1.62; }
+.paper-bg ul, .paper-bg ol { padding-left: 1.4rem; }
+.paper-bg .muted { color: #666; }
+.paper-bg .back { color: #5a5a5a; text-decoration: none; font-family: Georgia, serif; }
+.paper-bg .back:hover { color: #1a1a1a; }
+.paper-bg pre {
+  background: #2a2620;
+  color: #f5f1e8;
+  border: 1px solid #44402c;
+  padding: 0.9rem 1rem;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.paper-bg code {
+  background: rgba(184, 38, 28, 0.08);
+  color: #b8261c;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+.paper-bg pre code { background: transparent; color: inherit; padding: 0; }
+.paper-bg .btn { background: #1a1a1a; color: #f5f1e8; border: 1px solid #1a1a1a; }
+.paper-bg .btn:hover { background: #333; }
+.paper-bg .btn--primary { background: #b8261c; border-color: #b8261c; color: #f5f1e8; }
+.paper-bg .btn--primary:hover { background: #d32f23; }
+.paper-bg .btn--ghost { background: transparent; color: #1a1a1a; border-color: #1a1a1a; }
+
+/* Stamp reutilizable */
+.stamp {
+  display: inline-block;
+  padding: 0.45rem 1.1rem;
+  margin-bottom: 1.2rem;
+  border: 2px solid #b8261c;
+  color: #b8261c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0.08em;
+  transform: rotate(-1.2deg);
+  background: rgba(184, 38, 28, 0.04);
+}
+.stamp__label { font-weight: 700; font-size: 0.75rem; }
+.stamp__code  { font-size: 1.25rem; font-weight: 700; line-height: 1; margin: 0.15rem 0; }
+.stamp__meta  { font-size: 0.6rem; opacity: 0.85; }
+
+/* ──── Index (front page) ──── */
+
+.frontpage-headline {
+  font-family: Georgia, serif;
+  font-size: 2.4rem;
+  line-height: 1.1;
+  margin: 0.3rem 0 0.5rem;
+  border-bottom: 4px double #1a1a1a;
+  padding-bottom: 0.65rem;
+  color: #1a1a1a;
+}
+.frontpage-subline {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #555;
+  margin: 0 0 1.2rem;
+  font-size: 1.02rem;
+}
+.frontpage-lead {
+  font-size: 1.08rem;
+  line-height: 1.65;
+  font-weight: 500;
+  border-left: 3px solid #b8261c;
+  padding-left: 1rem;
+  margin: 0 0 1.5rem;
+  color: #1a1a1a;
+}
+
+.case-status-bar {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1rem 0 1.5rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border: 1px solid #c9c1ad;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+  font-family: Georgia, serif;
+  color: #1a1a1a;
+}
+.case-status-bar > span { display: flex; flex-direction: column; }
+.case-status-bar small { font-size: 0.7rem; letter-spacing: 0.08em; color: #777; text-transform: uppercase; }
+.case-status-bar strong { font-size: 1.1rem; color: #1a1a1a; }
+
+.frontpage-cta {
+  margin: 1rem 0 2rem;
+  padding: 0.9rem 1.1rem;
+  background: rgba(184, 38, 28, 0.06);
+  border-left: 3px solid #b8261c;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  color: #1a1a1a;
+}
+.frontpage-cta a {
+  font-weight: 600;
+  color: #b8261c;
+  text-decoration: none;
+  border-bottom: 1px dashed #b8261c;
+  padding-bottom: 1px;
+}
+.frontpage-cta a:hover { background: rgba(184, 38, 28, 0.1); }
+
+/* File folder cards for stations on the front page */
+.stations-paper {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.file-card {
+  background: #fff;
+  border: 1px solid #c9c1ad;
+  border-left: 6px solid #1a1a1a;
+  padding: 1.1rem 1.3rem 1.2rem;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.06);
+  font-family: Georgia, serif;
+  position: relative;
+}
+.file-card--done   { border-left-color: #2e7d32; background: linear-gradient(135deg, #fff 70%, rgba(46, 125, 50, 0.08) 100%); }
+.file-card--locked { opacity: 0.55; border-left-color: #777; }
+.file-card--walkthrough { border-left-color: #c5a850; border-left-style: dashed; }
+.file-card--final  { border-left-color: #b8261c; }
+
+.file-card__tab {
+  display: inline-block;
+  background: #1a1a1a;
+  color: #f5f1e8;
+  padding: 0.2rem 0.7rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  border-radius: 2px;
+  margin-bottom: 0.5rem;
+}
+.file-card--done .file-card__tab   { background: #2e7d32; }
+.file-card--walkthrough .file-card__tab { background: #c5a850; }
+.file-card--final .file-card__tab  { background: #b8261c; }
+
+.file-card__title {
+  font-family: Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  color: #1a1a1a;
+}
+.file-card__meta {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+  margin: 0 0 0.6rem;
+}
+.file-card__desc {
+  font-size: 0.95rem;
+  color: #2a2a2a;
+  margin: 0 0 0.85rem;
+}
+.file-card__badge {
+  display: inline-block;
+  background: rgba(46, 125, 50, 0.12);
+  color: #2e7d32;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.55rem;
+  border-radius: 99px;
+  margin-left: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+/* ──── Station detail (paper) ──── */
+
+.case-file h1 { margin-top: 0.3rem; }
+.case-file__motor {
+  font-family: Georgia, serif;
+  font-style: italic;
+  color: #555;
+  margin: -0.5rem 0 1rem;
+}
+.case-file__blocked {
+  background: rgba(184, 38, 28, 0.08);
+  border: 1px solid #b8261c;
+  border-left: 4px solid #b8261c;
+  padding: 1rem 1.2rem;
+  border-radius: 4px;
+  color: #1a1a1a;
+}
+.case-file__section {
+  margin-top: 1.8rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid #ccc6b9;
+}
+.case-file__section h3 {
+  font-family: Georgia, serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+  margin: 0 0 0.7rem;
+  color: #1a1a1a;
+}
+.case-file__section h3::before {
+  content: '▸ ';
+  color: #b8261c;
+}
+
+.paper-bg .narrative { font-size: 1.02rem; line-height: 1.7; }
+.paper-bg .narrative strong { color: #1a1a1a; }
+.paper-bg .narrative code { background: rgba(184, 38, 28, 0.1); color: #b8261c; }
+
+.paper-bg .links { margin: 1rem 0 0.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.paper-bg .hint-buttons button {
+  background: #fff;
+  border: 1px solid #c9c1ad;
+  color: #1a1a1a;
+  font-family: Georgia, serif;
+  padding: 0.55rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+}
+.paper-bg .hint-buttons button:hover { background: #f5f1e8; border-color: #1a1a1a; }
+.paper-bg .hint-out .hint {
+  background: #fffaee;
+  border: 1px solid #c5a850;
+  border-left: 3px solid #c5a850;
+  color: #1a1a1a;
+  padding: 0.85rem 1rem;
+  margin-top: 0.75rem;
+  border-radius: 4px;
+}
+.paper-bg .hint-out .hint strong { color: #8b6f10; }
+
+.paper-bg .vector-widget {
+  background: #fff;
+  border: 1px solid #c9c1ad;
+  padding: 1.1rem;
+  border-radius: 4px;
+  box-shadow: 2px 2px 0 rgba(0,0,0,0.05);
+}
+.paper-bg .vector-widget textarea {
+  background: #fafaf5;
+  color: #1a1a1a;
+  border: 1px solid #c9c1ad;
+  font-family: Georgia, serif;
+}
+.paper-bg .vector-widget button {
+  background: #b8261c;
+  color: #f5f1e8;
+  border: none;
+  font-family: Georgia, serif;
+}
+.paper-bg .testimony {
+  background: #f5f1e8;
+  border: 1px solid #c9c1ad;
+  border-left: 3px solid #b8261c;
+  color: #2a2a2a;
+  padding: 0.7rem 0.9rem;
+}
+
+.paper-bg .submit-box {
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  padding: 1.2rem 1.3rem;
+  margin-top: 1.5rem;
+  border-radius: 4px;
+  box-shadow: 3px 3px 0 #1a1a1a;
+}
+.paper-bg .submit-box h3 {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.85rem;
+  margin: 0 0 0.7rem;
+  color: #1a1a1a;
+  border-bottom: 2px solid #1a1a1a;
+  padding-bottom: 0.4rem;
+}
+.paper-bg .submit-box input {
+  background: #fafaf5;
+  color: #1a1a1a;
+  border: 1px solid #c9c1ad;
+  font-family: Georgia, serif;
+  font-size: 1rem;
+  padding: 0.6rem 0.85rem;
+  margin: 0.4rem 0;
+  width: 100%;
+}
+.paper-bg .submit-box button {
+  background: #b8261c;
+  color: #f5f1e8;
+  border: none;
+  padding: 0.55rem 1.2rem;
+  font-family: Georgia, serif;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.paper-bg .submit-box button:hover { background: #d32f23; }
+.paper-bg .ok { color: #2e7d32; font-weight: 600; }
+.paper-bg .fail { color: #b8261c; font-weight: 600; }
+.paper-bg .fail span { background: rgba(184,38,28,0.15); }
+.paper-bg .ok a { color: #1a1a1a; }
+
+/* Why-DB callout adaptado a paper */
+.paper-bg .why-db {
+  background: linear-gradient(135deg, rgba(197,168,80,0.12) 0%, rgba(184,38,28,0.06) 100%);
+  border: 1px solid #c5a850;
+  border-left: 3px solid #c5a850;
+}
+.paper-bg .why-db summary { color: #8b6f10; }
+.paper-bg .why-db-content { border-top-color: rgba(139,111,16,0.2); color: #1a1a1a; }
+.paper-bg .why-db-content strong { color: #8b6f10; }
+.paper-bg .why-db-content code { background: rgba(184,38,28,0.1); }
+
+

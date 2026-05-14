@@ -1,62 +1,75 @@
 <%- include('partials/header', { pageTitle: 'Inicio' }) %>
 
-<section class="hero">
-  <h1>Crime Scene Investigation: Bases de Datos Distribuidas</h1>
-  <p class="lede">
-    Un investigador del ITESM Campus Monterrey fue encontrado muerto en el Laboratorio CETEC. Antes de morir, el equipo de seguridad distribuyó las evidencias en <strong>4 motores de base de datos distintos</strong>. Tu tarea: reunir las pistas y descubrir al asesino.
-  </p>
-  <p class="lede">
-    Tienes <strong>60 minutos</strong>. No necesitas conocer ningún motor de base de datos por adelantado: cada estación trae un <em>cheatsheet</em>, una UI gráfica y pistas progresivas.
-  </p>
+<section class="paper-bg">
 
-  <div class="meta-bar">
-    <span>Tiempo: <strong><%= elapsed ?? 0 %> min</strong></span>
-    <span>Pistas usadas: <strong><%= hints %></strong></span>
-    <span>Progreso: <strong><%= progress.completed.length %>/4</strong></span>
+  <div class="stamp">
+    <div class="stamp__label">EXPEDIENTE DE INVESTIGACIÓN</div>
+    <div class="stamp__code">CSI-2026-0315</div>
+    <div class="stamp__meta">ITESM CAMPUS MONTERREY · CASO ACTIVO</div>
   </div>
 
-  <div class="hero-cta">
-    <a class="btn btn--ghost" href="/caso">📰 Lee primero el expediente público del caso</a>
+  <h1 class="frontpage-headline">Crimen en el Laboratorio CETEC</h1>
+  <p class="frontpage-subline">Investigador con evidencias distribuidas en 4 sistemas — Bases de datos relacional, documental, en memoria y vectorial.</p>
+
+  <p class="frontpage-lead">
+    Un investigador del ITESM Campus Monterrey fue encontrado sin vida la noche del 15 de marzo en el Laboratorio CETEC. El equipo de seguridad del campus distribuyó las evidencias del caso en <strong>cuatro motores de base de datos distintos</strong>. Tu trabajo: reunir las pistas correlacionándolas entre los cuatro y descubrir al asesino. Tienes <strong>60–80 minutos</strong>.
+  </p>
+
+  <div class="case-status-bar">
+    <span><small>Tiempo</small><strong><%= elapsed ?? 0 %> min</strong></span>
+    <span><small>Pistas usadas</small><strong><%= hints %></strong></span>
+    <span><small>Progreso</small><strong><%= progress.completed.length %>/4 estaciones</strong></span>
+    <span><small>Estado</small><strong><%= canSolve ? 'Listo para cerrar' : 'En curso' %></strong></span>
+  </div>
+
+  <div class="frontpage-cta">
+    <a href="/caso">📰 Lee primero el expediente público del caso →</a>
     <span class="muted">Contexto narrativo, lugares y personajes. No revela respuestas.</span>
   </div>
-</section>
 
-<section class="stations">
-  <h2>Estaciones</h2>
+  <h2>Estaciones de la investigación</h2>
 
-  <div class="station-card station-card--walkthrough">
-    <div class="station-header">
-      <span class="station-id">E0</span>
-      <span class="station-title">Walkthrough — Lee primero</span>
+  <div class="stations-paper">
+
+    <div class="file-card file-card--walkthrough">
+      <span class="file-card__tab">FOLIO E0 · TUTORIAL</span>
+      <h3 class="file-card__title">Walkthrough — Lee primero</h3>
+      <p class="file-card__meta">Ejemplo resuelto · 5 minutos</p>
+      <p class="file-card__desc">Recorrido guiado por Adminer y la primera tabla del caso. Te calibra para resolver las demás estaciones sin atorarte con la mecánica.</p>
+      <a class="btn" href="/walkthrough">Abrir walkthrough →</a>
     </div>
-    <p>Una estación de ejemplo que explica cómo abrir Adminer, ejecutar un SELECT y leer el crime_scene_report. Te toma 5 min y te calibra para las demás.</p>
-    <a class="btn" href="/walkthrough">Abrir walkthrough</a>
-  </div>
 
-  <% stations.forEach((s, i) => { %>
-    <div class="station-card <%= s.completed ? 'station-card--done' : '' %>">
-      <div class="station-header">
-        <span class="station-id"><%= s.id %></span>
-        <span class="station-title"><%= s.title %></span>
-        <% if (s.completed) { %><span class="badge badge--done">✓ Resuelta</span><% } %>
+    <% stations.forEach((s) => { %>
+      <div class="file-card <%= s.completed ? 'file-card--done' : '' %>">
+        <span class="file-card__tab">FOLIO <%= s.id %></span>
+        <h3 class="file-card__title">
+          <%= s.title %>
+          <% if (s.completed) { %><span class="file-card__badge">✓ Resuelta</span><% } %>
+        </h3>
+        <p class="file-card__meta">Motor: <%= s.motor %></p>
+        <p class="file-card__desc">
+          <% if (s.id === 'E1') { %>Recupera las entrevistas de los 3 testigos identificados en el reporte y cruza descripciones físicas con la columna de notas para encontrar a los 2 sospechosos visibles.
+          <% } else if (s.id === 'E2') { %>Confirma alibis en redes sociales y descubre, vía un filtro JSON sobre un campo array, al entrenador con motivo real para el crimen.
+          <% } else if (s.id === 'E3') { %>El sistema del gimnasio guarda check-ins en memoria. Alguien dejó una clave fuera del patrón estándar con un testimonio anónimo crítico para el caso.
+          <% } else if (s.id === 'E4') { %>Testimonios anónimos indexados como embeddings. Búsqueda por significado para identificar a quién señala el informante con el nombre completo.<% } %>
+        </p>
+        <a class="btn" href="/station/<%= s.id %>">Abrir folio →</a>
       </div>
-      <p><strong>Motor:</strong> <%= s.motor %></p>
-      <a class="btn" href="/station/<%= s.id %>">Abrir estación →</a>
-    </div>
-  <% }) %>
+    <% }) %>
 
-  <div class="station-card station-card--final <%= canSolve ? '' : 'station-card--locked' %>">
-    <div class="station-header">
-      <span class="station-id">★</span>
-      <span class="station-title">Resolver el caso</span>
+    <div class="file-card file-card--final <%= canSolve ? '' : 'file-card--locked' %>">
+      <span class="file-card__tab">★ RESOLUCIÓN OFICIAL</span>
+      <h3 class="file-card__title">Cerrar el caso</h3>
+      <% if (canSolve) { %>
+        <p class="file-card__desc">Tienes la evidencia de los 4 motores. Presenta el informe final: asesino + arma + lugar.</p>
+        <a class="btn btn--primary" href="/solve">Presentar informe final →</a>
+      <% } else { %>
+        <p class="file-card__desc">Bloqueado. Completa las 4 estaciones para habilitar la presentación del informe.</p>
+      <% } %>
     </div>
-    <% if (canSolve) { %>
-      <p>Tienes todas las pistas. Ingresa el asesino, el arma y el lugar para cerrar el caso.</p>
-      <a class="btn btn--primary" href="/solve">Submit final →</a>
-    <% } else { %>
-      <p>Bloqueado. Completa las 4 estaciones para desbloquear el submit final.</p>
-    <% } %>
+
   </div>
+
 </section>
 
 <%- include('partials/footer') %>

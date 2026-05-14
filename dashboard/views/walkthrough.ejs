@@ -1,9 +1,19 @@
 <%- include('partials/header', { pageTitle: 'E0 — Walkthrough' }) %>
-<a href="/" class="back">← Volver al índice</a>
 
-<section class="station-detail">
-  <h1>E0 · Walkthrough (ejemplo resuelto)</h1>
-  <p class="muted">5 min. Esta estación NO requiere respuesta. Sólo léela para calibrarte: muestra cómo se interactúa con un motor de base de datos durante el taller.</p>
+<section class="paper-bg case-file">
+
+  <a href="/" class="back">← Volver al expediente</a>
+
+  <div class="stamp">
+    <div class="stamp__label">FOLIO DE INVESTIGACIÓN</div>
+    <div class="stamp__code">E0</div>
+    <div class="stamp__meta">TUTORIAL · POSTGRESQL</div>
+  </div>
+
+  <h1>Walkthrough — Cómo trabajar el caso</h1>
+  <p class="case-file__motor">5 minutos · ejemplo resuelto · sin respuesta requerida</p>
+
+  <p class="muted">Este folio no requiere submit. Léelo para calibrarte: muestra cómo se interactúa con un motor de base de datos durante el taller. Después abre el folio E1.</p>
 
   <details class="why-db" open>
     <summary>💡 Concepto clave: polyglot persistence</summary>
@@ -17,46 +27,56 @@
         <li><strong>Redis</strong> es para datos efímeros, cache, sesiones y check-ins de alta frecuencia.</li>
         <li><strong>Qdrant</strong> (o cualquier vectorial) es necesario cuando buscas por SIGNIFICADO, no por keywords.</li>
       </ul>
-      <p>El trade-off es real: tu sistema gana eficiencia, pero pierde simplicidad (ahora tienes 4 motores que mantener, monitorear y sincronizar). En este taller, cada estación te muestra exactamente <em>por qué</em> los datos viven donde viven, con un callout "💡 ¿Por qué este motor?" en cada pantalla.</p>
+      <p>El trade-off es real: tu sistema gana eficiencia, pero pierde simplicidad (ahora tienes 4 motores que mantener, monitorear y sincronizar). En este taller, cada folio te muestra exactamente <em>por qué</em> los datos viven donde viven, con un callout "💡 ¿Por qué este motor?" en cada pantalla.</p>
     </div>
   </details>
 
-  <h2>Paso 1 — Abre Adminer</h2>
-  <p>Adminer es una UI web ligera para PostgreSQL/MySQL. Está corriendo en <a href="http://localhost:8081" target="_blank" rel="noopener">http://localhost:8081</a>.</p>
-  <p>Login:</p>
-  <pre><code>Sistema:    PostgreSQL
+  <div class="case-file__section">
+    <h3>Paso 1 — Abre Adminer</h3>
+    <p>Adminer es una UI web ligera para PostgreSQL. Está corriendo en <a href="http://localhost:8081" target="_blank" rel="noopener">http://localhost:8081</a>.</p>
+    <p>Login:</p>
+    <pre><code>Sistema:    PostgreSQL
 Servidor:   postgres
 Usuario:    pg
 Contraseña: pg
 Base:       investigation</code></pre>
+  </div>
 
-  <h2>Paso 2 — Identifica las tablas</h2>
-  <p>Una vez dentro verás 3 tablas: <code>crime_scene_report</code>, <code>persons</code>, <code>interviews</code>. Haz click en <code>crime_scene_report</code> y luego en "Select data". Verás 1 sola fila.</p>
+  <div class="case-file__section">
+    <h3>Paso 2 — Identifica las tablas</h3>
+    <p>Una vez dentro verás 3 tablas: <code>crime_scene_report</code>, <code>persons</code>, <code>interviews</code>. Haz click en <code>crime_scene_report</code> y luego en "Select data". Verás 1 sola fila.</p>
+  </div>
 
-  <h2>Paso 3 — Ejecuta tu primer SELECT</h2>
-  <p>En la barra superior haz click en "SQL command". Pega y ejecuta:</p>
-  <pre><code>SELECT date, city, type, description
+  <div class="case-file__section">
+    <h3>Paso 3 — Ejecuta tu primer SELECT</h3>
+    <p>En la barra superior haz click en "SQL command". Pega y ejecuta:</p>
+    <pre><code>SELECT date, city, type, description
 FROM crime_scene_report
 WHERE date = '2026-03-15' AND city = 'Monterrey';</code></pre>
+  </div>
 
-  <h2>Paso 4 — Lee la descripción del crimen</h2>
-  <p>El campo <code>description</code> te da TRES datos críticos que vas a usar el resto del taller:</p>
-  <ul>
-    <li><strong>Arma</strong>: <code>Cable USB-C</code> (anótalo para el flag final)</li>
-    <li><strong>Lugar</strong>: <code>Laboratorio CETEC</code> (anótalo para el flag final)</li>
-    <li><strong>Tres testigos</strong>: identificados por dirección o por <code>gym_member_id</code></li>
-  </ul>
+  <div class="case-file__section">
+    <h3>Paso 4 — Lee la descripción del crimen</h3>
+    <p>El campo <code>description</code> te da TRES datos críticos que vas a usar el resto del taller:</p>
+    <ul>
+      <li><strong>Arma</strong>: el nombre exacto del objeto usado (anótalo para el informe final)</li>
+      <li><strong>Lugar</strong>: el edificio específico (anótalo para el informe final)</li>
+      <li><strong>Tres testigos</strong>: identificados por dirección o por <code>gym_member_id</code></li>
+    </ul>
+  </div>
 
-  <h2>Paso 5 — Patrón a usar el resto del taller</h2>
-  <p>Cada estación sigue este mismo patrón:</p>
-  <ol>
-    <li>Abre la UI gráfica del motor (links en la barra superior).</li>
-    <li>Consulta los cheatsheets si no recuerdas la sintaxis.</li>
-    <li>Si te atoras: usa pistas progresivas (1 → 2 → 3).</li>
-    <li>Submit la respuesta en el cuadro al final de cada estación.</li>
-  </ol>
+  <div class="case-file__section">
+    <h3>Paso 5 — Patrón a usar el resto del taller</h3>
+    <p>Cada folio E1–E4 sigue este mismo patrón:</p>
+    <ol>
+      <li>Abre la UI gráfica del motor (links en la barra superior).</li>
+      <li>Consulta los cheatsheets si no recuerdas la sintaxis.</li>
+      <li>Si te atoras: usa pistas progresivas (1 → 2 → 3).</li>
+      <li>Submit el informe oficial en el cuadro al final del folio.</li>
+    </ol>
+    <p>Cuando estés listo, vuelve al <a href="/">expediente</a> y abre <strong>E1</strong>.</p>
+  </div>
 
-  <p>Cuando estés listo, vuelve al <a href="/">índice</a> y abre <strong>E1</strong>.</p>
 </section>
 
 <%- include('partials/footer') %>

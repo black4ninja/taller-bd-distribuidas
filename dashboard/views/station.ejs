@@ -1,37 +1,54 @@
 <%- include('partials/header', { pageTitle: id + ' — ' + title }) %>
 
-<a href="/" class="back">← Volver al índice</a>
+<section class="paper-bg case-file">
 
-<section class="station-detail">
-  <h1><%= id %>: <%= title %></h1>
-  <p class="motor"><strong>Motor:</strong> <%= intro.motor %></p>
+  <a href="/" class="back">← Volver al expediente</a>
+
+  <div class="stamp">
+    <div class="stamp__label">FOLIO DE INVESTIGACIÓN</div>
+    <div class="stamp__code"><%= id %></div>
+    <div class="stamp__meta"><%= intro.motor.toUpperCase() %></div>
+  </div>
+
+  <h1><%= title %></h1>
+  <p class="case-file__motor">Motor de evidencia: <%= intro.motor %></p>
 
   <% if (blockedBy) { %>
-    <div class="blocked">
-      <p><strong>Esta estación está bloqueada.</strong> Completa la estación <%= blockedBy %> primero.</p>
+    <div class="case-file__blocked">
+      <p><strong>Folio sellado.</strong> Para acceder a este expediente debes presentar antes el informe del folio <strong><%= blockedBy %></strong>.</p>
     </div>
   <% } else { %>
-    <div class="narrative">
-      <%- intro.narrative_html %>
+
+    <div class="case-file__section">
+      <h3>Informe narrativo</h3>
+      <div class="narrative">
+        <%- intro.narrative_html %>
+      </div>
     </div>
 
     <% if (intro.why_this_db_html) { %>
-      <details class="why-db" open>
-        <summary>💡 ¿Por qué este motor para estos datos?</summary>
-        <div class="why-db-content">
-          <%- intro.why_this_db_html %>
-        </div>
-      </details>
+      <div class="case-file__section">
+        <h3>Nota técnica del archivero</h3>
+        <details class="why-db" open>
+          <summary>💡 ¿Por qué este motor para estos datos?</summary>
+          <div class="why-db-content">
+            <%- intro.why_this_db_html %>
+          </div>
+        </details>
+      </div>
     <% } %>
 
-    <div class="links">
-      <a class="btn" href="<%= intro.ui_url %>" target="_blank" rel="noopener">Abrir <%= intro.ui_label %> ↗</a>
-      <a class="btn btn--ghost" href="/cheatsheet/<%= intro.cheatsheet %>" target="_blank">Cheatsheet <%= intro.cheatsheet %> 📖</a>
+    <div class="case-file__section">
+      <h3>Acceso al sistema</h3>
+      <div class="links">
+        <a class="btn" href="<%= intro.ui_url %>" target="_blank" rel="noopener">Abrir <%= intro.ui_label %> ↗</a>
+        <a class="btn btn--ghost" href="/cheatsheet/<%= intro.cheatsheet %>" target="_blank">Cheatsheet <%= intro.cheatsheet %> 📖</a>
+      </div>
     </div>
 
-    <div class="hints">
-      <h3>¿Atorado? Usa pistas progresivas</h3>
-      <p class="muted">Las pistas se registran en tu sesión. No descuentan puntos pero quedan visibles para el instructor.</p>
+    <div class="case-file__section">
+      <h3>Notas del investigador (pistas progresivas)</h3>
+      <p class="muted">Las consultas a archivo se registran en tu expediente personal pero no descuentan puntos. Úsalas si te atoras.</p>
       <div class="hint-buttons">
         <button data-level="1">Pista 1 (suave)</button>
         <button data-level="2">Pista 2 (media)</button>
@@ -41,19 +58,21 @@
     </div>
 
     <% if (showVectorWidget) { %>
-      <div class="vector-widget">
-        <h3>Búsqueda semántica en Qdrant</h3>
-        <p class="muted">Pega la frase de testimonio que encontraste en Redis. El servidor generará el embedding y consultará la collection <code>witness_testimonies</code>.</p>
-        <textarea id="vector-query" rows="4" placeholder="Pega aquí la frase..."></textarea>
-        <button id="vector-search">Buscar testimonios similares</button>
-        <div id="vector-out"></div>
+      <div class="case-file__section">
+        <h3>Búsqueda semántica en archivo de testimonios</h3>
+        <div class="vector-widget">
+          <p class="muted">Pega la frase del testimonio anónimo encontrado en Redis. El sistema genera el embedding y consulta la colección <code>witness_testimonies</code> en Qdrant.</p>
+          <textarea id="vector-query" rows="4" placeholder="Pega aquí la frase del testimonio..."></textarea>
+          <button id="vector-search">Buscar testimonios similares</button>
+          <div id="vector-out"></div>
+        </div>
       </div>
     <% } %>
 
     <div class="submit-box">
-      <h3>Tu respuesta</h3>
-      <input type="text" id="answer" placeholder="Escribe la respuesta aquí" />
-      <button id="check">Validar</button>
+      <h3>▶ Informe oficial del folio <%= id %></h3>
+      <input type="text" id="answer" placeholder="Escribe tu respuesta y presiona Validar" />
+      <button id="check">Validar informe</button>
       <p id="check-result"></p>
     </div>
   <% } %>
@@ -92,7 +111,7 @@
     const j = await r.json();
     const el = document.getElementById('check-result');
     if (j.ok) {
-      el.innerHTML = '✓ Correcto — estación completada. <a href="/">Ver índice</a> para abrir la siguiente.';
+      el.innerHTML = '✓ Informe aceptado — folio cerrado. <a href="/">Volver al expediente</a> para abrir el siguiente.';
       el.className = 'ok';
     } else {
       el.innerHTML = '✗ ' + j.error;
