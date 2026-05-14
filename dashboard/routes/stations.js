@@ -108,29 +108,25 @@ Cuando la identifiques, vas a tener el texto del testimonio. Pero ese texto, por
 Los testimonios anónimos son **texto libre que necesitas comparar por SIGNIFICADO, no por palabras exactas**:
 
 - **Búsqueda semántica**: tu pista dice "entrenador con bolsa negra"; el testimonio guardado dice "instructor con mochila negra". Para PostgreSQL con \`LIKE '%entrenador%'\` o full-text search, esas son frases DISTINTAS. Qdrant las reconoce como **idénticas en significado** porque trabaja con vectores de embeddings que capturan semántica.
-- **Manejo de sinónimos, paráfrasis y errores tipográficos** automático: "Carlos amenazó a su cliente" matchearía con "el entrenador intimidó al alumno" sin que tengas que listar sinónimos a mano.
+- **Manejo de sinónimos, paráfrasis y errores tipográficos** automático: "Pedro amenazó a su cliente" matchearía con "el entrenador intimidó al alumno" sin que tengas que listar sinónimos a mano.
 - **Multilingüe**: el modelo \`paraphrase-multilingual-MiniLM-L12-v2\` entiende español, inglés, francés... y vectores semánticamente cercanos cruzan idiomas.
 - **Indexación HNSW**: búsqueda sub-segundo entre millones de vectores. Sin esto, comparar 1 frase contra 10M de testimonios sería computacionalmente prohibitivo.
 
 Aplicaciones reales: búsqueda de productos por descripción, retrieval para RAG (chatbots con LLMs), detección de duplicados, recomendación basada en contenido. Si tus datos son **texto, imágenes, audio o cualquier cosa que pueda volverse un embedding**, necesitas un vectorial.`,
     narrative: `
-La fiscalía mantiene un archivo central de testimonios indexado por **embeddings semánticos** — no se busca por palabras exactas sino **por significado**. Cada testimonio tiene una **categoría**:
+La fiscalía mantiene un archivo central de testimonios y registros indexado por **embeddings semánticos** — la búsqueda es por significado, no por keywords. Cada documento tiene una categoría que indica su origen (declaraciones de testigos, reportes formales, análisis OSINT, pistas archivadas).
 
-- \`witness_account\` — declaraciones de testigos (anónimas o no)
-- \`anonymous_tip\` — pistas anónimas ya procesadas y archivadas
-- \`background_check\` — reportes formales con datos identificables (matrículas, clientes, antecedentes)
-- \`social_media_intel\` — análisis OSINT del equipo de inteligencia
+El testimonio anónimo que rescataste de Redis describe la escena, pero el testigo **no sabe quién es el asesino — solo lo describe**. El nombre completo del asesino sí está en este archivo, pero la búsqueda semántica trae documentos similares al que ingreses: si pegas una descripción de testigo, vas a obtener más descripciones de testigos. Encontrar la respuesta no es un copy-paste — es **trabajo de detective**.
 
-**Aquí no hay atajos**: si copias y pegas la frase del testimonio anónimo de Redis, vas a recibir más descripciones similares de la escena (witness_accounts), pero **ninguna nombra al asesino**. Los reportes formales que SÍ contienen nombres no mencionan "CETEC" ni "mochila" — son registros secos con matrículas, clientes, antecedentes. Una búsqueda semántica plana NO va a relacionarlos directamente con la frase del testigo.
+Algunas preguntas que te conviene contestar antes de empezar a buscar:
 
-Esto es **trabajo de detective**. Tienes que pensar: **¿qué hace único al asesino?** No la mochila ni el lugar — esos son detalles circunstanciales. El asesino tiene una **relación específica con la víctima**: era su entrenador personal. Esa relación está documentada en exactamente UN reporte formal.
+- ¿En qué **tipo** de documento de este archivo esperarías encontrar el nombre completo y formal de una persona, junto con sus datos identificables?
+- De la información que **ya descubriste** en estaciones anteriores, ¿qué hecho específico del caso te permitiría distinguir al asesino de otras personas con perfiles similares (mismo gimnasio, mismo rol, mismo apellido)?
+- ¿Cómo redactarías tu consulta para que el sistema semántico traiga ese documento específico — usando el lenguaje del archivo, no el del testigo?
 
-**Sugerencia de flujo**:
-1. Primera búsqueda — pega la frase de Redis sin filtro. Observa: la escena se describe pero nadie tiene nombre.
-2. Cambia de query. Piensa en qué texto **describiría** al asesino en un reporte formal (su relación con la víctima, no la escena del crimen). Restringe por categoría a los reportes formales para reducir ruido.
-3. Va a haber **varios reportes parecidos** (varios Carlos, varios Aguilar, varios instructores del mismo gimnasio). Lee bien: solo UNO tiene los datos que conectan con la víctima específicamente.
+El widget de abajo combina búsqueda vectorial con filtro por categoría (**hybrid search**, patrón estándar en producción). La primera consulta rara vez es la correcta. Itera. Refina.
 
-**Submit**: el **nombre completo** del asesino (nombre Y apellido). Submit parcial como "Carlos" no es aceptado — hay varios Carlos en los reportes.`
+**Submit**: el **nombre completo** del asesino (Nombre Apellido). Submits parciales no son aceptados — el archivo contiene varias personas con nombres y apellidos parecidos.`
   }
 };
 

@@ -92,20 +92,17 @@ export const HINTS = {
   },
 
   E4: {
-    1: 'Hay 18 reportes formales (`background_check`) en el archivo. Muchos son de instructores del Get Fit Now. ' +
-       'Varios se llaman Carlos (Vega, Treviño, Romero, Méndez). Varios tienen apellido Aguilar (Ricardo, Pedro). Varios tienen reportes previos. ' +
-       'NO puedes simplemente pegar la frase de Redis — los reportes formales no contienen "CETEC" ni "mochila negra", están descritos en otros términos. ' +
-       'Empieza filtrando por categoría `background_check` y pega una query que describa al asesino por su RELACIÓN con el caso, no por la escena.',
-    2: 'El asesino tiene una característica única en los reportes: **la víctima (Dr. Ernesto Aguilar) era su cliente principal asignado**. ' +
-       'Ningún otro instructor tiene ese cliente. Una query semántica que mencione esa relación específica va a surfacear el reporte correcto.\n\n' +
-       'Prueba algo como: `instructor cuyo cliente principal era Dr. Ernesto Aguilar` o `entrenador de la víctima fallecida con antecedentes`. ' +
-       'Filtra por `background_check`. El top-1 será el asesino.',
-    3: 'Path exacto:\n\n' +
-       '1. Selecciona categoría **`background_check`** en el dropdown.\n' +
-       '2. Pega en el widget:\n\n' +
-       '> instructor cuyo cliente principal era Dr. Ernesto Aguilar con antecedentes de agresión\n\n' +
-       '3. Ejecuta. El top-1 nombra al asesino con nombre Y apellido completo.\n\n' +
-       'Tu queryng semántica tiene que **describir al asesino en el lenguaje del reporte formal** (matrícula, cliente, antecedentes), no en el lenguaje del testigo (escena, mochila, lugar). Esto es razonar sobre cómo está modelada la información en el archivo, no solo pegar lo primero que tienes.\n\n' +
-       'Submit el **nombre completo** (Nombre Apellido). El validador no acepta "Carlos" solo — hay 4 Carlos distintos en los reportes.'
+    1: 'La búsqueda semántica devuelve documentos similares al texto que ingreses. Si pegas una descripción de testigo, vas a obtener más descripciones de testigos — ninguna nombra al asesino.\n\n' +
+       'Pregúntate: ¿en qué TIPO de documento del archivo esperarías encontrar el nombre completo de una persona, su matrícula, sus clientes y sus antecedentes? Las categorías disponibles son: witness_account, anonymous_tip, background_check, social_media_intel.\n\n' +
+       'Filtra a esa categoría para reducir el ruido antes de iterar.',
+    2: 'Cuando filtras a los reportes formales vas a ver muchos perfiles similares: varios instructores del mismo gimnasio, varios con el mismo nombre, varios con antecedentes parecidos. La búsqueda semántica plana no los distingue bien.\n\n' +
+       'El asesino tiene una característica que NINGÚN otro reporte comparte: una **relación documentada con la víctima** (recuerda quién era la víctima — su nombre apareció en el expediente público y en estaciones anteriores). Esa relación específica está escrita en uno de los reportes.\n\n' +
+       'Formula tu búsqueda en el lenguaje del reporte (relación de trabajo, cliente, vínculo) y mencionando la información del caso que conoces.',
+    3: 'Path completo:\n\n' +
+       '1. Selecciona la categoría **`background_check`** en el dropdown del widget.\n' +
+       '2. Pega como consulta (ejemplo):\n\n' +
+       '> instructor cuyo cliente principal era Dr. Ernesto Aguilar con antecedentes de agresión verbal\n\n' +
+       '3. El top-1 nombra al asesino con nombre Y apellido completo.\n\n' +
+       'Submit el **nombre completo** (Nombre Apellido). El validador no acepta partials — hay varios Carlos y varios Aguilar en los reportes.'
   }
 };

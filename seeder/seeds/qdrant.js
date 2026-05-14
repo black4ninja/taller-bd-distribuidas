@@ -72,99 +72,97 @@ const TESTIMONIES = [
     category: 'witness_account', source: 'interview', date: '2026-03-16'
   },
 
-  // ── background_check (estructura similar, solo UNO identifica al asesino) ─
-  // El asesino: Carlos Méndez, 9001. Único cuya cliente principal es la víctima.
+  // ── background_check (todos en prosa narrativa similar; solo UNO conecta con la víctima) ─
+  // El asesino: Carlos Méndez, 9001. Su reporte es el único que menciona al Dr. Aguilar.
+  // Visualmente NO destaca — la prosa es similar a los demás.
   {
     id: 100,
-    text: 'Reporte de antecedentes — Carlos Méndez, matrícula 9001. Instructor del gimnasio Get Fit Now Monterrey. Cliente principal asignado: Dr. Ernesto Aguilar (14782, deceased). Historial: 2 reportes previos por agresión verbal a clientes. Acceso al campus ITESM activo desde 2025 por programa de wellness. Estado: activo.',
+    text: 'Reporte sobre Carlos Méndez (matrícula 9001), instructor del gimnasio Get Fit Now Monterrey desde marzo de 2022. Fungió como entrenador personal asignado al Dr. Ernesto Aguilar (matrícula 14782) durante los últimos dos años; el Dr. Aguilar fue reportado deceased el 15 de marzo de 2026. En el expediente interno figuran dos quejas formales por agresión verbal a clientes presentadas durante 2024 y 2025, ambas archivadas sin escalamiento disciplinario. Cuenta con credencial activa de acceso al campus ITESM desde marzo de 2025 por convenio del programa de wellness. Residencia registrada: Calle Morones Prieto 230. Sin antecedentes penales.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
-  // Decoys con apellido Méndez o nombre Carlos — confunden búsquedas amplias
   {
     id: 101,
-    text: 'Reporte de antecedentes — Carlos Vega Rodríguez, matrícula 8721. Instructor del gimnasio BodyForge. Sin clientes principales asignados. Sin reportes previos. Sin acceso al campus ITESM.',
+    text: 'Reporte sobre Carlos Vega Rodríguez (matrícula 8721), instructor del gimnasio BodyForge desde abril de 2023. No tiene clientes principales asignados; trabaja exclusivamente sesiones grupales y campamentos de fin de semana. Expediente limpio, sin quejas formales registradas. Sin credencial de acceso al campus ITESM. Residencia: Av. Constitución 980. Sin antecedentes.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 102,
-    text: 'Reporte de antecedentes — Carlos Treviño, matrícula 8830. Instructor del gimnasio Get Fit Now. Cliente principal: Pedro Ríos (14501). 1 reporte previo por impuntualidad. Acceso al campus ITESM activo.',
+    text: 'Reporte sobre Carlos Treviño (matrícula 8830), instructor del gimnasio Get Fit Now Monterrey desde 2021. Cliente principal asignado: Pedro Ríos (matrícula 14501). En el expediente figura una queja por impuntualidad presentada en abril de 2025, archivada. Cuenta con credencial de acceso al campus ITESM desde noviembre de 2024 por convenio del programa de wellness. Residencia: Calle Pino Suárez 120.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 103,
-    text: 'Reporte de antecedentes — Carlos Romero, matrícula 8950. Instructor del gimnasio Iron Studio. Sin clientes principales. Sin reportes. Sin acceso al campus.',
+    text: 'Reporte sobre Carlos Romero (matrícula 8950), instructor del gimnasio Iron Studio desde finales de 2024. Sin clientes principales asignados. Expediente limpio. Sin credencial de acceso al campus ITESM. Residencia: Av. Revolución 555.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 104,
-    text: 'Reporte de antecedentes — Oscar Méndez, matrícula NA. Taxista local. No es instructor. Es hermano de Carlos Méndez (9001). Sin antecedentes penales.',
+    text: 'Reporte sobre Oscar Méndez (sin matrícula gimnástica), taxista local de la zona centro. Mencionado en el registro únicamente por su parentesco con Carlos Méndez (matrícula 9001), persona de interés en un caso abierto. Sin antecedentes penales propios.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
-  // Otros Aguilar — confunden búsquedas por apellido de la víctima
   {
     id: 105,
-    text: 'Reporte de antecedentes — Ricardo Aguilar Salas, matrícula 9120. Instructor del gimnasio Get Fit Now. Sin clientes principales asignados. Sin reportes previos. Acceso al campus ITESM no aplica.',
+    text: 'Reporte sobre Ricardo Aguilar Salas (matrícula 9120), instructor del gimnasio Get Fit Now Monterrey desde mayo de 2021. No tiene clientes principales asignados; coordina las clases de hi-cardio matutinas. Expediente limpio, sin quejas formales. Sin credencial de acceso al campus ITESM. Residencia: Av. Lázaro Cárdenas 1100.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 106,
-    text: 'Reporte de antecedentes — Pedro Aguilar Mendoza, matrícula 8702. Instructor del gimnasio BodyForge. Sin reportes. Sin acceso al campus.',
+    text: 'Reporte sobre Pedro Aguilar Mendoza (matrícula 8702), instructor del gimnasio BodyForge desde 2020. Sin reportes en su expediente. Sin acceso al campus ITESM. Residencia: Calle Galeana 220.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
-  // Instructores Get Fit Now con perfiles similares — pero ninguno es el trainer de la víctima
   {
     id: 107,
-    text: 'Reporte de antecedentes — Manuel Estrada, matrícula 9158. Instructor del gimnasio Get Fit Now. Cliente principal: Brenda Ochoa (14790). 3 reportes previos por conducta inapropiada con clientas. Suspendido temporalmente desde febrero 2026.',
+    text: 'Reporte sobre Manuel Estrada (matrícula 9158), instructor del gimnasio Get Fit Now Monterrey desde enero de 2024. Cliente principal asignado: Brenda Ochoa (matrícula 14790). En el expediente figuran tres quejas formales por conducta inapropiada con clientas, todas presentadas durante 2025. Suspendido temporalmente desde febrero de 2026. Cuenta con credencial de acceso al campus ITESM, actualmente revocada en línea con la suspensión.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 108,
-    text: 'Reporte de antecedentes — Roberto Silva, matrícula 9050. Instructor del gimnasio Get Fit Now. Cliente principal: Diana Castro (14730). Sin reportes previos. Acceso al campus ITESM activo.',
+    text: 'Reporte sobre Roberto Silva (matrícula 9050), instructor del gimnasio Get Fit Now Monterrey desde agosto de 2023. Cliente principal asignada: Diana Castro (matrícula 14730). Expediente limpio, sin quejas formales. Cuenta con credencial activa de acceso al campus ITESM por convenio del programa de wellness desde 2024. Residencia: Calle Allende 78.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 109,
-    text: 'Reporte de antecedentes — Diego Padilla, matrícula 9285. Instructor del gimnasio Get Fit Now. Cliente principal: Sandra Olivares. 1 reporte previo por discusión con cliente. Acceso al campus ITESM activo.',
+    text: 'Reporte sobre Diego Padilla (matrícula 9285), instructor del gimnasio Get Fit Now Monterrey desde octubre de 2021. Cliente principal asignada: Sandra Olivares. En el expediente figura una queja por discusión verbal con cliente presentada en agosto de 2024, archivada. Cuenta con credencial activa de acceso al campus ITESM.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 110,
-    text: 'Reporte de antecedentes — Andrés Carrillo, matrícula 9241. Instructor del gimnasio Get Fit Now. Sin clientes principales activos. Sin reportes. Acceso al campus ITESM activo.',
+    text: 'Reporte sobre Andrés Carrillo (matrícula 9241), instructor del gimnasio Get Fit Now Monterrey desde julio de 2022. Sin clientes principales activos al momento del reporte; cubre suplencias de cardio. Expediente limpio. Cuenta con credencial activa de acceso al campus ITESM.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 111,
-    text: 'Reporte de antecedentes — Alma Garza, matrícula 8501. Instructora del gimnasio Get Fit Now. Cliente principal: Patricia Cruz. Sin reportes previos. Acceso al campus ITESM activo.',
+    text: 'Reporte sobre Alma Garza (matrícula 8501), instructora del gimnasio Get Fit Now Monterrey desde septiembre de 2018. Cliente principal asignada: Patricia Cruz Domínguez. Expediente limpio en sus seis años de antigüedad. Cuenta con credencial activa de acceso al campus ITESM.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 112,
-    text: 'Reporte de antecedentes — Lucía Reyes, matrícula 9190. Instructora del gimnasio Get Fit Now. Cliente principal: Karen Beltrán (14760). Sin reportes previos. Acceso al campus ITESM activo.',
+    text: 'Reporte sobre Lucía Reyes (matrícula 9190), instructora del gimnasio Get Fit Now Monterrey desde junio de 2023. Cliente principal asignada: Karen Beltrán (matrícula 14760). Expediente limpio, sin quejas formales. Cuenta con credencial activa de acceso al campus ITESM.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 113,
-    text: 'Reporte de antecedentes — Hector Vargas, matrícula 9077. Instructor del gimnasio BodyForge. Cliente principal: Andrea Ríos (14801). Sin reportes. Sin relación con el campus ITESM.',
+    text: 'Reporte sobre Hector Vargas (matrícula 9077), instructor del gimnasio BodyForge desde noviembre de 2021. Cliente principal asignada: Andrea Ríos (matrícula 14801). Expediente limpio. Sin relación contractual con el campus ITESM.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 114,
-    text: 'Reporte de antecedentes — Gisela Morales, matrícula 8999. Instructora del gimnasio Get Fit Now. Cliente principal: Cecilia Rangel. Sin reportes previos.',
+    text: 'Reporte sobre Gisela Morales (matrícula 8999), instructora del gimnasio Get Fit Now Monterrey desde julio de 2021. Cliente principal asignada: Cecilia Rangel. Expediente limpio, sin quejas formales registradas.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 115,
-    text: 'Reporte de antecedentes — Fabián Treviño, matrícula 8920. Instructor del gimnasio BodyForge. Sin reportes. Sin acceso al campus.',
+    text: 'Reporte sobre Fabián Treviño (matrícula 8920), instructor del gimnasio BodyForge desde enero de 2022. Sin clientes principales asignados; coordina entrenamientos funcionales grupales. Expediente limpio. Sin credencial de acceso al campus ITESM.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
   {
     id: 116,
-    text: 'Reporte interno sobre el programa de wellness ITESM: 14 entrenadores externos tienen acceso al campus. Solo 3 con reportes administrativos en su historial.',
+    text: 'Reporte agregado de RRHH ITESM sobre el programa de wellness: actualmente se contabilizan 14 entrenadores externos con credencial activa de acceso al campus, repartidos entre los tres gimnasios convenidos (Get Fit Now, BodyForge, Iron Studio). De ellos, tres registran quejas administrativas en sus expedientes durante el último año, y uno se encuentra bajo suspensión temporal.',
     category: 'background_check', source: 'rrhh_itesm', date: '2026-03-10'
   },
   {
     id: 117,
-    text: 'Reporte de antecedentes — Damián Cortés, matrícula 8805. Instructor del gimnasio Iron Studio. Sin reportes. Sin acceso al campus.',
+    text: 'Reporte sobre Damián Cortés (matrícula 8805), instructor del gimnasio Iron Studio desde febrero de 2021. Coordina spinning y entrenamientos de resistencia. Expediente limpio. Sin acceso al campus ITESM.',
     category: 'background_check', source: 'fiscalia', date: '2026-03-16'
   },
 
