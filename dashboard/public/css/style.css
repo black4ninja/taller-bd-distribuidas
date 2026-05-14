@@ -961,6 +961,17 @@ pre code { background: transparent; padding: 0; }
 }
 .hud__chip--dev:hover { background: #3a3a52; color: #d4d4ff; }
 
+.hud__chip--reset {
+  background: rgba(184,38,28,0.15);
+  border-color: #b8261c;
+  color: #ff9999;
+  cursor: pointer;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+.hud__chip--reset:hover { background: rgba(184,38,28,0.3); color: #ffb3b3; }
+
 /* ─── Bomba countdown (slider con bomba que retrocede) ─── */
 .hud__bomb {
   display: inline-flex;

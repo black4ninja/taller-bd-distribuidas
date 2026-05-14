@@ -36,6 +36,33 @@
   </div>
 
   <button id="dev-accel" class="hud__chip hud__chip--dev" type="button" title="DEV: acelerar el tiempo en 5 minutos">⏩ DEV +5m</button>
+  <button id="reset-game" class="hud__chip hud__chip--reset" type="button" title="Iniciar caso nuevo — pierdes tu progreso actual">🔄 Nuevo caso</button>
+</div>
+
+<!-- Modal de confirmación de reset -->
+<div id="reset-modal" class="hint-modal" hidden>
+  <div class="hint-modal__overlay" data-reset-close></div>
+  <div class="hint-modal__content" role="dialog" aria-modal="true" aria-labelledby="reset-modal-title">
+    <div class="hint-modal__header">
+      <h3 id="reset-modal-title">Iniciar caso nuevo</h3>
+      <button class="hint-modal__close" data-reset-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="hint-modal__body">
+      <p>Esta acción va a:</p>
+      <ul style="line-height: 1.7; padding-left: 1.2rem;">
+        <li>Generar un identificador de investigador nuevo</li>
+        <li>Reiniciar el reloj de 2 horas</li>
+        <li>Restablecer tu credibilidad a 5/5</li>
+        <li>Borrar tu progreso de estaciones, pistas y notas del expediente actual</li>
+      </ul>
+      <p style="margin-top: 1rem;">Tu expediente actual quedará archivado en el sistema (el instructor puede auditarlo).</p>
+      <p><strong>¿Confirmas el reset?</strong></p>
+      <div style="display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.2rem;">
+        <button class="btn btn--ghost" data-reset-close type="button">Cancelar</button>
+        <button class="btn btn--primary" id="reset-confirm" type="button">Sí, iniciar caso nuevo</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <button id="notes-toggle" class="notes-fab" type="button" title="Abrir cuaderno de notas" aria-label="Abrir cuaderno de notas">
@@ -101,19 +128,22 @@
     credEl.classList.toggle('hud__chip--low', (j.credibility ?? 5) <= 2 && !j.game_over);
     credEl.classList.toggle('hud__chip--dead', !!j.game_over);
 
-    // Time chip + bomba: ocultas hasta que el juego inicie
+    // Time chip + bomba + dev + nuevo caso: ocultos hasta que el juego inicie
     const timeChip = document.getElementById('hud-time');
     const bombWrap = document.getElementById('hud-bomb');
     const devBtn   = document.getElementById('dev-accel');
+    const resetBtn = document.getElementById('reset-game');
     if (!started) {
       if (timeChip) timeChip.style.display = 'none';
       if (bombWrap) bombWrap.style.display = 'none';
       if (devBtn)   devBtn.style.display   = 'none';
+      if (resetBtn) resetBtn.style.display = 'none';
       return;
     }
     if (timeChip) timeChip.style.display = '';
     if (bombWrap) bombWrap.style.display = '';
     if (devBtn)   devBtn.style.display   = '';
+    if (resetBtn) resetBtn.style.display = '';
 
     document.getElementById('hud-time-value').textContent = fmtMS(j.elapsed_seconds);
 
@@ -163,6 +193,23 @@
     const j = await r.json();
     refreshHud();
     if (j.game_over) setTimeout(() => location.href = '/', 600);
+  });
+
+  // ─── Nuevo caso (reset con confirmación) ─────────────────────────
+  const resetModal = document.getElementById('reset-modal');
+  function openResetModal()  { resetModal.hidden = false; document.body.style.overflow = 'hidden'; }
+  function closeResetModal() { resetModal.hidden = true;  document.body.style.overflow = ''; }
+  resetModal.querySelectorAll('[data-reset-close]').forEach(el => el.addEventListener('click', closeResetModal));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !resetModal.hidden) closeResetModal(); });
+  document.getElementById('reset-game').addEventListener('click', openResetModal);
+  document.getElementById('reset-confirm').addEventListener('click', async () => {
+    const btn = document.getElementById('reset-confirm');
+    btn.disabled = true;
+    btn.textContent = '⏳ Procesando...';
+    const r = await fetch('/new-game', { method: 'POST' });
+    const j = await r.json();
+    if (j.ok) location.href = j.redirect || '/';
+    else { btn.disabled = false; btn.textContent = 'Sí, iniciar caso nuevo'; }
   });
 
   // ─── Notes drawer ───────────────────────────────────────────────
