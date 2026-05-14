@@ -25,11 +25,13 @@ Las personas, entrevistas y reportes de crimen forman un **dominio relacional cl
 
 Si pusieras esto en MongoDB: tendrías que duplicar la persona en cada entrevista, o referenciarla por id y "hacer el JOIN en código". Si fuera en Redis: las consultas tipo \`WHERE address LIKE 'Calle X%'\` requerirían escanear todas las keys.`,
     narrative: `
-La policía rescató un sistema con 3 tablas: \`crime_scene_report\`, \`persons\` y \`interviews\`.
-El reporte oficial menciona a 3 testigos identificados por su dirección o número de gimnasio.
-**Tu misión**: encuentra las entrevistas de los 3 testigos y cruza las descripciones físicas con la columna \`notes\` de la tabla \`persons\` para identificar a los 2 sospechosos físicos.
+La fiscalía organizó la información oficial del caso en una base estructurada del campus. Adentro está el reporte oficial del crimen, el padrón de personas vinculadas a la investigación y las transcripciones de las entrevistas que se tomaron a los testigos esa noche.
 
-**Submit**: el nombre completo de CUALQUIERA de los 2 sospechosos.`
+El reporte oficial **identifica a los tres testigos** — no los nombra directamente, sino que los menciona por su dirección de domicilio o por su número de cliente del gimnasio. Tu trabajo es **localizar a esos tres testigos y leer sus declaraciones completas**.
+
+Pon especial atención a las descripciones físicas que dan: son lo suficientemente específicas como para coincidir con **anotaciones internas** que el investigador anterior dejó sobre algunas personas del padrón. De esa coincidencia salen dos sospechosos físicos que la policía ya tiene en la mira.
+
+**Submit**: el nombre completo de CUALQUIERA de los 2 sospechosos físicos.`
   },
   E2: {
     motor: 'MongoDB (documental, NoSQL)',
@@ -48,17 +50,15 @@ Los posts sociales y los miembros del gimnasio son **datos semi-estructurados co
 
 Si esto fuera SQL: \`ALTER TABLE\` cada vez que un post agregue un campo opcional, JOIN obligatorio para arrays de clientes, performance degrada con escala.`,
     narrative: `
-Tienes 2 sospechosos físicos (Sofía y David). Pero **relee la entrevista de Diana** — la tercera testigo: ella menciona específicamente al **entrenador personal de la víctima** "muy alterado, diciendo que iba a arreglar las cosas esa noche". Ese hilo es lo que vas a investigar en MongoDB.
+Identificaste a dos sospechosos físicos. Antes de ir tras ellos, hay que **verificar si tenían dónde estar la noche del crimen**. Los dos están activos en redes sociales y todo el mundo del gimnasio del campus tiene perfil ahí — esa información vive en un sistema documental, distinto al padrón policial: ahí caben posts con fotos, ubicaciones, listas de clientes por entrenador, conversaciones.
 
-Usa mongo-express en la base \`investigation\`.
+Si verificas las coartadas de tus dos sospechosos y encuentras que ambos tienen dónde estar... vas a tener que **regresar mentalmente al expediente y releer la declaración de la tercera testigo**. Ella mencionó a alguien específico — no a un sospechoso físico, sino a una **persona del entorno de la víctima** que estaba alterada esa noche y dijo que iba a "arreglar las cosas". Ese hilo no lo seguiste antes.
 
-**Tarea 1 (alibis)**: filtra la colección \`social_posts\` por usuario. Los usernames siguen el patrón \`nombre_apellido\` en minúsculas (ej. \`sofia_linares\`, \`david_hernandez\`). Vas a confirmar que ambos sospechosos tienen alibis sólidos esa noche — no son ellos.
+El reporte público del caso confirma que la víctima era cliente regular del gimnasio Get Fit Now. Tu siguiente paso es **identificar quién era exactamente su entrenador personal**.
 
-**Tarea 2 (el verdadero culpable — gating)**: en la colección \`gym_members\`, los entrenadores tienen un campo \`clients\` que es un ARRAY con los \`member_id\` de sus clientes. La víctima (Dr. Aguilar) tiene \`member_id: 14782\`. Encuentra al entrenador cuyo array \`clients\` contiene 14782 usando un filtro JSON. Eso te da al asesino.
+**Detalle clave (vulnerabilidad real)**: el servicio de MongoDB del campus está corriendo SIN autenticación — un error real de configuración del equipo de TI. Eso significa que puedes ver **todas las colecciones de datos**, no solo las que el equipo expuso oficialmente. Una de ellas — fuera del listado público — guarda chat-logs internos y reportes que te dan contexto del motivo del crimen.
 
-**Pista de vulnerabilidad**: mongo-express corre sin auth (intencional). Si quieres más contexto sobre el motivo (chat-log entre la víctima y un amigo, background check del sospechoso), revisa la colección \`_evidence_archive\` — está expuesta porque nadie configuró autenticación.
-
-**Submit**: el \`member_id\` (4 dígitos) del entrenador asesino.`
+**Submit**: el número de cliente (4 dígitos) del entrenador personal de la víctima.`
   },
   E3: {
     motor: 'Redis (key-value, en memoria)',
@@ -77,13 +77,15 @@ Los check-ins de gimnasio, lecturas de cámara y métricas de temperatura son **
 
 Por eso muchos sistemas reales **usan Redis y SQL juntos**: Redis para el "ahora" (cache, sesiones, métricas live), SQL para el "histórico" (reportes mensuales, análisis). La pista del informante quedó aquí porque el sistema del gimnasio guarda todo en Redis — incluido lo que no debería.`,
     narrative: `
-Tienes el \`member_id\` del entrenador asesino (un número de 4 dígitos). El sistema de seguridad del gimnasio guarda check-ins en Redis con el patrón normal \`gym:checkin:trainer:<id>:<fecha>:<hora>\`.
+El gimnasio del campus usa un sistema de check-in con tarjeta: cada entrada genera un registro. Las cámaras de seguridad, los sensores de temperatura y los contadores de uso también escriben aquí. Es un sistema optimizado para velocidad — necesita responder en milisegundos cuando alguien pasa la tarjeta del torno.
 
-Pero alguien dejó una clave **fuera del patrón estándar**: empieza con \`evidence:\` en lugar de \`gym:\`. Redis corre SIN PASSWORD (cualquiera con acceso a la red puede listar todas las claves), así que puedes encontrarla con \`KEYS evidence:*\`. Hay solo una.
+Tienes el número de cliente del nuevo sospechoso (del paso anterior). Por ahí puedes empezar a buscar entre los miles de registros del sistema. Pero hay algo más interesante esperándote: **alguien dejó un registro que no encaja con ningún patrón rutinario del sistema**. Los registros normales siguen formatos predecibles (acceso de gimnasio, lectura de cámara, métrica de temperatura), pero **una clave rompe ese patrón** y fue añadida fuera del flujo automático. Es información que alguien quiso preservar.
 
-Lee su valor (es JSON con varios campos). Adentro, un campo apunta al SIGUIENTE motor.
+Cuando la encuentres y leas su contenido, vas a tener **un testimonio anónimo en texto** — y ese testimonio te apunta directamente al sistema donde vas a confirmar la identidad del asesino.
 
-**Submit**: el nombre EXACTO de la collection vectorial en Qdrant que la nota interna te indica consultar.`
+**Detalle clave (vulnerabilidad real)**: este sistema corre SIN contraseña — otro error real de configuración. Cualquiera con acceso a la red puede listar todas las claves del sistema y leer sus valores. En producción, esto sería catastrófico.
+
+**Submit**: el nombre exacto del archivo de testimonios que la nota interna te indica consultar a continuación.`
   },
   E4: {
     motor: 'Qdrant (vectorial)',
@@ -102,11 +104,11 @@ Los testimonios anónimos son **texto libre que necesitas comparar por SIGNIFICA
 
 Aplicaciones reales: búsqueda de productos por descripción, retrieval para RAG (chatbots con LLMs), detección de duplicados, recomendación basada en contenido. Si tus datos son **texto, imágenes, audio o cualquier cosa que pueda volverse un embedding**, necesitas un vectorial.`,
     narrative: `
-Tienes el nombre de una collection con embeddings de testimonios anónimos.
-Como tú no sabes generar embeddings a mano, usa el widget de abajo para hacer búsqueda semántica:
-pega la frase de testimonio que encontraste en Redis y verás los testimonios más similares.
+La fiscalía recibió decenas de testimonios anónimos sobre el caso a través de su línea de denuncia. Los testimonios están indexados con embeddings semánticos — no se buscan por palabras exactas sino **por significado**. Esto importa: el testimonio que encontraste en el sistema del gimnasio describe al asesino sin nombrarlo. Necesitas localizar **otros testimonios que digan lo mismo con otras palabras** — incluyendo, esperamos, alguno que sí lo nombre por completo.
 
-**Submit**: el nombre completo del asesino (que aparece textualmente en el testimonio con score más alto).`
+Como tú no vas a calcular embeddings a mano (eso lo hace un modelo de machine learning), usa el **widget de búsqueda semántica que aparece abajo**: pega la frase del testimonio del paso anterior y el sistema buscará los testimonios más cercanos en significado dentro del archivo de la fiscalía. El que tenga el score más alto contendrá el nombre completo del asesino.
+
+**Submit**: el nombre completo del asesino (nombre y apellido, tal como aparece textualmente en el testimonio con score más alto).`
   }
 };
 
