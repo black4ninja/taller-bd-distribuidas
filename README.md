@@ -2,13 +2,13 @@
 
 > Taller práctico para introducir bases de datos distribuidas a alumnos **sin conocimiento previo** de PostgreSQL, MongoDB, Redis ni motores vectoriales. Resuelves un caso de homicidio que tiene las evidencias repartidas en 4 motores.
 >
-> **Duración**: 60 min para alumnos con base técnica · **70-80 min** es lo realista para alumnos sin experiencia previa con estos motores.
+> **Duración**: 2 horas (countdown integrado en el dashboard — si el reloj llega a 0, el asesino escapa al extranjero y se cierra la investigación).
 
 ---
 
 ## Para el alumno: lee primero
 
-1. Tienes **60-80 minutos** según tu experiencia previa.
+1. Tienes **2 horas** desde que pulses "Iniciar investigación". Cuando el reloj llegue a 0, el asesino escapa al extranjero y la fiscalía cierra el caso.
 2. **No necesitas saber** los motores de antemano. El taller te enseña mientras juegas.
 3. Vas a usar 5 interfaces web (todas locales): el dashboard del taller + 4 UIs gráficas para cada motor.
 4. Si te atoras, cada estación tiene **3 pistas progresivas**. Úsalas sin culpa.
@@ -41,17 +41,19 @@ Arranques posteriores: ~30s.
 ./scripts/reset.sh
 ```
 
-## Flujo del taller (60 min)
+## Flujo del taller (2 horas)
 
-| Tiempo | Estación | Motor | Lo que aprenderás |
+| Tiempo aprox. | Estación | Motor | Lo que aprenderás |
 |---|---|---|---|
 | 5 min | **E0** Walkthrough | PostgreSQL | Cómo abrir Adminer, hacer un SELECT, leer la descripción del caso |
-| ~10 min | **E1** Las entrevistas | PostgreSQL | `JOIN`, `WHERE`, `LIKE` para conectar tablas |
-| ~12 min | **E2** La colección oculta | MongoDB | Documentos JSON, `listCollections`, vulnerabilidad por falta de auth |
-| ~12 min | **E3** El informante anónimo | Redis | Key-value store, `KEYS *`, vulnerabilidad por falta de password |
-| ~10 min | **E4** Confesión semántica | Qdrant (vectorial) | Embeddings y búsqueda por similitud de significado |
-| 1 min | **/solve** Flag final | — | Submit `asesino + arma + lugar` |
-| 8 min | Debrief técnico | — | Discusión: CAP, consistencia, ¿por qué no todo en SQL? |
+| ~20 min | **E1** Las entrevistas | PostgreSQL | `JOIN`, `WHERE`, `LIKE` y regex para conectar tablas |
+| ~25 min | **E2** Shell + cross-collection | MongoDB | Shell real, filtros JSON, queries dentro de arrays, `$lookup` cross-collection, vulnerabilidad sin auth |
+| ~25 min | **E3** Triaje de pistas + pipelines | Redis | Key-value, `KEYS pattern`, buffer de cola, documentación de pipelines, vulnerabilidad sin password |
+| ~25 min | **E4** Hybrid search detectivesco | Qdrant (vectorial) | Embeddings, filtros de payload, razonamiento sobre query language |
+| 5 min | **/solve** Flag final | — | Submit `asesino + arma + lugar` |
+| ~15 min | Debrief técnico | — | Discusión: CAP, consistencia, ¿por qué no todo en SQL? |
+
+> El countdown integrado en el dashboard pone presión real: 2 horas. Si llega a 0, el sospechoso escapa al extranjero y se cierra la investigación (game over narrativo).
 
 ## URLs locales
 
@@ -86,7 +88,7 @@ taller-bd-distribuidas/
 ## Para instructores
 
 Lee `docs/INSTRUCTOR_NOTES.md`. Incluye:
-- Cronograma detallado de 60 min
+- Cronograma detallado de 2 horas
 - Solución completa por estación
 - Guion para el debrief
 - Checklist de validación pre-clase
