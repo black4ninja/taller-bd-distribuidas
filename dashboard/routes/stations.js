@@ -50,15 +50,20 @@ Los posts sociales y los miembros del gimnasio son **datos semi-estructurados co
 
 Si esto fuera SQL: \`ALTER TABLE\` cada vez que un post agregue un campo opcional, JOIN obligatorio para arrays de clientes, performance degrada con escala.`,
     narrative: `
-Identificaste a dos sospechosos físicos. Antes de ir tras ellos hay que **verificar si tenían coartada esa noche** — y eso vive en un sistema documental separado del padrón policial: ahí están las redes sociales y los registros del gimnasio del campus, donde caben posts con fotos, ubicaciones, listas de clientes por entrenador, conversaciones.
+Identificaste a dos sospechosos físicos. Antes de ir tras ellos hay que **verificar si tenían coartada esa noche** — y eso vive en un sistema documental separado del padrón policial: ahí están las redes sociales y los registros del gimnasio del campus.
 
-Si las coartadas de tus dos sospechosos resultan sólidas, vas a tener que **regresar al expediente y releer la declaración de la tercera testigo**. Ella mencionó a alguien específico — no a un sospechoso físico, sino a una **persona del entorno de la víctima** que estaba alterada esa noche diciendo que iba a "arreglar las cosas". Tu siguiente paso: **identificar quién era exactamente el entrenador personal de la víctima**.
+Si las coartadas de tus dos sospechosos resultan sólidas, **regresa al expediente y relee la declaración de la tercera testigo**: ella mencionó a alguien específico — no a un sospechoso físico, sino a una persona del entorno de la víctima que estaba alterada esa noche diciendo que iba a "arreglar las cosas". Tu siguiente paso: **identificar al entrenador personal de la víctima y conseguir su handle de redes sociales** — ese alias es lo que la Fiscalía está rastreando ya en otras plataformas.
 
-**Detalle clave (vulnerabilidad real explotable)**: el servicio MongoDB del campus está corriendo **SIN autenticación**. El equipo de Fiscalía te dio acceso de shell vía la herramienta que ves abajo en esta página. **El sistema tiene más de 250 personas registradas y cientos de posts** — no vas a poder navegarlo visualmente. Tienes que **ejecutar queries reales** para extraer la información que necesitas.
+**Cómo está modelada la base** (importante, porque te obliga a correlacionar):
+- El padrón del gimnasio (\`gym_members\`) tiene a los clientes y a los entrenadores. Los entrenadores tienen un campo \`clients\` que es un **array** con los IDs de sus clientes. Pero los registros NO tienen el atajo inverso (el cliente no dice quién es su entrenador): tienes que hacer la búsqueda con el array.
+- Las redes sociales (\`social_posts\`) usan **handles obscuros**, no \`nombre_apellido\`. Para vincular un post con una persona del padrón, cada post tiene un campo \`user_id\` que mapea a \`gym_members.member_id\`.
+- Eso significa que para conseguir el handle del asesino necesitas correlacionar AMBAS colecciones (lookup cruzado o dos queries encadenadas).
 
-Hay además una colección oculta (fuera del listado público) con chat-logs y reportes que te dan contexto del motivo, también accesible porque no hay autenticación.
+**Detalle clave (vulnerabilidad real explotable)**: el servicio MongoDB del campus está corriendo **SIN autenticación**. El equipo de Fiscalía te dio acceso de shell vía la herramienta abajo. Hay **más de 270 personas registradas y cientos de posts** — el scan visual no es viable. Ejecuta queries.
 
-**Submit**: el número de cliente (4 dígitos) del entrenador personal de la víctima.`
+Hay además una colección oculta (fuera del listado público) con chat-logs y reportes que te dan contexto del motivo.
+
+**Submit**: el **handle de red social** (username) del entrenador personal de la víctima — el que aparece en el campo \`user\` de sus posts.`
   },
   E3: {
     motor: 'Redis (key-value, en memoria)',

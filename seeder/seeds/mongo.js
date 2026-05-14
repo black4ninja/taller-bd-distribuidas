@@ -35,35 +35,50 @@ function makePRNG(seed = 1337) {
 const rand = makePRNG(20260315);
 const pick = (arr) => arr[Math.floor(rand() * arr.length)];
 
-// ---------- TRAINERS ----------
-// 15 trainers, cada uno con 5–14 clientes. Carlos Méndez (9001) tiene a la víctima (14782).
+// ---------- TRAINERS (30, IDs entre 8501–9420 — Carlos NO es el primero) ----------
+// Cada uno con 5–14 clientes. Carlos Méndez (9001) está mezclado, no destacado.
 const HAND_TRAINERS = [
-  { member_id: 9001, name: 'Carlos Méndez',    role: 'trainer', status: 'active',   gym: 'Get Fit Now',     join_date: '2022-03-10' },
-  { member_id: 9050, name: 'Roberto Silva',    role: 'trainer', status: 'active',   gym: 'Get Fit Now',     join_date: '2023-08-01' },
-  { member_id: 9077, name: 'Hector Vargas',    role: 'trainer', status: 'active',   gym: 'BodyForge',        join_date: '2021-11-04' },
-  // Ruido: trainer apellido Aguilar (vivo) → no es la víctima
+  { member_id: 8501, name: 'Alma Garza',         role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2018-09-12' },
+  { member_id: 8624, name: 'Beto Rojas',         role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2019-04-01' },
+  { member_id: 8702, name: 'Carmen Villarreal',  role: 'trainer', status: 'inactive', gym: 'Get Fit Now', join_date: '2020-06-15' },
+  { member_id: 8805, name: 'Damián Cortés',      role: 'trainer', status: 'active',   gym: 'Iron Studio', join_date: '2021-02-20' },
+  { member_id: 8888, name: 'Elena Quiroz',       role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2020-08-08' },
+  { member_id: 8920, name: 'Fabián Treviño',     role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2022-01-11' },
+  { member_id: 8999, name: 'Gisela Morales',     role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2021-07-04' },
+  { member_id: 9001, name: 'Carlos Méndez',      role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2022-03-10' },
+  { member_id: 9050, name: 'Roberto Silva',      role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2023-08-01' },
+  { member_id: 9077, name: 'Hector Vargas',      role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2021-11-04' },
   { member_id: 9120, name: 'Ricardo Aguilar Salas', role: 'trainer', status: 'active', gym: 'Get Fit Now', join_date: '2021-05-22' },
-  // Trainer deceased pero NO la víctima (es trainer, no client)
-  { member_id: 9145, name: 'Sergio Domínguez', role: 'trainer', status: 'deceased', gym: 'Get Fit Now',     join_date: '2019-02-01', deceased_date: '2024-07-12', deceased_cause: 'paro cardíaco durante competencia' },
-  { member_id: 9158, name: 'Manuel Estrada',   role: 'trainer', status: 'active',   gym: 'Get Fit Now',     join_date: '2024-01-15' },
-  { member_id: 9172, name: 'Pablo Ruiz',       role: 'trainer', status: 'active',   gym: 'BodyForge',        join_date: '2022-09-08' },
-  { member_id: 9190, name: 'Lucía Reyes',      role: 'trainer', status: 'active',   gym: 'Get Fit Now',     join_date: '2023-06-30' },
-  { member_id: 9210, name: 'Tomás Acosta',     role: 'trainer', status: 'inactive', gym: 'Get Fit Now',     join_date: '2020-04-17' },
-  { member_id: 9223, name: 'Mariana Espinoza', role: 'trainer', status: 'active',   gym: 'BodyForge',        join_date: '2023-12-01' },
-  { member_id: 9241, name: 'Andrés Carrillo',  role: 'trainer', status: 'active',   gym: 'Get Fit Now',     join_date: '2022-07-22' },
-  { member_id: 9268, name: 'Adriana Soto',     role: 'trainer', status: 'active',   gym: 'BodyForge',        join_date: '2024-02-14' },
-  { member_id: 9285, name: 'Diego Padilla',    role: 'trainer', status: 'active',   gym: 'Get Fit Now',     join_date: '2021-10-09' },
-  { member_id: 9301, name: 'Cecilia Fuentes',  role: 'trainer', status: 'active',   gym: 'BodyForge',        join_date: '2024-08-05' },
-  { member_id: 9320, name: 'Hugo Valdez',      role: 'trainer', status: 'inactive', gym: 'Get Fit Now',     join_date: '2020-11-30' }
+  { member_id: 9145, name: 'Sergio Domínguez',   role: 'trainer', status: 'deceased', gym: 'Get Fit Now', join_date: '2019-02-01', deceased_date: '2024-07-12', deceased_cause: 'paro cardíaco durante competencia' },
+  { member_id: 9158, name: 'Manuel Estrada',     role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2024-01-15' },
+  { member_id: 9172, name: 'Pablo Ruiz',         role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2022-09-08' },
+  { member_id: 9190, name: 'Lucía Reyes',        role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2023-06-30' },
+  { member_id: 9210, name: 'Tomás Acosta',       role: 'trainer', status: 'inactive', gym: 'Get Fit Now', join_date: '2020-04-17' },
+  { member_id: 9223, name: 'Mariana Espinoza',   role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2023-12-01' },
+  { member_id: 9241, name: 'Andrés Carrillo',    role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2022-07-22' },
+  { member_id: 9268, name: 'Adriana Soto',       role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2024-02-14' },
+  { member_id: 9285, name: 'Diego Padilla',      role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2021-10-09' },
+  { member_id: 9301, name: 'Cecilia Fuentes',    role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2024-08-05' },
+  { member_id: 9320, name: 'Hugo Valdez',        role: 'trainer', status: 'inactive', gym: 'Get Fit Now', join_date: '2020-11-30' },
+  { member_id: 9355, name: 'Itzel Bautista',     role: 'trainer', status: 'active',   gym: 'Iron Studio', join_date: '2023-03-18' },
+  { member_id: 9378, name: 'Joaquín Ramírez',    role: 'trainer', status: 'active',   gym: 'Get Fit Now', join_date: '2021-09-25' },
+  { member_id: 9402, name: 'Karina Estévez',     role: 'trainer', status: 'active',   gym: 'BodyForge',   join_date: '2024-06-12' }
 ];
 
 // ---------- HAND-CRAFTED MEMBERS (corazón del caso) ----------
+// NOTA: trainer_id existe internamente para construir clients[] de los trainers,
+// pero se STRIPEA antes de insertar — el alumno NO tiene un atajo directo desde
+// el doc de la víctima al trainer. Debe hacer la query inversa con clients[].
 const HAND_MEMBERS = [
   // VÍCTIMA — único Aguilar deceased en TODO el dataset
   { member_id: 14782, name: 'Ernesto Aguilar', trainer_id: 9001, status: 'deceased', gym: 'Get Fit Now', join_date: '2024-01-15', deceased_date: '2026-03-15', occupation: 'Investigador ITESM' },
 
   // Tercera testigo
   { member_id: 14730, name: 'Diana Castro', trainer_id: 9050, status: 'active', gym: 'Get Fit Now', join_date: '2024-03-01', occupation: 'Estudiante' },
+
+  // Sospechosos físicos de E1 — son TAMBIÉN gym members con sus social handles
+  { member_id: 14502, name: 'Sofía Linares',     trainer_id: 9268, status: 'cancelled', gym: 'BodyForge',   join_date: '2023-04-10', occupation: 'Estudiante Diseño' },
+  { member_id: 14999, name: 'David Hernández',   trainer_id: 9355, status: 'active',    gym: 'Iron Studio', join_date: '2024-08-22', occupation: 'Ingeniero TI' },
 
   // Clientes activos de Carlos (incluyen a la víctima)
   { member_id: 14745, name: 'Paola Gutierrez',  trainer_id: 9001, status: 'active', gym: 'Get Fit Now', join_date: '2024-06-20', occupation: 'Diseñadora' },
@@ -148,28 +163,37 @@ function buildTrainersWithClients(allMembers) {
   });
 }
 
-// ---------- SOCIAL POSTS (alibis curados + ruido procedural) ----------
+// ---------- SOCIAL POSTS ----------
+// CADA POST TIENE user_id (vincula a gym_members.member_id) + user (handle no-predecible).
+// El handle NO se puede adivinar del nombre — el alumno DEBE consultar social_posts
+// para descubrirlo. Esta es la pista cross-collection de E2.
 const HAND_POSTS = [
-  // Sofía Linares — alibi: Cancún
-  { user: 'sofia_linares',   timestamp: '2026-03-15T18:00:00', location: 'Aeropuerto MTY',    caption: 'Por fin vacaciones! 🌴', photo_url: 'https://photos.example/sl1.jpg' },
-  { user: 'sofia_linares',   timestamp: '2026-03-15T20:30:00', location: 'Hotel Riu Cancún',  caption: 'Llegamos al hotel #cancun #vacaciones', photo_url: 'https://photos.example/sl2.jpg' },
-  { user: 'sofia_linares',   timestamp: '2026-03-15T22:45:00', location: 'Playa Delfines, Cancún', caption: 'Cena en la playa con las amigas 💕', photo_url: 'https://photos.example/sl3.jpg' },
-  { user: 'sofia_linares',   timestamp: '2026-03-16T09:00:00', location: 'Hotel Riu Cancún',  caption: 'Buenos días desde el paraíso', photo_url: 'https://photos.example/sl4.jpg' },
-  // David Hernández — alibi: oficina
-  { user: 'david_hernandez', timestamp: '2026-03-15T19:00:00', location: 'TI Solutions, Centro Monterrey', caption: 'Otra noche de overtime 😩 release mañana', photo_url: null },
-  { user: 'david_hernandez', timestamp: '2026-03-15T21:30:00', location: 'TI Solutions, Centro Monterrey', caption: 'Pizza del trabajo 🍕', photo_url: 'https://photos.example/dh1.jpg' },
-  { user: 'david_hernandez', timestamp: '2026-03-15T23:50:00', location: 'TI Solutions, Centro Monterrey', caption: 'Deploy listo. Hora de casa.', photo_url: null },
-  // Carlos / fillers
-  { user: 'carlos_mendez',   timestamp: '2026-03-15T17:00:00', location: 'Get Fit Now',       caption: 'Última clase del día 💪', photo_url: null },
-  { user: 'carlos_mendez',   timestamp: '2026-03-16T08:00:00', location: 'Get Fit Now',       caption: 'Buenos días, a entrenar', photo_url: null },
-  { user: 'mariana_cabrera', timestamp: '2026-03-15T20:00:00', location: 'Restaurante La Catarina', caption: 'Cena con la familia', photo_url: null },
-  { user: 'felipe_aragon',   timestamp: '2026-03-15T21:00:00', location: 'Cinepolis Galerías', caption: 'Peli con la novia', photo_url: null },
-  { user: 'oscar_mendez',    timestamp: '2026-03-15T22:00:00', location: 'Taxi - en ruta',    caption: 'Otro turno largo', photo_url: null },
-  { user: 'brenda_ochoa',    timestamp: '2026-03-15T19:45:00', location: 'Café Punta del Cielo', caption: 'Estudiando #vidadeprogramadora', photo_url: null },
-  { user: 'jorge_tapia',     timestamp: '2026-03-15T22:15:00', location: 'Biblioteca ITESM',  caption: 'Examen mañana', photo_url: null }
+  // Sofía Linares — alibi: Cancún (user_id 14502, handle "sl_traveler")
+  { user_id: 14502, user: 'sl_traveler',  timestamp: '2026-03-15T18:00:00', location: 'Aeropuerto MTY',    caption: 'Por fin vacaciones! 🌴', photo_url: 'https://photos.example/sl1.jpg' },
+  { user_id: 14502, user: 'sl_traveler',  timestamp: '2026-03-15T20:30:00', location: 'Hotel Riu Cancún',  caption: 'Llegamos al hotel #cancun #vacaciones', photo_url: 'https://photos.example/sl2.jpg' },
+  { user_id: 14502, user: 'sl_traveler',  timestamp: '2026-03-15T22:45:00', location: 'Playa Delfines, Cancún', caption: 'Cena en la playa con las amigas 💕', photo_url: 'https://photos.example/sl3.jpg' },
+  { user_id: 14502, user: 'sl_traveler',  timestamp: '2026-03-16T09:00:00', location: 'Hotel Riu Cancún',  caption: 'Buenos días desde el paraíso', photo_url: 'https://photos.example/sl4.jpg' },
+
+  // David Hernández — alibi: oficina (user_id 14999, handle "dhc_dev")
+  { user_id: 14999, user: 'dhc_dev',      timestamp: '2026-03-15T19:00:00', location: 'TI Solutions, Centro Monterrey', caption: 'Otra noche de overtime 😩 release mañana', photo_url: null },
+  { user_id: 14999, user: 'dhc_dev',      timestamp: '2026-03-15T21:30:00', location: 'TI Solutions, Centro Monterrey', caption: 'Pizza del trabajo 🍕', photo_url: 'https://photos.example/dh1.jpg' },
+  { user_id: 14999, user: 'dhc_dev',      timestamp: '2026-03-15T23:50:00', location: 'TI Solutions, Centro Monterrey', caption: 'Deploy listo. Hora de casa.', photo_url: null },
+
+  // Carlos Méndez (ASESINO) — user_id 9001, handle "pro_coach_mtz" — ESTA ES LA RESPUESTA DE E2
+  { user_id: 9001,  user: 'pro_coach_mtz', timestamp: '2026-03-15T17:00:00', location: 'Get Fit Now',       caption: 'Última clase del día 💪', photo_url: null },
+  { user_id: 9001,  user: 'pro_coach_mtz', timestamp: '2026-03-16T08:00:00', location: 'Get Fit Now',       caption: 'Buenos días, a entrenar', photo_url: null },
+  { user_id: 9001,  user: 'pro_coach_mtz', timestamp: '2026-03-13T17:30:00', location: 'Get Fit Now',       caption: 'Lunes de pesas 🔥', photo_url: null },
+
+  // Diana Castro (testigo 3) — user_id 14730, handle "dianax_fit"
+  { user_id: 14730, user: 'dianax_fit',   timestamp: '2026-03-15T19:30:00', location: 'Get Fit Now',       caption: 'Última clase con mi grupo 💕', photo_url: null },
+
+  // Ruido curado (otros members)
+  { user_id: 14745, user: 'paolacreativa', timestamp: '2026-03-15T20:00:00', location: 'Restaurante La Catarina', caption: 'Cena con amigas', photo_url: null },
+  { user_id: 14790, user: 'brenda_codes', timestamp: '2026-03-15T19:45:00', location: 'Café Punta del Cielo', caption: 'Estudiando #vidadeprogramadora', photo_url: null },
+  { user_id: 14820, user: 'tapiajorge',   timestamp: '2026-03-15T22:15:00', location: 'Biblioteca ITESM',  caption: 'Examen mañana', photo_url: null }
 ];
 
-function generateProceduralPosts() {
+function generateProceduralPosts(allMembers) {
   const captions = [
     'Buen día!','Cenando con amigos','Tarea de la uni 📚','Cafecito ☕','Día de gym 💪','Domingo en familia',
     'Por fin viernes 🎉','Otro día más','Que rico está el clima','Insomnio','Trabajando duro','Estudiando para finales',
@@ -181,22 +205,32 @@ function generateProceduralPosts() {
     'Parque Fundidora','Gimnasio Get Fit Now','Universidad ITESM','Centro Monterrey','Hospital Zambrano','Casa de mi mamá',
     'Cinépolis','Bar La Catarina','Estadio BBVA','Macroplaza','Iglesia del Roble','Mercado Juárez'
   ];
+  // Generadores de handles NO-predecibles (no siguen patrón nombre_apellido)
+  const handlePrefixes = ['fit','pro','run','iron','flex','spark','quick','blue','red','wild','calm','vibe','luna','solar','urban','ace','prime'];
+  const handleSuffixes = ['mty','01','mx','rg','99','x','pro','vibe','life','fit','runs','dev','code','art','gtg'];
 
   const out = [];
-  const usernames = [];
-  // Generate ~80 random usernames from FIRST + LAST
-  for (let i = 0; i < 60; i++) {
-    const u = `${pick(FIRST).toLowerCase().replace(/[áéíóú]/g,c=>({á:'a',é:'e',í:'i',ó:'o',ú:'u'}[c]))}_${pick(LAST).toLowerCase().replace(/[áéíóúñ]/g,c=>({á:'a',é:'e',í:'i',ó:'o',ú:'u',ñ:'n'}[c]))}`;
-    if (!usernames.includes(u)) usernames.push(u);
+  // Take 40 random member_ids from the existing pool to be "posters" — others stay silent.
+  const posterPool = [];
+  while (posterPool.length < 40) {
+    const m = allMembers[Math.floor(rand() * allMembers.length)];
+    if (!posterPool.find(p => p.member_id === m.member_id)) posterPool.push(m);
   }
-  // Spread posts across march 13-16 to mix with hand posts
+  // Assign a handle to each poster
+  const handleByMemberId = new Map();
+  for (const p of posterPool) {
+    const handle = `${pick(handlePrefixes)}_${pick(handleSuffixes)}${Math.floor(rand()*99)}`;
+    handleByMemberId.set(p.member_id, handle);
+  }
+
   for (let i = 0; i < 130; i++) {
-    const user = pick(usernames);
+    const p = posterPool[Math.floor(rand() * posterPool.length)];
     const day = 13 + Math.floor(rand() * 4);
     const hour = String(7 + Math.floor(rand() * 16)).padStart(2,'0');
     const min  = String(Math.floor(rand() * 60)).padStart(2,'0');
     out.push({
-      user,
+      user_id: p.member_id,
+      user: handleByMemberId.get(p.member_id),
       timestamp: `2026-03-${String(day).padStart(2,'0')}T${hour}:${min}:00`,
       location: pick(locations),
       caption: pick(captions),
@@ -241,20 +275,34 @@ export async function seedMongo(log) {
   const db = client.db('investigation');
 
   // gym_members con noise procedural
+  let allMembersForPosts = [];
   if ((await db.collection('gym_members').countDocuments()) === 0) {
     const procedural = generateProceduralMembers();
     const allMembers = [...HAND_MEMBERS, ...NOISE_HAND, ...procedural];
     const trainersWithClients = buildTrainersWithClients(allMembers);
-    const everyone = [...trainersWithClients, ...allMembers];
+
+    // STRIP trainer_id de los member docs antes de insertar — fuerza al alumno
+    // a usar el clients[] del trainer en lugar de leer el atajo directo.
+    const membersStripped = allMembers.map(({ trainer_id, ...rest }) => rest);
+
+    // Insertion order MIXED — trainers y members intercalados para que Carlos no
+    // sea el primero al abrir la colección en mongo-express.
+    const everyone = [...trainersWithClients, ...membersStripped];
+    everyone.sort((a, b) => {
+      // Pseudo-random shuffle estable basado en member_id
+      return ((a.member_id * 2654435761) >>> 0) - ((b.member_id * 2654435761) >>> 0);
+    });
     await db.collection('gym_members').insertMany(everyone);
-    log(`mongo: ${everyone.length} gym_members insertados (${trainersWithClients.length} trainers + ${allMembers.length} members)`);
+    log(`mongo: ${everyone.length} gym_members insertados (${trainersWithClients.length} trainers + ${membersStripped.length} members, trainer_id stripped, shuffled)`);
+    allMembersForPosts = everyone;
   } else {
     log('mongo: gym_members ya poblada, skip');
+    allMembersForPosts = await db.collection('gym_members').find({}).toArray();
   }
 
   // social_posts con noise procedural
   if ((await db.collection('social_posts').countDocuments()) === 0) {
-    const procedural = generateProceduralPosts();
+    const procedural = generateProceduralPosts(allMembersForPosts);
     const all = [...HAND_POSTS, ...procedural];
     await db.collection('social_posts').insertMany(all);
     log(`mongo: ${all.length} social_posts insertados (${HAND_POSTS.length} curados + ${procedural.length} ruido)`);

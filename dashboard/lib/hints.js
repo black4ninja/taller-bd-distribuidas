@@ -27,30 +27,42 @@ export const HINTS = {
   },
 
   E2: {
-    1: 'Tienes shell access vía el widget "MongoDB shell" en esta página. Empieza por entender el dataset: cuenta cuántos documentos hay en cada colección.\n\n' +
+    1: 'Necesitas correlacionar **dos colecciones**: `gym_members` (donde está la víctima y el entrenador con su array de clients) y `social_posts` (donde están los handles de redes sociales vinculados por `user_id`).\n\n' +
+       'Arranca entendiendo cuántos documentos hay:\n\n' +
        '```\n' +
        'db.gym_members.countDocuments({})\n' +
        'db.social_posts.countDocuments({})\n' +
        '```\n\n' +
-       'Vas a ver que son muchos — no se pueden escanear visualmente. Para encontrar a la víctima necesitas filtrar. El expediente público te dio su apellido (Aguilar). Para encontrar a SU entrenador, necesitas su member_id primero.',
-    2: 'La víctima es un Aguilar deceased. Pero **hay otros Aguilar en el sistema** (vivos) y **hay otros deceased que no son Aguilar**. Combina ambos filtros:\n\n' +
+       'El expediente público te dio el apellido de la víctima (Aguilar). Pero **hay más de un Aguilar** en el sistema y **más de un deceased**. Filtra por la intersección.',
+    2: 'Plan de tres pasos:\n\n' +
+       '1. Encuentra a la víctima: filtra por regex de apellido + status deceased.\n' +
+       '2. Encuentra al entrenador: en `gym_members`, los trainers tienen un campo `clients` (array de member_ids). Busca al trainer cuyo array contenga el member_id de la víctima.\n' +
+       '3. Encuentra el handle social del entrenador: en `social_posts`, los posts tienen `user_id` que mapea a `member_id`. Busca un post con el user_id del entrenador y lee su campo `user`.\n\n' +
+       'Ese `user` es el handle (no es `nombre_apellido` — fue ofuscado a propósito).',
+    3: 'Tres queries (o una aggregation con $lookup):\n\n' +
        '```\n' +
-       'db.gym_members.find({name: /Aguilar/, status: "deceased"})\n' +
-       '```\n\n' +
-       'La regex `/Aguilar/` busca el apellido dentro del campo `name`. Combinado con `status: "deceased"` te queda UN solo documento.\n\n' +
-       'Una vez tengas su `member_id`, encuentra al entrenador cuyo array `clients` lo contenga.',
-    3: 'Dos queries en el shell:\n\n' +
-       '```\n' +
-       '// 1. Encuentra a la víctima (único Aguilar deceased)\n' +
+       '// 1. Víctima\n' +
        'db.gym_members.findOne({name: /Aguilar/, status: "deceased"})\n' +
-       '// → member_id: 14782\n' +
+       '//   → member_id: 14782\n' +
        '\n' +
-       '// 2. Encuentra al entrenador con la víctima en su array de clientes\n' +
+       '// 2. Entrenador (filtro por array)\n' +
        'db.gym_members.findOne({clients: 14782})\n' +
-       '// → Carlos Méndez, member_id 9001\n' +
+       '//   → member_id: 9001 (Carlos Méndez)\n' +
+       '\n' +
+       '// 3. Handle social del entrenador (cross-collection!)\n' +
+       'db.social_posts.findOne({user_id: 9001}, {user: 1, _id: 0})\n' +
+       '//   → { user: "pro_coach_mtz" }\n' +
        '```\n\n' +
-       'Filtrar dentro de un array con `{clients: 14782}` es una de las cosas que NoSQL hace bien — en SQL necesitarías tabla intermedia y JOIN. Submit el `member_id` del entrenador.\n\n' +
-       'Bonus opcional (alibis): `db.social_posts.find({user: "sofia_linares"})` y lo mismo con `david_hernandez` confirma que ambos tenían dónde estar esa noche. Otra opción: `db.social_posts.find({timestamp: {$gte: "2026-03-15T22:00", $lt: "2026-03-15T23:30"}})` filtra por rango de fechas.'
+       'El handle `pro_coach_mtz` es la respuesta.\n\n' +
+       'Alternativa elegante con aggregation pipeline (un solo query):\n' +
+       '```\n' +
+       'db.gym_members.aggregate([\n' +
+       '  { $match: { clients: 14782 } },\n' +
+       '  { $lookup: { from: "social_posts", localField: "member_id", foreignField: "user_id", as: "posts" } },\n' +
+       '  { $project: { _id: 0, name: 1, handle: { $arrayElemAt: ["$posts.user", 0] } } }\n' +
+       '])\n' +
+       '```\n\n' +
+       'Bonus opcional (alibis): primero busca el member_id de los sospechosos físicos (`db.gym_members.findOne({name: /Linares/})` y `/Hernández/`), luego sus posts (`db.social_posts.find({user_id: <id>, timestamp: {$gte: "2026-03-15T22:00", $lt: "2026-03-15T23:30"}})`).'
   },
 
   E3: {

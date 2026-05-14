@@ -32,9 +32,9 @@ export const STATIONS = {
     error_hint: 'Revisa las entrevistas en PostgreSQL. Hay 2 sospechosos físicos descritos por los testigos.'
   },
   E2: {
-    title: 'MongoDB — Alibis y el entrenador',
-    accept: ['9001'],
-    error_hint: 'La respuesta es el member_id (4 dígitos) del entrenador cuyo array clients contiene a la víctima.'
+    title: 'MongoDB — El handle del entrenador',
+    accept: ['pro_coach_mtz'],
+    error_hint: 'La respuesta es el handle social (username) del entrenador del víctima. Vive en social_posts, no en gym_members — necesitas correlacionar ambas colecciones.'
   },
   E3: {
     title: 'Redis — La pista del informante',
