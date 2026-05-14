@@ -8,16 +8,38 @@
 </head>
 <body>
 <header class="topbar">
-  <a href="/" class="brand">🔎 CSI · DB Distribuidas</a>
-  <nav>
-    <a href="/">Inicio</a>
-    <a href="/caso">📰 Expediente</a>
-    <a href="/walkthrough">E0 (ejemplo)</a>
-    <a href="/solve">Resolver caso</a>
-    <a href="http://localhost:8081" target="_blank" rel="noopener">Adminer</a>
-    <a href="http://localhost:8082" target="_blank" rel="noopener">mongo-express</a>
-    <a href="http://localhost:8083" target="_blank" rel="noopener">RedisInsight</a>
-    <a href="http://localhost:6333/dashboard" target="_blank" rel="noopener">Qdrant</a>
+  <a href="/" class="brand">🔎 CSI · DB DISTRIBUIDAS</a>
+  <nav id="main-nav">
+    <a href="/" data-path="/">Inicio</a>
+    <a href="/caso" data-path="/caso">📰 Expediente</a>
+    <a href="/walkthrough" data-path="/walkthrough">E0 Tutorial</a>
+    <a href="/solve" data-path="/solve">Resolver caso</a>
+    <span class="nav-sep" aria-hidden="true"></span>
+    <a class="ext" href="http://localhost:8081" target="_blank" rel="noopener">Adminer</a>
+    <a class="ext" href="http://localhost:8082" target="_blank" rel="noopener">mongo-express</a>
+    <a class="ext" href="http://localhost:8083" target="_blank" rel="noopener">RedisInsight</a>
+    <a class="ext" href="http://localhost:6333/dashboard" target="_blank" rel="noopener">Qdrant</a>
   </nav>
 </header>
+<script>
+  // Marcar pestaña activa según la ruta actual
+  (function() {
+    const path = window.location.pathname;
+    const links = document.querySelectorAll('#main-nav a[data-path]');
+    let bestMatch = null;
+    let bestLen = -1;
+    links.forEach(a => {
+      const p = a.getAttribute('data-path');
+      if (path === p || (p !== '/' && path.startsWith(p))) {
+        if (p.length > bestLen) { bestMatch = a; bestLen = p.length; }
+      } else if (p === '/' && path === '/') {
+        if (p.length > bestLen) { bestMatch = a; bestLen = p.length; }
+      }
+    });
+    if (bestMatch) bestMatch.classList.add('active');
+    else if (path.startsWith('/station/')) {
+      // Las estaciones no tienen su propia entrada en el nav — no destacar nada
+    }
+  })();
+</script>
 <main>
