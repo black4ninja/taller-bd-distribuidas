@@ -23,11 +23,15 @@
 </header>
 
 <div id="hud" class="hud">
-  <span id="hud-cred"   class="hud__chip hud__chip--cred"  title="Credibilidad — cada submit incorrecto resta">❤ <span id="hud-cred-value">—</span>/5</span>
-  <span id="hud-time"   class="hud__chip hud__chip--time"  title="Tiempo desde que abriste E1">⏱ <span id="hud-time-value">—</span></span>
-  <span id="hud-prog"   class="hud__chip hud__chip--prog"  title="Estaciones completadas">📂 <span id="hud-prog-value">—</span>/4</span>
-  <button id="notes-toggle" class="hud__chip hud__chip--notes" type="button" title="Abrir cuaderno de notas">📝 Notas</button>
+  <span id="hud-cred" class="hud__chip hud__chip--cred" title="Credibilidad — cada submit incorrecto resta">❤ <span id="hud-cred-value">—</span>/5</span>
+  <span id="hud-time" class="hud__chip hud__chip--time" title="Tiempo desde que abriste E1">⏱ <span id="hud-time-value">—</span></span>
+  <span id="hud-prog" class="hud__chip hud__chip--prog" title="Estaciones completadas">📂 <span id="hud-prog-value">—</span>/4</span>
 </div>
+
+<button id="notes-toggle" class="notes-fab" type="button" title="Abrir cuaderno de notas" aria-label="Abrir cuaderno de notas">
+  <span class="notes-fab__icon">📝</span>
+  <span class="notes-fab__label">Notas</span>
+</button>
 
 <aside id="notes-drawer" class="notes-drawer" hidden>
   <div class="notes-drawer__overlay" data-notes-close></div>

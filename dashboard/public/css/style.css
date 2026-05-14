@@ -950,16 +950,51 @@ pre code { background: transparent; padding: 0; }
 
 .hud__chip--time { color: #c5a850; }
 .hud__chip--prog { color: #4ade80; }
-.hud__chip--notes {
+/* ─── Notes FAB (Floating Action Button) ─── */
+.notes-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 1.1rem 0 0.95rem;
+  height: 56px;
   background: #c5a850;
   color: #1a1a1a;
-  border-color: #8b6f10;
-  cursor: pointer;
-  font-family: Georgia, serif;
+  border: 2px solid #8b6f10;
+  border-radius: 28px;
+  font-family: Georgia, "Times New Roman", serif;
   font-weight: 600;
-  margin-left: auto;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.35),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background 0.15s;
 }
-.hud__chip--notes:hover { background: #e4c863; }
+.notes-fab:hover {
+  background: #e4c863;
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.4),
+    0 3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.notes-fab:active { transform: translateY(0); }
+.notes-fab__icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.notes-fab__label {
+  letter-spacing: 0.02em;
+}
+@media (max-width: 600px) {
+  .notes-fab { padding: 0; width: 56px; justify-content: center; }
+  .notes-fab__label { display: none; }
+}
 
 /* ─── Notes drawer (slide-in desde la derecha) ─── */
 .notes-drawer {
