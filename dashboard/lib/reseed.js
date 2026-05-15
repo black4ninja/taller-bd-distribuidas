@@ -281,6 +281,9 @@ async function reseedQdrant(c) {
   await client.upsert(COLLECTION, { wait: true, points });
 }
 
+// Export individual motor reseeds (para restore tras attack)
+export { reseedMongo, reseedRedis };
+
 // ───── orquestador ─────
 export async function reseedAllMotors(caseObj, log = () => {}) {
   log('reseed: postgres...');  await reseedPostgres(caseObj);

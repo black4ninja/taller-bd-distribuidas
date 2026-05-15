@@ -17,6 +17,7 @@ import {
   getCase,
   effectiveNowMs
 } from '../lib/game-state.js';
+import { scheduleAttack, ATTACK_STATIONS } from '../lib/attacks.js';
 
 const router = Router();
 
@@ -162,6 +163,10 @@ router.get('/station/:id', (req, res) => {
   const blockedBy = previousStationBlocking(pid, id);
   if (!blockedBy) {
     recordStationOpen(pid, id);
+    // Si es E2/E3, agendar ataque pedagógico (idempotente: solo si no hay state previo)
+    if (ATTACK_STATIONS.includes(id)) {
+      scheduleAttack(pid, id);
+    }
   }
   const openedAt = getStationOpenedAt(pid, id);
 
@@ -187,7 +192,8 @@ router.get('/station/:id', (req, res) => {
     HINT_UNLOCK_SECONDS,
     completed: isStationCompleted(pid, id),
     showVectorWidget: id === 'E4',
-    showMongoShell: id === 'E2'
+    showMongoShell: id === 'E2',
+    hasAttackSim: ATTACK_STATIONS.includes(id)
   });
 });
 

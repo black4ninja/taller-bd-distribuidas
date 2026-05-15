@@ -36,6 +36,8 @@
   </div>
 
   <button id="dev-accel" class="hud__chip hud__chip--dev" type="button" title="DEV: acelerar el tiempo en 5 minutos">⏩ DEV +5m</button>
+  <button id="dev-attack-e2" class="hud__chip hud__chip--attack" type="button" hidden title="DEV: forzar ataque inmediato a MongoDB (E2)">⚠️ DEV E2</button>
+  <button id="dev-attack-e3" class="hud__chip hud__chip--attack" type="button" hidden title="DEV: forzar ataque inmediato a Redis (E3)">⚠️ DEV E3</button>
   <button id="reset-game" class="hud__chip hud__chip--reset" type="button" title="Iniciar caso nuevo — pierdes tu progreso actual">🔄 Nuevo caso</button>
 </div>
 
@@ -133,17 +135,24 @@
     const bombWrap = document.getElementById('hud-bomb');
     const devBtn   = document.getElementById('dev-accel');
     const resetBtn = document.getElementById('reset-game');
+    const devE2    = document.getElementById('dev-attack-e2');
+    const devE3    = document.getElementById('dev-attack-e3');
     if (!started) {
       if (timeChip) timeChip.style.display = 'none';
       if (bombWrap) bombWrap.style.display = 'none';
       if (devBtn)   devBtn.style.display   = 'none';
       if (resetBtn) resetBtn.style.display = 'none';
+      if (devE2)    devE2.hidden = true;
+      if (devE3)    devE3.hidden = true;
       return;
     }
     if (timeChip) timeChip.style.display = '';
     if (bombWrap) bombWrap.style.display = '';
     if (devBtn)   devBtn.style.display   = '';
     if (resetBtn) resetBtn.style.display = '';
+    // Mostrar DEV ataque solo cuando el ataque está agendado pero aún no activo (pending)
+    if (devE2) devE2.hidden = (j.attacks?.E2 !== 'pending');
+    if (devE3) devE3.hidden = (j.attacks?.E3 !== 'pending');
 
     document.getElementById('hud-time-value').textContent = fmtMS(j.elapsed_seconds);
 
@@ -194,6 +203,28 @@
     refreshHud();
     if (j.game_over) setTimeout(() => location.href = '/', 600);
   });
+
+  // ─── DEV: forzar ataque inmediato (E2/E3) ────────────────────────
+  function wireDevAttack(stationId) {
+    const btn = document.getElementById('dev-attack-' + stationId.toLowerCase());
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      await fetch('/dev/trigger-attack/' + stationId, { method: 'POST' });
+      btn.disabled = false;
+      // Si estás en la estación atacada, dispara el fetch del overlay
+      if (typeof fetchAttackStatus === 'function' && window.stationId === stationId) {
+        fetchAttackStatus();
+      } else {
+        // Si estás en otra ruta, navega a la estación para que veas el overlay
+        if (window.location.pathname !== '/station/' + stationId) {
+          location.href = '/station/' + stationId;
+        }
+      }
+    });
+  }
+  wireDevAttack('E2');
+  wireDevAttack('E3');
 
   // ─── Nuevo caso (reset con confirmación) ─────────────────────────
   const resetModal = document.getElementById('reset-modal');

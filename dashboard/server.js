@@ -31,6 +31,8 @@ import cheatsheetRouter from './routes/cheatsheet.js';
 import searchRouter from './routes/search.js';
 import mongoShellRouter from './routes/mongo-shell.js';
 import notesRouter from './routes/notes.js';
+import attacksRouter from './routes/attacks.js';
+import { resetAttacks } from './lib/attacks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -93,6 +95,8 @@ async function provisionCase(playerId) {
 // Inicia el juego: genera caso, reseedea motores, marca started_at
 app.post('/start-game', async (req, res) => {
   try {
+    // Limpiar ataques stale por si el player_id se reusa entre casos
+    resetAttacks(req.playerId);
     await provisionCase(req.playerId);
     startGame(req.playerId);
     res.json({ ok: true, redirect: '/' });
@@ -107,6 +111,7 @@ app.post('/new-game', async (req, res) => {
   try {
     const pid = newPlayerId();
     ensurePlayer(pid);
+    resetAttacks(pid);
     await provisionCase(pid);
     startGame(pid);
     res.cookie(COOKIE_NAME, pid, {
@@ -149,7 +154,11 @@ app.get('/state', (req, res) => {
     elapsed_minutes: elapsedSec != null ? Math.round(elapsedSec / 60) : null,
     deadline_total_seconds: DEADLINE_SECONDS,
     deadline_remaining_seconds: started ? deadlineRemainingSeconds(req.playerId) : null,
-    deadline_started: started
+    deadline_started: started,
+    attacks: {
+      E2: player?.attack_e2_state || null,
+      E3: player?.attack_e3_state || null
+    }
   });
 });
 
@@ -175,6 +184,7 @@ app.use(cheatsheetRouter);
 app.use(searchRouter);
 app.use(mongoShellRouter);
 app.use(notesRouter);
+app.use(attacksRouter);
 
 app.use((req, res) => res.status(404).render('404'));
 

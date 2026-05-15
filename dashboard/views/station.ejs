@@ -93,6 +93,28 @@
       </div>
     <% } %>
 
+    <% if (hasAttackSim) { %>
+      <div class="case-file__section attack-prep" id="attack-prep">
+        <h3>🛡️ Preparación defensiva — vulnerabilidad expuesta</h3>
+        <div id="attack-prep-status" class="attack-prep__status attack-prep__status--idle">
+          <strong>Estado:</strong> <span id="attack-prep-state-label">cargando…</span>
+          <span id="attack-prep-countdown" class="attack-prep__countdown"></span>
+        </div>
+        <p class="muted attack-prep__intro" id="attack-prep-intro">
+          Este motor (<strong><span id="attack-prep-motor"></span></strong>) está corriendo sin autenticación — exactamente como el campus lo tiene en producción. <strong>Un actor externo va a explotarlo</strong> dentro de los próximos minutos. Lee las 8 defensas abajo, entiende qué hace cada una, y cuando empiece el ataque tendrás <strong>90 segundos</strong> para aplicar las suficientes (necesitas combinar para llegar a <strong>5 puntos</strong>). Si fallas, los datos serán destruidos y tendrás que restaurar con costo de credibilidad.
+        </p>
+        <div class="attack-prep__score">
+          <span>Score acumulado: <strong id="attack-prep-score">0</strong> / <span id="attack-prep-threshold">5</span></span>
+          <div class="attack-prep__bar">
+            <div id="attack-prep-bar-fill" class="attack-prep__bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div id="attack-defenses-inline" class="attack-defenses-grid">
+          <p class="muted" style="grid-column:1/-1; padding:1rem; text-align:center;">Cargando catálogo de defensas…</p>
+        </div>
+      </div>
+    <% } %>
+
     <div class="submit-box">
       <h3>▶ Informe oficial del folio <%= id %></h3>
       <input type="text" id="answer" placeholder="Escribe tu respuesta y presiona Validar" />
@@ -101,6 +123,70 @@
     </div>
   <% } %>
 </section>
+
+<% if (hasAttackSim) { %>
+<!-- Indicador de vigilancia (pending) — discreto, esquina inferior izquierda -->
+<div id="attack-watchdog" class="attack-watchdog" hidden>
+  <span class="attack-watchdog__icon">🛡️</span>
+  <span class="attack-watchdog__text">
+    SOC vigilando · <span id="attack-watchdog-time">--</span>s
+  </span>
+</div>
+
+<!-- Banner sticky-top de ataque activo (countdown + log; defensas viven en el panel inline) -->
+<div id="attack-banner" class="attack-banner" hidden>
+  <div class="attack-banner__inner">
+    <div class="attack-banner__head">
+      <strong class="attack-banner__title">🚨 ATAQUE EN CURSO · <span id="attack-station-label"></span></strong>
+      <span class="attack-banner__desc" id="attack-overlay-desc"></span>
+    </div>
+    <div class="attack-banner__timer">
+      <span class="attack-banner__countdown"><span id="attack-countdown">90</span>s</span>
+      <small>aplica defensas abajo · score <span id="attack-score-banner">0</span>/<span id="attack-threshold-banner">5</span></small>
+    </div>
+  </div>
+  <pre class="attack-banner__log" id="attack-log"></pre>
+</div>
+
+<!-- Breach screen (failed) -->
+<div id="breach-screen" class="breach-screen" hidden>
+  <div class="breach-screen__inner">
+    <h1>💀 BREACH</h1>
+    <p class="breach-screen__motor" id="breach-motor"></p>
+    <pre class="breach-screen__log" id="breach-log"></pre>
+    <p class="breach-screen__cta">Los datos del motor fueron eliminados por el atacante. Para continuar la investigación tienes que <strong>restaurar desde backup</strong>, pero eso te costará 1 punto de credibilidad ante la fiscalía (no actuaste a tiempo).</p>
+    <div class="breach-screen__actions">
+      <button id="breach-restore" class="btn btn--primary">Restaurar desde backup (−1 credibilidad)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mini-modal con detalle de una defensa (al pulsarla, antes de aplicar) -->
+<div id="defense-modal" class="hint-modal" hidden>
+  <div class="hint-modal__overlay" data-defense-close></div>
+  <div class="hint-modal__content" role="dialog" aria-modal="true">
+    <div class="hint-modal__header">
+      <h3 id="defense-modal-title">Defensa</h3>
+      <button class="hint-modal__close" data-defense-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="hint-modal__body">
+      <p id="defense-modal-explanation"></p>
+      <pre id="defense-modal-command" class="defense-modal__cmd"></pre>
+      <p id="defense-modal-weight" class="defense-modal__weight"></p>
+      <div class="defense-quiz" id="defense-quiz">
+        <p class="defense-quiz__intro"><strong>Checkpoint:</strong> antes de aplicar, contesta. Si fallas, esta defensa queda <em>bloqueada</em> para este ataque (no penaliza credibilidad, solo pierdes la oportunidad de usarla).</p>
+        <h4 id="defense-quiz-question" class="defense-quiz__q"></h4>
+        <div id="defense-quiz-options" class="defense-quiz__opts"></div>
+        <div id="defense-quiz-feedback" class="defense-quiz__feedback" hidden></div>
+      </div>
+      <div style="display:flex; gap:0.6rem; justify-content:flex-end; margin-top:1rem;">
+        <button class="btn btn--ghost" data-defense-close type="button">Cerrar</button>
+        <button class="btn btn--primary" id="defense-apply-btn" type="button" disabled>Aplicar esta defensa</button>
+      </div>
+    </div>
+  </div>
+</div>
+<% } %>
 
 <!-- Modal de pistas -->
 <div id="hint-modal" class="hint-modal" hidden>
@@ -116,6 +202,7 @@
 
 <script>
   const stationId = "<%= id %>";
+  window.stationId = stationId;
 
   function renderMarkdownish(text) {
     return text
@@ -246,6 +333,410 @@
     document.getElementById('mongo-query').addEventListener('keydown', e => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') mongoBtn.click();
     });
+  }
+
+  // ─── Attack simulation (E2/E3) ──────────────────────────────────
+  const hasAttackSim = <%= hasAttackSim ? 'true' : 'false' %>;
+  const ATTACK_LABEL = { E2: 'MongoDB (sin auth)', E3: 'Redis (sin auth)' };
+  const ATTACK_DESC = {
+    E2: 'Un actor externo está enumerando colecciones de MongoDB. Aplica defensas hasta llegar al threshold antes de que se acabe el tiempo, o destruirá los datos.',
+    E3: 'Un atacante en la red interna acaba de conectarse a Redis sin auth y está ejecutando KEYS *. Si llega a FLUSHALL, perderás todo el buffer de evidence:tip:*.'
+  };
+  const ATTACK_LOG_LINES = {
+    E2: [
+      '[09:14:22] tcp connect mongo:27017 from 198.51.100.7 — no auth required',
+      '[09:14:22] > db.adminCommand({ listDatabases: 1 })',
+      '[09:14:22] enumerating: admin, config, investigation',
+      '[09:14:23] > use investigation',
+      '[09:14:23] > db.getCollectionNames()',
+      '[09:14:23] found: gym_members, social_posts, _evidence_archive',
+      '[09:14:24] > db.gym_members.find({}).toArray() // exfiltrating...',
+      '[09:14:25] [WARN] attacker may issue dropDatabase next',
+    ],
+    E3: [
+      '[09:14:22] tcp connect redis:6379 from 198.51.100.7 — no auth required',
+      '[09:14:22] > INFO server',
+      '[09:14:22] redis_version:7.2.0 — protected-mode no',
+      '[09:14:23] > KEYS *',
+      '[09:14:23] enumerated 2847 keys (evidence:tip:*, gym:checkin:*, system:pipelines:*)',
+      '[09:14:24] > MGET evidence:tip:20260315_1100_anon ...',
+      '[09:14:25] [WARN] attacker may issue FLUSHALL next',
+    ]
+  };
+  const BREACH_LOG = {
+    E2: 'mongo > db.gym_members.drop() — true\nmongo > db.social_posts.drop() — true\nmongo > db._evidence_archive.drop() — true\n[DESTROYED] 3 colecciones eliminadas. RTO: pendiente.',
+    E3: 'redis > DEL evidence:tip:* — 12 keys removed\nredis > DEL system:pipelines:* — 3 keys removed\n[DESTROYED] Buffer forense vacío. Cadena de custodia rota.\nRTO: pendiente.'
+  };
+
+  let attackPollTimer = null;
+  let attackTickTimer = null;
+  let attackLastFetch = 0;
+  let attackState = null;
+  let attackPendingSec = null;
+  let attackActiveSec = null;
+  let attackCatalogRendered = false;
+  let attackLogTimer = null;
+  let attackLogIndex = 0;
+  let lastAppliedSet = [];
+
+  function $(id) { return document.getElementById(id); }
+
+  function paintWatchdog(secLeft) {
+    const wd = $('attack-watchdog');
+    if (!wd) return;
+    wd.hidden = false;
+    $('attack-watchdog-time').textContent = secLeft;
+  }
+  function hideWatchdog() { const wd = $('attack-watchdog'); if (wd) wd.hidden = true; }
+
+  function paintBanner(status) {
+    const banner = $('attack-banner');
+    if (!banner) return;
+    banner.hidden = false;
+    document.body.classList.add('attack-active');
+    $('attack-station-label').textContent = ATTACK_LABEL[stationId] || stationId;
+    $('attack-overlay-desc').textContent = ATTACK_DESC[stationId] || '';
+    $('attack-threshold-banner').textContent = status.threshold;
+    $('attack-score-banner').textContent = status.score;
+    if (!attackLogTimer) startAttackLog();
+  }
+  function hideBanner() {
+    const banner = $('attack-banner');
+    if (banner) banner.hidden = true;
+    document.body.classList.remove('attack-active');
+    stopAttackLog();
+  }
+
+  // Render del catálogo en el panel inline (siempre, desde el primer poll)
+  function renderCatalogInline(catalog, applied, state, quizFailed) {
+    const wrap = $('attack-defenses-inline');
+    if (!wrap || !catalog) return;
+    applied = applied || [];
+    quizFailed = quizFailed || [];
+    const clickable = state === 'active';
+    wrap.innerHTML = catalog.map(d => {
+      const isApp = applied.includes(d.id);
+      const isQuizLocked = quizFailed.includes(d.id);
+      const disabled = !clickable || isApp || isQuizLocked;
+      let footer = '';
+      if (isApp) footer = '';
+      else if (isQuizLocked) footer = '<div class="defense-card__lock-msg defense-card__lock-msg--burned">🔥 quiz fallado · defensa quemada</div>';
+      else if (!clickable) footer = '<div class="defense-card__lock-msg">🔒 disponible cuando empiece el ataque</div>';
+      else footer = '<div class="defense-card__cta">▶ contestar y aplicar</div>';
+      return `
+      <button class="defense-card defense-card--${d.weight} ${isApp ? 'is-applied' : ''} ${isQuizLocked ? 'is-burned' : ''} ${clickable ? '' : 'is-locked'}" data-defense-id="${d.id}" ${disabled ? 'disabled' : ''}>
+        <div class="defense-card__head">
+          <span class="defense-card__weight defense-card__weight--${d.weight}">${d.weight} · ${d.points}pt</span>
+          ${isApp ? '<span class="defense-card__check">✓ aplicada</span>' : ''}
+          ${isQuizLocked ? '<span class="defense-card__burned-flag">✗ quemada</span>' : ''}
+        </div>
+        <div class="defense-card__label">${d.label}</div>
+        <div class="defense-card__expl">${d.explanation}</div>
+        <pre class="defense-card__cmd">${escapeHtml(d.command)}</pre>
+        ${footer}
+      </button>
+    `;
+    }).join('');
+    wrap.querySelectorAll('[data-defense-id]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        const def = catalog.find(x => x.id === btn.dataset.defenseId);
+        openDefenseModal(def);
+      });
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function updateScoreBar(score, threshold) {
+    // Banner (active) + inline panel
+    const banner = $('attack-score-banner'); if (banner) banner.textContent = score;
+    const prep = $('attack-prep-score');     if (prep) prep.textContent = score;
+    const fill = $('attack-prep-bar-fill');
+    if (fill) {
+      const pct = Math.min(100, (score / threshold) * 100);
+      fill.style.width = pct + '%';
+      fill.classList.toggle('attack-prep__bar-fill--full', pct >= 100);
+    }
+  }
+
+  function updatePrepStatus(state, secLeft) {
+    const wrap = $('attack-prep-status');
+    const label = $('attack-prep-state-label');
+    const countdown = $('attack-prep-countdown');
+    const motor = $('attack-prep-motor');
+    if (motor) motor.textContent = ATTACK_LABEL[stationId] || stationId;
+    if (!wrap) return;
+    wrap.classList.remove('attack-prep__status--pending', 'attack-prep__status--active', 'attack-prep__status--defended', 'attack-prep__status--failed', 'attack-prep__status--restored', 'attack-prep__status--idle');
+    if (!state) {
+      wrap.classList.add('attack-prep__status--idle');
+      label.textContent = 'Sin ataque agendado todavía';
+      countdown.textContent = '';
+      return;
+    }
+    wrap.classList.add('attack-prep__status--' + state);
+    if (state === 'pending') {
+      label.textContent = '⏳ Atacante acercándose';
+      countdown.textContent = '— inicia en ~' + secLeft + 's';
+    } else if (state === 'active') {
+      label.textContent = '🚨 ATAQUE EN CURSO';
+      countdown.textContent = '— quedan ' + secLeft + 's';
+    } else if (state === 'defended') {
+      label.textContent = '🛡️ Defendido';
+      countdown.textContent = '— sistema asegurado';
+    } else if (state === 'failed') {
+      label.textContent = '💀 Breach';
+      countdown.textContent = '— restaura desde backup';
+    } else if (state === 'restored') {
+      label.textContent = '♻️ Restaurado';
+      countdown.textContent = '— −1 credibilidad';
+    }
+  }
+
+  // mini-modal de defensa con quiz
+  let modalCurrentDef = null;
+  let modalSelectedOption = null;
+
+  function openDefenseModal(def) {
+    if (!def) return;
+    modalCurrentDef = def;
+    modalSelectedOption = null;
+    $('defense-modal-title').textContent = def.label;
+    $('defense-modal-explanation').textContent = def.explanation;
+    $('defense-modal-command').textContent = def.command;
+    $('defense-modal-weight').textContent = `Peso: ${def.weight} (${def.points} pt). ${def.weight === 'critical' ? 'Defensa crítica — sin ella las demás son débiles.' : def.weight === 'high' ? 'Defensa importante.' : def.weight === 'medium' ? 'Defensa complementaria.' : 'Defensa de detección / poco peso por sí sola.'}`;
+
+    const quizWrap = $('defense-quiz');
+    const fb = $('defense-quiz-feedback');
+    fb.hidden = true;
+    fb.textContent = '';
+    fb.className = 'defense-quiz__feedback';
+
+    if (def.quiz) {
+      quizWrap.hidden = false;
+      $('defense-quiz-question').textContent = def.quiz.question;
+      const opts = $('defense-quiz-options');
+      opts.innerHTML = def.quiz.options.map((text, i) => `
+        <label class="defense-quiz__opt">
+          <input type="radio" name="defense-quiz-opt" value="${i}">
+          <span>${escapeHtml(text)}</span>
+        </label>
+      `).join('');
+      opts.querySelectorAll('input[name="defense-quiz-opt"]').forEach(inp => {
+        inp.addEventListener('change', () => {
+          modalSelectedOption = parseInt(inp.value, 10);
+          $('defense-apply-btn').disabled = false;
+        });
+      });
+      $('defense-apply-btn').disabled = true;
+      $('defense-apply-btn').textContent = 'Contestar y aplicar';
+    } else {
+      quizWrap.hidden = true;
+      $('defense-apply-btn').disabled = false;
+      $('defense-apply-btn').textContent = 'Aplicar esta defensa';
+    }
+    $('defense-modal').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDefenseModal() {
+    $('defense-modal').hidden = true;
+    document.body.style.overflow = '';
+    modalCurrentDef = null;
+    modalSelectedOption = null;
+  }
+
+  if (hasAttackSim) {
+    $('defense-modal').querySelectorAll('[data-defense-close]').forEach(el =>
+      el.addEventListener('click', closeDefenseModal));
+    $('defense-apply-btn').addEventListener('click', async () => {
+      if (!modalCurrentDef) return;
+      const btn = $('defense-apply-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Validando...';
+      const body = { defenseId: modalCurrentDef.id };
+      if (modalCurrentDef.quiz && modalSelectedOption != null) body.quizAnswer = modalSelectedOption;
+      const r = await fetch('/attack/' + stationId + '/defend', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      });
+      const j = await r.json();
+      if (j.ok) {
+        // Correcto: cerrar modal, refrescar UI
+        closeDefenseModal();
+        fetchAttackStatus();
+        if (j.state === 'defended') showDefended();
+      } else if (j.quiz_wrong) {
+        // Mostrar feedback in-modal con la respuesta correcta
+        const fb = $('defense-quiz-feedback');
+        fb.hidden = false;
+        fb.className = 'defense-quiz__feedback defense-quiz__feedback--wrong';
+        fb.innerHTML = `<strong>✗ Incorrecto.</strong> Esta defensa queda <em>bloqueada</em> para este ataque.<br><br><strong>La respuesta correcta era:</strong> «${escapeHtml(j.correct_text)}»<br><br><em>${escapeHtml(j.explanation || '')}</em>`;
+        btn.textContent = 'Cerrar';
+        btn.disabled = false;
+        btn.onclick = () => { closeDefenseModal(); fetchAttackStatus(); btn.onclick = null; };
+      } else {
+        // Otro error
+        const fb = $('defense-quiz-feedback');
+        fb.hidden = false;
+        fb.className = 'defense-quiz__feedback defense-quiz__feedback--wrong';
+        fb.textContent = j.error || 'Error desconocido';
+        btn.textContent = 'Cerrar';
+        btn.disabled = false;
+        btn.onclick = () => { closeDefenseModal(); btn.onclick = null; };
+      }
+    });
+  }
+
+  function showDefended() {
+    hideOverlay();
+    hideWatchdog();
+    stopAttackLog();
+    // banner verde de éxito
+    const note = document.createElement('div');
+    note.className = 'attack-defended-toast';
+    note.innerHTML = '🛡️ <strong>Ataque mitigado.</strong> Tus defensas alcanzaron el threshold. La fiscalía registró tu respuesta. Puedes seguir investigando.';
+    document.body.appendChild(note);
+    setTimeout(() => note.remove(), 8000);
+  }
+
+  function showBreach() {
+    hideOverlay();
+    hideWatchdog();
+    stopAttackLog();
+    const bs = $('breach-screen');
+    $('breach-motor').textContent = ATTACK_LABEL[stationId];
+    $('breach-log').textContent = BREACH_LOG[stationId];
+    bs.hidden = false;
+    document.body.classList.add('breach-active');
+  }
+  function hideBreach() {
+    $('breach-screen').hidden = true;
+    document.body.classList.remove('breach-active');
+  }
+  if (hasAttackSim) {
+    $('breach-restore').addEventListener('click', async () => {
+      const btn = $('breach-restore');
+      btn.disabled = true;
+      btn.textContent = '⏳ Restaurando backup...';
+      const r = await fetch('/attack/' + stationId + '/restore', { method: 'POST' });
+      const j = await r.json();
+      if (j.ok) {
+        hideBreach();
+        if (typeof refreshHud === 'function') refreshHud();
+        if (j.game_over) {
+          setTimeout(() => location.href = '/', 1200);
+        }
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Reintentar restaurar';
+      }
+    });
+  }
+
+  function startAttackLog() {
+    if (attackLogTimer) return;
+    const log = $('attack-log');
+    if (!log) return;
+    const lines = ATTACK_LOG_LINES[stationId] || [];
+    attackLogIndex = 0;
+    log.textContent = '';
+    attackLogTimer = setInterval(() => {
+      if (attackLogIndex >= lines.length) { clearInterval(attackLogTimer); attackLogTimer = null; return; }
+      log.textContent += lines[attackLogIndex] + '\n';
+      log.scrollTop = log.scrollHeight;
+      attackLogIndex++;
+    }, 1500);
+  }
+  function stopAttackLog() {
+    if (attackLogTimer) { clearInterval(attackLogTimer); attackLogTimer = null; }
+  }
+
+  async function fetchAttackStatus() {
+    try {
+      const r = await fetch('/attack/' + stationId + '/status');
+      const j = await r.json();
+      attackLastFetch = Date.now();
+      const prev = attackState;
+      attackState = j.state;
+      attackPendingSec = j.pendingSecLeft;
+      attackActiveSec = j.activeSecLeft;
+      paintAttackUI(j);
+      if (prev !== 'defended' && j.state === 'defended') showDefended();
+      if (prev !== 'failed' && j.state === 'failed') showBreach();
+    } catch {}
+  }
+
+  function paintAttackUI(j) {
+    if (!j || !j.state) {
+      hideWatchdog(); hideBanner(); hideBreach();
+      updatePrepStatus(null, 0);
+      return;
+    }
+    // SIEMPRE renderizar el catálogo inline si vino con la respuesta.
+    // Re-render solo cuando cambia algo (estado, defensas aplicadas o quemadas) — barato.
+    if (j.catalog && j.catalog.length) {
+      const signature = j.state + '|' + (j.defenses || []).slice().sort().join(',') + '|' + (j.quiz_failed || []).slice().sort().join(',');
+      if (signature !== window._attackCatalogSig) {
+        renderCatalogInline(j.catalog, j.defenses, j.state, j.quiz_failed);
+        window._attackCatalogSig = signature;
+        attackCatalogRendered = true;
+      }
+    }
+    updateScoreBar(j.score || 0, j.threshold);
+
+    if (j.state === 'pending') {
+      paintWatchdog(j.pendingSecLeft);
+      hideBanner();
+      hideBreach();
+      updatePrepStatus('pending', j.pendingSecLeft);
+    } else if (j.state === 'active') {
+      hideWatchdog();
+      paintBanner(j);
+      $('attack-countdown').textContent = j.activeSecLeft;
+      updatePrepStatus('active', j.activeSecLeft);
+    } else if (j.state === 'defended') {
+      hideWatchdog();
+      hideBanner();
+      hideBreach();
+      updatePrepStatus('defended', 0);
+    } else if (j.state === 'failed') {
+      hideWatchdog();
+      hideBanner();
+      showBreach();
+      updatePrepStatus('failed', 0);
+    } else if (j.state === 'restored') {
+      hideWatchdog();
+      hideBanner();
+      hideBreach();
+      updatePrepStatus('restored', 0);
+    }
+  }
+
+  function tickAttack() {
+    if (!attackState) return;
+    const delta = Math.floor((Date.now() - attackLastFetch) / 1000);
+    if (attackState === 'pending' && attackPendingSec != null) {
+      const left = Math.max(0, attackPendingSec - delta);
+      $('attack-watchdog-time').textContent = left;
+    } else if (attackState === 'active' && attackActiveSec != null) {
+      const left = Math.max(0, attackActiveSec - delta);
+      const el = $('attack-countdown');
+      if (el) el.textContent = left;
+    }
+  }
+
+  if (hasAttackSim) {
+    // Defensa contra estado stale: ocultar breach-screen explícitamente al cargar.
+    // El attribute `hidden` ya está en el DOM, pero por si CSS lo override o JS de sesión previa lo dejó visible.
+    hideBreach();
+    hideBanner();
+    hideWatchdog();
+    fetchAttackStatus();
+    attackPollTimer = setInterval(fetchAttackStatus, 4000);
+    attackTickTimer = setInterval(tickAttack, 1000);
   }
 
   // ─── Vector search (E4) ─────────────────────────────────────────

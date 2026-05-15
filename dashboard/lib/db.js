@@ -70,6 +70,15 @@ if (!cols.includes('time_offset_ms'))   db.exec('ALTER TABLE players ADD COLUMN 
 if (!cols.includes('elapsed_at_end_seconds')) db.exec('ALTER TABLE players ADD COLUMN elapsed_at_end_seconds INTEGER');
 if (!cols.includes('started_at'))             db.exec('ALTER TABLE players ADD COLUMN started_at TEXT');
 if (!cols.includes('case_json'))              db.exec('ALTER TABLE players ADD COLUMN case_json TEXT');
+// Ataques pedagógicos (E2 Mongo, E3 Redis)
+for (const s of ['e2', 'e3']) {
+  if (!cols.includes(`attack_${s}_state`))         db.exec(`ALTER TABLE players ADD COLUMN attack_${s}_state TEXT`);
+  if (!cols.includes(`attack_${s}_scheduled_at`))  db.exec(`ALTER TABLE players ADD COLUMN attack_${s}_scheduled_at TEXT`);
+  if (!cols.includes(`attack_${s}_activated_at`))  db.exec(`ALTER TABLE players ADD COLUMN attack_${s}_activated_at TEXT`);
+  if (!cols.includes(`attack_${s}_defenses`))      db.exec(`ALTER TABLE players ADD COLUMN attack_${s}_defenses TEXT`);
+  if (!cols.includes(`attack_${s}_resolved_at`))   db.exec(`ALTER TABLE players ADD COLUMN attack_${s}_resolved_at TEXT`);
+  if (!cols.includes(`attack_${s}_quiz_failed`))   db.exec(`ALTER TABLE players ADD COLUMN attack_${s}_quiz_failed TEXT`);
+}
 
 export const stmts = {
   ensurePlayer:        db.prepare('INSERT OR IGNORE INTO players (player_id) VALUES (?)'),
@@ -127,7 +136,22 @@ export const stmts = {
   listNotes:           db.prepare('SELECT id, content, created_at, updated_at FROM notes WHERE player_id = ? ORDER BY id DESC'),
   addNote:             db.prepare('INSERT INTO notes (player_id, content) VALUES (?, ?)'),
   updateNote:          db.prepare('UPDATE notes SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND player_id = ?'),
-  deleteNote:          db.prepare('DELETE FROM notes WHERE id = ? AND player_id = ?')
+  deleteNote:          db.prepare('DELETE FROM notes WHERE id = ? AND player_id = ?'),
+
+  // Ataques (E2)
+  scheduleAttack_E2:   db.prepare("UPDATE players SET attack_e2_state = 'pending', attack_e2_scheduled_at = ? WHERE player_id = ? AND attack_e2_state IS NULL"),
+  activateAttack_E2:   db.prepare("UPDATE players SET attack_e2_state = 'active', attack_e2_activated_at = ? WHERE player_id = ? AND attack_e2_state IN ('pending')"),
+  setDefenses_E2:      db.prepare('UPDATE players SET attack_e2_defenses = ? WHERE player_id = ?'),
+  setQuizFailed_E2:    db.prepare('UPDATE players SET attack_e2_quiz_failed = ? WHERE player_id = ?'),
+  resolveAttack_E2:    db.prepare('UPDATE players SET attack_e2_state = ?, attack_e2_resolved_at = ? WHERE player_id = ?'),
+  resetAttack_E2:      db.prepare('UPDATE players SET attack_e2_state = NULL, attack_e2_scheduled_at = NULL, attack_e2_activated_at = NULL, attack_e2_defenses = NULL, attack_e2_resolved_at = NULL, attack_e2_quiz_failed = NULL WHERE player_id = ?'),
+  // Ataques (E3)
+  scheduleAttack_E3:   db.prepare("UPDATE players SET attack_e3_state = 'pending', attack_e3_scheduled_at = ? WHERE player_id = ? AND attack_e3_state IS NULL"),
+  activateAttack_E3:   db.prepare("UPDATE players SET attack_e3_state = 'active', attack_e3_activated_at = ? WHERE player_id = ? AND attack_e3_state IN ('pending')"),
+  setDefenses_E3:      db.prepare('UPDATE players SET attack_e3_defenses = ? WHERE player_id = ?'),
+  setQuizFailed_E3:    db.prepare('UPDATE players SET attack_e3_quiz_failed = ? WHERE player_id = ?'),
+  resolveAttack_E3:    db.prepare('UPDATE players SET attack_e3_state = ?, attack_e3_resolved_at = ? WHERE player_id = ?'),
+  resetAttack_E3:      db.prepare('UPDATE players SET attack_e3_state = NULL, attack_e3_scheduled_at = NULL, attack_e3_activated_at = NULL, attack_e3_defenses = NULL, attack_e3_resolved_at = NULL, attack_e3_quiz_failed = NULL WHERE player_id = ?')
 };
 
 export default db;
