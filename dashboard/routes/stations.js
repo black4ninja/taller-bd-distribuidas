@@ -57,7 +57,7 @@ Pon especial atención a las descripciones físicas que dan: son lo suficienteme
 Los posts sociales y los miembros del gimnasio son **datos semi-estructurados con variabilidad**:
 
 - **Schema flexible**: algunos posts tienen \`photo_url\`, otros no; algunos tienen geo, otros caption sola. Mongo acepta esa irregularidad sin migración. Trainers tienen campo \`clients[]\`, clientes regulares tienen \`trainer_id\` — distinta estructura, misma colección.
-- **Arrays nativos como ciudadanos de primera clase**: \`clients: [14782, 14745, ...]\` es indexable y filtrable directo (\`{"clients": 14782}\`). En SQL necesitarías tabla intermedia \`trainer_clients(trainer_id, client_id)\` + JOIN para la misma pregunta.
+- **Arrays nativos como ciudadanos de primera clase**: un campo \`clients: [<member_id_1>, <member_id_2>, ...]\` es indexable y filtrable directo (\`{"clients": <id>}\` encuentra el doc cuyo array contiene ese id). En SQL necesitarías tabla intermedia \`trainer_clients(trainer_id, client_id)\` + JOIN para la misma pregunta.
 - **Documentos auto-contenidos**: un post trae user + timestamp + location + caption en un solo JSON. Para mostrarlo no necesitas N JOINs.
 - **Escalabilidad horizontal**: redes sociales generan millones de posts/día. Mongo sharda naturalmente; Postgres requiere setup mucho más complejo.
 

@@ -49,8 +49,8 @@ SELECT * FROM persons WHERE address LIKE 'Av. Eugenio%';
 -- ILIKE para coincidencia parcial (case INsensitive) - útil para notas
 SELECT * FROM persons WHERE notes ILIKE '%barba%';
 
--- Filtrar por valor numérico
-SELECT * FROM persons WHERE gym_member_id = 14730;
+-- Filtrar por valor numérico (123456 es solo un ejemplo — usa el ID que el reporte del caso te indique)
+SELECT * FROM persons WHERE gym_member_id = 123456;
 ```
 
 ## JOIN: conectar persons con interviews
@@ -59,7 +59,7 @@ SELECT * FROM persons WHERE gym_member_id = 14730;
 SELECT p.name, p.address, i.transcript
 FROM persons p
 JOIN interviews i ON i.person_id = p.id
-WHERE p.gym_member_id = 14730
+WHERE p.gym_member_id = 123456
    OR p.address LIKE 'Calle Tecnológico%'
    OR p.address LIKE 'Av. Eugenio Garza Sada%';
 ```

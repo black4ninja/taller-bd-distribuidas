@@ -22,7 +22,7 @@ Casos típicos modernos: Spotify (canciones similares), Pinterest (búsqueda vis
 
 Es la representación matemática del *significado* de un texto. Dos textos que dicen lo mismo con palabras distintas tienen vectores **cercanos** en este espacio (Cosine similarity).
 
-> Por eso buscar "entrenador entró al lab con bolsa negra" puede encontrar "instructor Carlos Méndez salió del Laboratorio CETEC cargando una mochila".
+> Por eso buscar "entrenador entró al lab con bolsa negra" puede encontrar "el instructor del gimnasio salió del laboratorio cargando una mochila" — aunque las palabras no coincidan exactamente.
 
 ## Conexión vía Qdrant UI nativa
 
