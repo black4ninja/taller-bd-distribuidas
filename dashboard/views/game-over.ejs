@@ -16,8 +16,8 @@
   </div>
 
   <% if (reason === 'timeout') { %>
-    <h1 style="color:#b8261c;">💥 Carlos Méndez escapó</h1>
-    <p class="case-file__motor">Pasaron las 2 horas sin que cerraras el caso. <strong>Era Carlos Méndez</strong> — instructor del gimnasio Get Fit Now y entrenador personal del Dr. Aguilar. Tomó un vuelo internacional desde el Aeropuerto Mariano Escobedo a las 05:47 del 16 de marzo. La Fiscalía perdió jurisdicción al cruzar la frontera.</p>
+    <h1 style="color:#b8261c;">💥 <%= caseObj?.killer?.name || 'El asesino' %> escapó</h1>
+    <p class="case-file__motor">Pasaron las 2 horas sin que cerraras el caso. <strong>Era <%= caseObj?.killer?.name %></strong> (matrícula <%= caseObj?.killer?.matricula %>) — instructor del gimnasio <%= caseObj?.gym %> y entrenador personal de <%= caseObj?.victim?.name %>. Tomó un vuelo internacional desde el Aeropuerto Mariano Escobedo a las 05:47 del 16 de marzo. La Fiscalía perdió jurisdicción al cruzar la frontera.</p>
 
     <div class="case-file__section">
       <h3>Lo tenías a tu alcance</h3>
@@ -30,7 +30,7 @@
 
     <div class="case-file__section">
       <h3>¿Qué pasó?</h3>
-      <p>Acumulaste demasiados informes incorrectos. Cada submit equivocado deteriora tu credibilidad como investigador. Cuando llega a 0, el caso pasa a otro equipo.</p>
+      <p>Acumulaste demasiados informes incorrectos. Cada submit equivocado deteriora tu credibilidad como investigador del caso. Cuando llega a 0, el caso pasa a otro equipo.</p>
       <p class="muted">En investigación real esto pasa: cada acusación infundada cuesta tiempo, recursos, y la reputación de la fiscalía. Por eso pensar antes de submit importa más que adivinar rápido.</p>
     </div>
   <% } %>

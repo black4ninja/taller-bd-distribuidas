@@ -23,7 +23,7 @@ function allCompleted(playerId) {
 router.get('/solve', (req, res) => {
   checkAndApplyTimeout(req.playerId);
   const player = getPlayer(req.playerId);
-  if (player?.game_over) return res.render('game-over', { player });
+  if (player?.game_over) return res.render('game-over', { player, caseObj: getCase(req.playerId) });
   const locked = !allCompleted(req.playerId);
   res.render('solve', { player, locked });
 });

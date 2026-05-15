@@ -22,18 +22,17 @@ const GYMS = ['Get Fit Now', 'BodyForge', 'Iron Studio', 'Fitness Pro'];
 const HANDLE_PREFIXES = ['pro', 'fit', 'iron', 'core', 'flex', 'wild', 'urban', 'mty', 'norte', 'spark'];
 const HANDLE_SUFFIXES = ['coach', 'trainer', 'mx', '01', 'mtz', 'gtg', 'fit', 'pro', 'life', 'runs'];
 
-// Atributos físicos para que las entrevistas describan a los sospechosos
-const TRAITS_FEM = [
-  { hair: 'cabello rubio', extra: 'suéter rosa frecuente', tag: 'rubia' },
-  { hair: 'cabello castaño largo', extra: 'chamarra de mezclilla', tag: 'castaña' },
-  { hair: 'cabello negro corto', extra: 'lentes de pasta', tag: 'pelo corto' },
-  { hair: 'cabello pelirrojo', extra: 'tatuaje en el brazo', tag: 'pelirroja' }
-];
-const TRAITS_MASC = [
-  { hair: 'delgado, barba cerrada', extra: 'usa gorra siempre', tag: 'barba' },
-  { hair: 'muy alto', extra: 'lentes de armazón grueso', tag: 'alto' },
-  { hair: 'cabeza rapada', extra: 'tatuaje en el cuello', tag: 'rapado' },
-  { hair: 'cabello rubio teñido', extra: 'sudadera oscura', tag: 'rubio teñido' }
+// Atributos físicos genéricos (CSV mezcla nombres de hombres y mujeres, así que la
+// narrativa es gender-neutral: describe traits, no género).
+const TRAIT_SETS = [
+  { hair: 'cabello rubio',           extra: 'suéter rosa frecuente',   tag: 'rubio' },
+  { hair: 'cabello castaño largo',   extra: 'chamarra de mezclilla',   tag: 'castaño' },
+  { hair: 'cabello negro corto',     extra: 'lentes de pasta',         tag: 'corto' },
+  { hair: 'cabello pelirrojo',       extra: 'tatuaje en el brazo',     tag: 'pelirrojo' },
+  { hair: 'delgada complexión y barba cerrada', extra: 'usa gorra siempre',  tag: 'barba' },
+  { hair: 'estatura muy alta',       extra: 'lentes de armazón grueso', tag: 'alto' },
+  { hair: 'cabeza rapada',           extra: 'tatuaje en el cuello',    tag: 'rapado' },
+  { hair: 'cabello rubio teñido',    extra: 'sudadera oscura',         tag: 'teñido' }
 ];
 const OCCUPATIONS = ['Estudiante', 'Profesionista', 'Ingeniero', 'Diseñador', 'Programador', 'Médico', 'Maestro', 'Periodista', 'Abogado'];
 
@@ -103,9 +102,10 @@ export function generateCase(playerId) {
   // Otros members "fillers" del gym para Mongo gym_members
   const otherMembers = pool.slice(31, 31 + 20);
 
-  // Atributos
-  const femTraits = pick(TRAITS_FEM, rng);
-  const mascTraits = pick(TRAITS_MASC, rng);
+  // Atributos físicos — 2 traits distintos para los 2 sospechosos
+  const traitsShuffled = shuffle(TRAIT_SETS, rng);
+  const trait1 = traitsShuffled[0];
+  const trait2 = traitsShuffled[1];
 
   // IDs
   const killerGymId = genGymId(rng, true);
@@ -136,10 +136,10 @@ export function generateCase(playerId) {
       join_date: '2022-03-10'
     },
     victim: {
-      name: 'Dr. ' + victim.name,
+      name: victim.name,
       matricula: victim.matricula,
       gym_member_id: victimGymId,
-      occupation: 'Investigador ITESM'
+      occupation: 'Alumno ITESM'
     },
     witnesses: [
       { name: witness1.name, address: wAddr1, role: 'first',  testimony_focus: 'rubia_estudiante' },
@@ -147,8 +147,8 @@ export function generateCase(playerId) {
       { name: witness3.name, gym_member_id: witness3GymId, role: 'third', testimony_focus: 'entrenador_alterado' }
     ],
     physical_suspects: [
-      { name: physicalSuspectF.name, matricula: physicalSuspectF.matricula, traits: femTraits, gender: 'F' },
-      { name: physicalSuspectM.name, matricula: physicalSuspectM.matricula, traits: mascTraits, gender: 'M' }
+      { name: physicalSuspectF.name, matricula: physicalSuspectF.matricula, traits: trait1 },
+      { name: physicalSuspectM.name, matricula: physicalSuspectM.matricula, traits: trait2 }
     ],
     decoy_trainers: trainers.map((t, i) => ({
       name: t.name,

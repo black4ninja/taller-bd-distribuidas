@@ -58,10 +58,10 @@ async function reseedPostgres(c) {
         'Recolectar entrevistas de los tres y cruzar nombres con sus descripciones físicas.'
       ]
     );
-    // Interviews
+    // Interviews — narrativa neutral en género
     const interviews = [
-      { name: c.witnesses[0].name, transcript: `Salí a pasear a mi perro a eso de las 11 de la noche el 15 de marzo. Vi salir corriendo del ${c.location} a una mujer ${c.physical_suspects[0].traits.tag}. Llevaba ${c.physical_suspects[0].traits.extra}. Parecía universitaria.` },
-      { name: c.witnesses[1].name, transcript: `El 15 de marzo, alrededor de las 10:30 de la noche, escuché una discusión fuerte en el estacionamiento. Vi a un hombre ${c.physical_suspects[1].traits.tag} (${c.physical_suspects[1].traits.hair}), peleando con alguien más a quien no alcancé a ver.` },
+      { name: c.witnesses[0].name, transcript: `Salí a pasear a mi perro a eso de las 11 de la noche el 15 de marzo. Vi salir corriendo del ${c.location} a alguien con ${c.physical_suspects[0].traits.hair} y ${c.physical_suspects[0].traits.extra}. Parecía alumno del campus.` },
+      { name: c.witnesses[1].name, transcript: `El 15 de marzo, alrededor de las 10:30 de la noche, escuché una discusión fuerte en el estacionamiento. Vi a una persona con ${c.physical_suspects[1].traits.hair}, ${c.physical_suspects[1].traits.extra}, peleando con alguien más a quien no alcancé a ver.` },
       { name: c.witnesses[2].name, transcript: `Conocía a la víctima del gimnasio ${c.gym}. ${c.nicknames.victim_short} era cliente regular ahí. Esa noche, antes del crimen, vi a su entrenador personal muy alterado al terminar la última clase, lo escuché decir "yo voy a arreglar esto esta noche". Nunca lo había visto así.` }
     ];
     for (const i of interviews) {

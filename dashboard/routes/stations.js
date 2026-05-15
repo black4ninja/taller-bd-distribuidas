@@ -154,7 +154,7 @@ router.get('/station/:id', (req, res) => {
 
   // Si game over, mostrar el screen de game over (no la estación)
   if (player?.game_over) {
-    return res.render('game-over', { player });
+    return res.render('game-over', { player, caseObj: getCase(pid) });
   }
 
   // ¿Bloqueada por estación anterior?

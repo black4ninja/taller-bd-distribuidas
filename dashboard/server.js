@@ -19,6 +19,7 @@ import {
   newPlayerId,
   ensurePlayer,
   setCase,
+  getCase,
   DEADLINE_SECONDS
 } from './lib/game-state.js';
 import { generateCase } from './lib/case-generator.js';
@@ -48,7 +49,7 @@ app.use(playerMiddleware);
 app.get('/', (req, res) => {
   checkAndApplyTimeout(req.playerId);
   const player = getPlayer(req.playerId);
-  if (player?.game_over) return res.render('game-over', { player });
+  if (player?.game_over) return res.render('game-over', { player, caseObj: getCase(req.playerId) });
   if (!player?.started_at) return res.render('welcome', { player });
 
   const completed = new Set(getCompletedStations(req.playerId));
@@ -71,10 +72,20 @@ app.get('/', (req, res) => {
   });
 });
 
-// Helper: genera caso + reseedea motores para un player
+// Genera el caso si aún no existe (sin reseedear motores — solo SQLite).
+// Útil para que /caso pueda mostrar datos del player ANTES de pulsar Iniciar.
+function ensureCase(playerId) {
+  let caseObj = getCase(playerId);
+  if (!caseObj) {
+    caseObj = generateCase(playerId);
+    setCase(playerId, caseObj);
+  }
+  return caseObj;
+}
+
+// Genera caso + reseedea motores (operación cara, ~1s)
 async function provisionCase(playerId) {
-  const caseObj = generateCase(playerId);
-  setCase(playerId, caseObj);
+  const caseObj = ensureCase(playerId);
   await reseedAllMotors(caseObj, (m) => console.log(`[provision ${playerId.slice(0,8)}] ${m}`));
   return caseObj;
 }
@@ -112,7 +123,10 @@ app.post('/new-game', async (req, res) => {
 });
 
 app.get('/walkthrough', (req, res) => res.render('walkthrough'));
-app.get('/caso',        (req, res) => res.render('caso'));
+app.get('/caso',        (req, res) => {
+  const caseObj = ensureCase(req.playerId);
+  res.render('caso', { caseObj });
+});
 
 // Estado público del jugador (para refresco en cliente — credibilidad, tiempo, progreso, deadline)
 app.get('/state', (req, res) => {
