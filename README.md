@@ -14,9 +14,40 @@
 4. Si te atoras, cada estación tiene **3 pistas progresivas**. Úsalas sin culpa.
 5. El objetivo final es identificar **asesino + arma + lugar** del crimen.
 
-## Quick start
+## Instalar Docker Desktop
 
-Requisitos: Docker Desktop o Docker Engine con `docker compose` v2+.
+Este taller requiere **Docker Desktop** (incluye Docker Engine + `docker compose` v2). No necesitas más nada.
+
+### macOS
+
+1. Descarga: <https://www.docker.com/products/docker-desktop/>
+2. Elige el `.dmg` correcto según tu chip:
+   - **Apple Silicon (M1/M2/M3/M4)** → "Mac with Apple chip"
+   - **Intel** → "Mac with Intel chip"
+3. Abre el `.dmg` y arrastra Docker a `/Applications`.
+4. Lanza Docker Desktop desde Launchpad. La ballena 🐳 debe aparecer en la barra de menú con estado "running".
+
+### Windows
+
+1. Descarga: <https://www.docker.com/products/docker-desktop/> → "Download for Windows"
+2. Ejecuta `Docker Desktop Installer.exe` con todas las opciones por default (incluye WSL2 si no lo tienes).
+3. Reinicia si te lo pide.
+4. Lanza Docker Desktop desde el menú Inicio. Espera a que diga "Engine running" en la esquina inferior.
+
+### Linux
+
+Docker Desktop también está disponible (<https://docs.docker.com/desktop/install/linux/>), pero la alternativa nativa es Docker Engine + `docker compose` plugin via tu gestor de paquetes. Cualquier opción funciona.
+
+### Verifica que funciona
+
+```bash
+docker --version          # → Docker version 24.x o superior
+docker compose version    # → Docker Compose version v2.x
+```
+
+Si ambos comandos responden con una versión, ya estás listo.
+
+## Quick start
 
 ```bash
 git clone https://github.com/black4ninja/taller-bd-distribuidas.git
@@ -40,6 +71,30 @@ Arranques posteriores: ~30s.
 ```bash
 ./scripts/reset.sh
 ```
+
+## Comandos básicos de Docker Compose
+
+Aparte de los scripts del taller, estos son los comandos crudos para manejar la infraestructura desde la raíz del proyecto:
+
+| Acción | Comando |
+|---|---|
+| Levantar todo en segundo plano | `docker compose up -d` |
+| Detener (preserva datos y contenedores) | `docker compose stop` |
+| Encender después de un `stop` | `docker compose start` |
+| Reiniciar todos los servicios | `docker compose restart` |
+| Reiniciar un solo servicio | `docker compose restart dashboard` |
+| Ver el estado de los contenedores | `docker compose ps` |
+| Ver logs de todos los servicios | `docker compose logs -f` |
+| Ver logs de un servicio | `docker compose logs -f dashboard` |
+| Entrar (shell) al contenedor del dashboard | `docker compose exec dashboard sh` |
+| Entrar al cliente psql de Postgres | `docker compose exec postgres psql -U pg investigation` |
+| Entrar al `redis-cli` | `docker compose exec redis redis-cli` |
+| Entrar al `mongosh` | `docker compose exec mongo mongosh investigation` |
+| Apagar y borrar contenedores (conserva volúmenes/datos) | `docker compose down` |
+| Borrar TODO incluyendo datos y empezar de cero | `docker compose down --rmi local -v` |
+| Salir de una sesión `exec` dentro del contenedor | `exit` |
+
+> Cuando dudes, `docker compose ps` te dice qué está corriendo, y `docker compose logs -f <servicio>` te muestra qué está haciendo en tiempo real.
 
 ## Flujo del taller (2 horas)
 
