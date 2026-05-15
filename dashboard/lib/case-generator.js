@@ -3,7 +3,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const STUDENTS = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/students.json'), 'utf8'));
+// students.json es opcional y NO se commitea (gitignored): cada instructor pone su lista local.
+// El repo trae students.example.json con datos ficticios para que el clone funcione out-of-the-box.
+const STUDENTS_PATH = fs.existsSync(path.join(__dirname, '../data/students.json'))
+  ? path.join(__dirname, '../data/students.json')
+  : path.join(__dirname, '../data/students.example.json');
+const STUDENTS = JSON.parse(fs.readFileSync(STUDENTS_PATH, 'utf8'));
 
 // Variantes de seed para que cada caso sea distinto
 const WEAPONS = [

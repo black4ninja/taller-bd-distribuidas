@@ -5,3 +5,7 @@ node_modules/
 seeder/node_modules/
 dashboard/node_modules/
 **/.cache/
+
+# Lista real de alumnos del grupo (PII — solo local, nunca commitear).
+# Si existe, case-generator la usa; si no, cae al students.example.json.
+dashboard/data/students.json
