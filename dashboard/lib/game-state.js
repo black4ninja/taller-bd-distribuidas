@@ -50,9 +50,9 @@ export function markCaseSolved(playerId) {
   stmts.markCaseSolved.run(elapsed, playerId);
 }
 
-export function hintLevelUnlocked(openedAtIso, level) {
+export function hintLevelUnlocked(openedAtIso, level, nowMs = Date.now()) {
   if (!openedAtIso) return { unlocked: false, remainingSec: HINT_UNLOCK_SECONDS[level] };
-  const elapsed = (Date.now() - parseSqlTime(openedAtIso)) / 1000;
+  const elapsed = (nowMs - parseSqlTime(openedAtIso)) / 1000;
   const need = HINT_UNLOCK_SECONDS[level];
   if (elapsed >= need) return { unlocked: true, remainingSec: 0 };
   return { unlocked: false, remainingSec: Math.ceil(need - elapsed) };

@@ -14,7 +14,8 @@ import {
   hintLevelUnlocked,
   HINT_UNLOCK_SECONDS,
   checkAndApplyTimeout,
-  getCase
+  getCase,
+  effectiveNowMs
 } from '../lib/game-state.js';
 
 const router = Router();
@@ -33,7 +34,7 @@ Las personas, entrevistas y reportes de crimen forman un **dominio relacional cl
 - **Schema fijo y conocido**: toda persona tiene id, name, address; toda entrevista pertenece a UNA persona.
 - **Integridad referencial**: una entrevista no puede existir sin la persona que la dio (FK \`person_id\`). Postgres lo garantiza con ACID; si fuera un archivo CSV o JSON suelto, podrías tener entrevistas huérfanas.
 - **Queries ad-hoc complejas**: necesitas JOIN entre 3 tablas con filtros por dirección, gym_member_id y descripción. SQL fue diseñado exactamente para esto.
-- **Consistencia inmediata**: cuando un investigador agrega una entrevista, todos los demás la ven al instante (ACID).
+- **Consistencia inmediata**: cuando alguien del equipo agrega una entrevista, todos los demás la ven al instante (ACID).
 
 Si pusieras esto en MongoDB: tendrías que duplicar la persona en cada entrevista, o referenciarla por id y "hacer el JOIN en código". Si fuera en Redis: las consultas tipo \`WHERE address LIKE 'Calle X%'\` requerirían escanear todas las keys.`,
     narrative: `
@@ -41,7 +42,7 @@ La fiscalía organizó la información oficial del caso en una base estructurada
 
 El reporte oficial **identifica a los tres testigos** — no los nombra directamente, sino que los menciona por su dirección de domicilio o por su número de cliente del gimnasio. Tu trabajo es **localizar a esos tres testigos y leer sus declaraciones completas**.
 
-Pon especial atención a las descripciones físicas que dan: son lo suficientemente específicas como para coincidir con **anotaciones internas** que el investigador anterior dejó sobre algunas personas del padrón. De esa coincidencia salen dos sospechosos físicos que la policía ya tiene en la mira.
+Pon especial atención a las descripciones físicas que dan: son lo suficientemente específicas como para coincidir con **anotaciones internas** dejadas en el padrón sobre algunas personas. De esa coincidencia salen dos sospechosos físicos que la policía ya tiene en la mira.
 
 **Submit**: el nombre completo de CUALQUIERA de los 2 sospechosos físicos.`
   },
@@ -164,10 +165,11 @@ router.get('/station/:id', (req, res) => {
   }
   const openedAt = getStationOpenedAt(pid, id);
 
-  // Calcular timers de pistas
+  // Calcular timers de pistas (usando effectiveNow para que dev accel cuente)
+  const nowMs = effectiveNowMs(pid);
   const hintStatus = {};
   for (const level of [1, 2, 3]) {
-    hintStatus[level] = hintLevelUnlocked(openedAt, level);
+    hintStatus[level] = hintLevelUnlocked(openedAt, level, nowMs);
   }
 
   res.render('station', {
