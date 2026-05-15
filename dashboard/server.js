@@ -18,8 +18,11 @@ import {
   isGameStarted,
   newPlayerId,
   ensurePlayer,
+  setCase,
   DEADLINE_SECONDS
 } from './lib/game-state.js';
+import { generateCase } from './lib/case-generator.js';
+import { reseedAllMotors } from './lib/reseed.js';
 import stationsRouter, { STATION_INTRO } from './routes/stations.js';
 import hintsRouter from './routes/hints.js';
 import solveRouter from './routes/solve.js';
@@ -68,24 +71,44 @@ app.get('/', (req, res) => {
   });
 });
 
-// Inicia el juego (set started_at) — el reloj de 2h empieza aquí
-app.post('/start-game', (req, res) => {
-  startGame(req.playerId);
-  res.json({ ok: true, redirect: '/' });
+// Helper: genera caso + reseedea motores para un player
+async function provisionCase(playerId) {
+  const caseObj = generateCase(playerId);
+  setCase(playerId, caseObj);
+  await reseedAllMotors(caseObj, (m) => console.log(`[provision ${playerId.slice(0,8)}] ${m}`));
+  return caseObj;
+}
+
+// Inicia el juego: genera caso, reseedea motores, marca started_at
+app.post('/start-game', async (req, res) => {
+  try {
+    await provisionCase(req.playerId);
+    startGame(req.playerId);
+    res.json({ ok: true, redirect: '/' });
+  } catch (err) {
+    console.error('[start-game] error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
-// Nuevo juego post game-over: genera nuevo player_id y arranca
-app.post('/new-game', (req, res) => {
-  const pid = newPlayerId();
-  ensurePlayer(pid);
-  startGame(pid);
-  res.cookie(COOKIE_NAME, pid, {
-    signed: true,
-    httpOnly: true,
-    sameSite: 'lax',
-    maxAge: 6 * 60 * 60 * 1000
-  });
-  res.json({ ok: true, redirect: '/' });
+// Nuevo juego post game-over: genera nuevo player_id, caso, reseedea, arranca
+app.post('/new-game', async (req, res) => {
+  try {
+    const pid = newPlayerId();
+    ensurePlayer(pid);
+    await provisionCase(pid);
+    startGame(pid);
+    res.cookie(COOKIE_NAME, pid, {
+      signed: true,
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 6 * 60 * 60 * 1000
+    });
+    res.json({ ok: true, redirect: '/' });
+  } catch (err) {
+    console.error('[new-game] error', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 app.get('/walkthrough', (req, res) => res.render('walkthrough'));

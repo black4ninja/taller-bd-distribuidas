@@ -44,11 +44,11 @@
   document.getElementById('start-game-btn').addEventListener('click', async () => {
     const btn = document.getElementById('start-game-btn');
     btn.disabled = true;
-    btn.textContent = '⏳ Iniciando...';
+    btn.textContent = '⏳ Generando expediente único (10-15s)...';
     const r = await fetch('/start-game', { method: 'POST' });
     const j = await r.json();
     if (j.ok) location.href = j.redirect || '/';
-    else { btn.disabled = false; btn.textContent = '▶ Iniciar investigación'; }
+    else { btn.disabled = false; btn.textContent = '▶ Iniciar investigación'; alert('Error: ' + (j.error||'desconocido')); }
   });
 </script>
 

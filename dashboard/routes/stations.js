@@ -13,7 +13,8 @@ import {
   getPlayer,
   hintLevelUnlocked,
   HINT_UNLOCK_SECONDS,
-  checkAndApplyTimeout
+  checkAndApplyTimeout,
+  getCase
 } from '../lib/game-state.js';
 
 const router = Router();
@@ -204,7 +205,8 @@ router.post('/station/:id/check', (req, res) => {
   }
 
   const { answer } = req.body || {};
-  const result = checkStation(id, answer);
+  const caseObj = getCase(pid);
+  const result = checkStation(id, answer, caseObj);
   recordSubmitAttempt(pid, id, answer, result.ok);
 
   if (result.ok) {

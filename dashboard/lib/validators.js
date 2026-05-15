@@ -3,7 +3,7 @@ function normalize(str) {
   if (str === null || str === undefined) return '';
   return String(str)
     .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')   // strip diacriticos combining marks
+    .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ')
     .replace(/\s+/g, ' ')
@@ -13,67 +13,55 @@ function normalize(str) {
 function matchesAny(answer, acceptedSet) {
   const a = normalize(answer);
   if (!a) return false;
-  // Acepta: igualdad exacta, o answer contiene a accepted completo (ej. "el asesino es Carlos Méndez" matchea "Carlos Méndez").
-  // NO acepta accepted parcial dentro de answer (ej. "Carlos" no debe pasar como "Carlos Méndez").
   return acceptedSet.some(accepted => {
     const n = normalize(accepted);
     return a === n || a.includes(n);
   });
 }
 
-// Diseño narrativo (alineado con seeds/*.js):
-//   E0 → walkthrough, no requiere respuesta
-//   E1 → 2 sospechosos visibles desde interviews (Sofía o David)
-//   E2 → key oculta de Redis revelada por _evidence_archive de Mongo
-//   E3 → nombre de la collection vectorial encontrada DENTRO del valor de Redis
-//   E4 → nombre completo del asesino real
 const GENERIC_ERROR = 'Respuesta incorrecta. Revisa tu investigación y vuelve a intentarlo. Si te atoras, usa las pistas progresivas.';
 
+// Títulos públicos de cada estación (no dependen del caso)
 export const STATIONS = {
-  E1: {
-    title: 'PostgreSQL — Las entrevistas',
-    accept: ['Sofía Linares', 'Sofia Linares', 'David Hernández', 'David Hernandez'],
-    error_hint: GENERIC_ERROR
-  },
-  E2: {
-    title: 'MongoDB — El handle del entrenador',
-    accept: ['pro_coach_mtz'],
-    error_hint: GENERIC_ERROR
-  },
-  E3: {
-    title: 'Redis — La pista del informante',
-    accept: ['witness_testimonies'],
-    error_hint: GENERIC_ERROR
-  },
-  E4: {
-    title: 'Qdrant — Confesión semántica',
-    accept: ['Carlos Méndez', 'Carlos Mendez'],
-    error_hint: GENERIC_ERROR
-  }
+  E1: { title: 'PostgreSQL — Las entrevistas' },
+  E2: { title: 'MongoDB — El handle del entrenador' },
+  E3: { title: 'Redis — La pista del informante' },
+  E4: { title: 'Qdrant — Confesión semántica' }
 };
 
-export function checkStation(id, answer) {
-  const station = STATIONS[id];
-  if (!station) return { ok: false, error: 'Estación inexistente' };
-  if (matchesAny(answer, station.accept)) {
-    return { ok: true };
+// Genera respuestas aceptadas DESDE el caso del jugador.
+function acceptedAnswers(stationId, caseObj) {
+  if (!caseObj) return [];
+  switch (stationId) {
+    case 'E1':
+      // Cualquiera de los 2 sospechosos físicos
+      return [
+        caseObj.physical_suspects[0].name,
+        caseObj.physical_suspects[1].name
+      ];
+    case 'E2':
+      return [caseObj.killer.handle];
+    case 'E3':
+      // El nombre de la collection vectorial — siempre witness_testimonies en este diseño
+      return ['witness_testimonies'];
+    case 'E4':
+      return [caseObj.killer.name];
+    default:
+      return [];
   }
-  return { ok: false, error: station.error_hint };
 }
 
-// /solve — flag final concatenado
-export const FLAG = {
-  killer:   ['Carlos Méndez', 'Carlos Mendez'],
-  weapon:   ['Cable USB-C', 'Cable USB C', 'USB-C', 'cable usb-c'],
-  location: ['Laboratorio CETEC', 'CETEC', 'Lab CETEC']
-};
+export function checkStation(id, answer, caseObj) {
+  const accept = acceptedAnswers(id, caseObj);
+  if (accept.length === 0) return { ok: false, error: 'Caso no inicializado.' };
+  if (matchesAny(answer, accept)) return { ok: true };
+  return { ok: false, error: GENERIC_ERROR };
+}
 
-export function checkFlag({ killer, weapon, location }) {
-  const k = matchesAny(killer, FLAG.killer);
-  const w = matchesAny(weapon, FLAG.weapon);
-  const l = matchesAny(location, FLAG.location);
-  return {
-    ok: k && w && l,
-    fields: { killer: k, weapon: w, location: l }
-  };
+export function checkFlag({ killer, weapon, location }, caseObj) {
+  if (!caseObj) return { ok: false, fields: { killer: false, weapon: false, location: false } };
+  const k = matchesAny(killer,   [caseObj.killer.name]);
+  const w = matchesAny(weapon,   [caseObj.weapon]);
+  const l = matchesAny(location, [caseObj.location]);
+  return { ok: k && w && l, fields: { killer: k, weapon: w, location: l } };
 }

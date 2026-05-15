@@ -69,6 +69,7 @@ if (!cols.includes('game_over_reason')) db.exec("ALTER TABLE players ADD COLUMN 
 if (!cols.includes('time_offset_ms'))   db.exec('ALTER TABLE players ADD COLUMN time_offset_ms INTEGER NOT NULL DEFAULT 0');
 if (!cols.includes('elapsed_at_end_seconds')) db.exec('ALTER TABLE players ADD COLUMN elapsed_at_end_seconds INTEGER');
 if (!cols.includes('started_at'))             db.exec('ALTER TABLE players ADD COLUMN started_at TEXT');
+if (!cols.includes('case_json'))              db.exec('ALTER TABLE players ADD COLUMN case_json TEXT');
 
 export const stmts = {
   ensurePlayer:        db.prepare('INSERT OR IGNORE INTO players (player_id) VALUES (?)'),
@@ -99,6 +100,8 @@ export const stmts = {
     UPDATE players SET started_at = COALESCE(started_at, CURRENT_TIMESTAMP)
     WHERE player_id = ?
   `),
+  setCaseJson: db.prepare('UPDATE players SET case_json = ? WHERE player_id = ?'),
+  getCaseJson: db.prepare('SELECT case_json FROM players WHERE player_id = ?'),
   // Toma 2 params: (?1 = elapsed seconds para congelar, ?2 = player_id)
   markCaseSolved:      db.prepare(`
     UPDATE players SET

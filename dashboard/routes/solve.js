@@ -9,7 +9,8 @@ import {
   recordSubmitAttempt,
   totalHintsUsed,
   elapsedSinceStart,
-  checkAndApplyTimeout
+  checkAndApplyTimeout,
+  getCase
 } from '../lib/game-state.js';
 
 const router = Router();
@@ -37,7 +38,8 @@ router.post('/solve', (req, res) => {
     return res.status(403).json({ ok: false, error: 'Debes resolver las 4 estaciones primero.' });
   }
   const { killer_name, weapon, location } = req.body || {};
-  const result = checkFlag({ killer: killer_name, weapon, location });
+  const caseObj = getCase(req.playerId);
+  const result = checkFlag({ killer: killer_name, weapon, location }, caseObj);
   recordSubmitAttempt(req.playerId, 'SOLVE', `${killer_name}|${weapon}|${location}`, result.ok);
   if (result.ok) {
     markCaseSolved(req.playerId);

@@ -92,6 +92,16 @@ export function startGame(playerId) {
   stmts.startGame.run(playerId);
 }
 
+export function setCase(playerId, caseObj) {
+  stmts.setCaseJson.run(JSON.stringify(caseObj), playerId);
+}
+
+export function getCase(playerId) {
+  const row = stmts.getCaseJson.get(playerId);
+  if (!row?.case_json) return null;
+  try { return JSON.parse(row.case_json); } catch { return null; }
+}
+
 function computeLiveElapsed(playerId) {
   const player = getPlayer(playerId);
   if (!player?.started_at) return null;
