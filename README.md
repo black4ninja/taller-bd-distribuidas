@@ -130,7 +130,6 @@ taller-bd-distribuidas/
 ├── docs/
 │   ├── WALKTHROUGH.md         # E0 paso a paso (LÉELO PRIMERO)
 │   ├── ENTREGABLE.md          # plantilla que entregas al final
-│   ├── INSTRUCTOR_NOTES.md    # ⚠️ NO ABRIR si eres alumno
 │   ├── ARQUITECTURA.md        # diagrama y por qué cada motor
 │   └── CHEATSHEETS/           # 1 referencia rápida por motor
 ├── dashboard/                 # Node.js + Express con la narrativa
@@ -142,11 +141,17 @@ taller-bd-distribuidas/
 
 ## Para instructores
 
-Lee `docs/INSTRUCTOR_NOTES.md`. Incluye:
+Las notas privadas del instructor (`docs/INSTRUCTOR_NOTES.md`) **no están en el
+repo público** — contienen las soluciones completas del caso y se distribuyen
+por separado a quien va a impartir el taller. Incluyen:
+
 - Cronograma detallado de 2 horas
 - Solución completa por estación
 - Guion para el debrief
 - Checklist de validación pre-clase
+
+Si vas a impartir el taller y necesitas estas notas, contacta directamente al
+mantenedor del repo.
 
 ## Diseño pedagógico
 

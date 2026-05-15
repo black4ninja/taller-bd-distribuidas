@@ -9,3 +9,7 @@ dashboard/node_modules/
 # Lista real de alumnos del grupo (PII — solo local, nunca commitear).
 # Si existe, case-generator la usa; si no, cae al students.example.json.
 dashboard/data/students.json
+
+# Notas del instructor (soluciones del caso, cronograma, walkthrough de
+# vulnerabilidades) — material privado, nunca commitear al repo público.
+docs/INSTRUCTOR_NOTES.md
