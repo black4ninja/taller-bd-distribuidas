@@ -19,7 +19,7 @@ check() {
 
 echo "Verificando servicios..."
 
-check "dashboard :3000"      curl -fsS http://localhost:3000/progress
+check "dashboard :3000"      curl -fsS http://localhost:3000/state
 check "Adminer (PG UI) :8081" curl -fsS http://localhost:8081
 check "PostgreSQL :5432"     docker exec tbd-postgres pg_isready -U pg -d investigation
 check "MongoDB :27017"       docker exec tbd-mongo mongosh --quiet --eval "db.runCommand({ping:1}).ok"
