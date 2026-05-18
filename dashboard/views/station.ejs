@@ -19,6 +19,13 @@
     </div>
   <% } else { %>
 
+    <% if (hasAttackSim) { %>
+      <div class="case-file__section" style="border-left:4px solid #b8261c; background:rgba(184,38,28,0.06); padding:0.9rem 1.1rem;">
+        <strong>⚠️ Esta estación tiene una simulación de ciber-ataque en vivo.</strong>
+        <p style="margin:0.4rem 0 0;">Este motor corre <strong>sin autenticación</strong> (vulnerabilidad real). En algún momento mientras trabajas aquí, un atacante simulado intentará destruir los datos y tendrás <strong>una ventana corta</strong> para defenderlo. <strong>No sabes cuándo</strong> — por eso, antes de que pase, baja al panel <strong>🛡️ Preparación defensiva</strong> y estudia las defensas disponibles. Si te toma desprevenido sin haberlas leído, no vas a alcanzar a reaccionar.</p>
+      </div>
+    <% } %>
+
     <div class="case-file__section">
       <h3>Informe narrativo</h3>
       <div class="narrative">
@@ -57,10 +64,10 @@
     </div>
 
     <% if (showMongoShell) { %>
-      <div class="case-file__section">
-        <h3>Shell de MongoDB (acceso vía servicio sin auth)</h3>
+      <div class="case-file__section" style="border-left:4px solid #2e7d32; background:rgba(46,125,50,0.05); padding:0.9rem 1.1rem;">
+        <h3 style="margin-top:0;">⬇️ Shell de MongoDB — AQUÍ se ejecutan las queries</h3>
         <div class="vector-widget">
-          <p class="muted">El servicio MongoDB del campus no requiere autenticación — tienes shell access. Métodos permitidos: <code>find</code>, <code>findOne</code>, <code>countDocuments</code>, <code>aggregate</code>, <code>distinct</code>. Colecciones disponibles: <code>gym_members</code>, <code>social_posts</code>, <code>_evidence_archive</code>. Los resultados se limitan a 100 docs.</p>
+          <p class="muted"><strong>Las consultas de esta estación se escriben y corren aquí mismo, en esta página</strong> — no en mongo-express. Escribe tu query en la caja de abajo y pulsa <em>Ejecutar query</em>. El servicio MongoDB no requiere autenticación, por eso tienes shell access directo. Métodos permitidos: <code>find</code>, <code>findOne</code>, <code>countDocuments</code>, <code>aggregate</code>, <code>distinct</code>. Colecciones disponibles: <code>gym_members</code>, <code>social_posts</code>, <code>_evidence_archive</code>. Los resultados se limitan a 100 docs.</p>
           <p class="muted">Ejemplo: <code>db.gym_members.countDocuments({})</code></p>
           <textarea id="mongo-query" rows="3" placeholder="db.gym_members.find({...})"></textarea>
           <button id="mongo-run">Ejecutar query</button>

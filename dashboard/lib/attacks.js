@@ -25,11 +25,11 @@ export const DEFENSES = {
       quiz: {
         question: '¿Por qué crear un usuario es la base para bloquear el ataque actual?',
         options: [
-          'Porque cifra los datos en disco para que el atacante no pueda leerlos',
-          'Porque sin un usuario en la base, ningún cliente puede pasar el AUTH cuando autorización esté habilitada',
-          'Porque limita las conexiones por IP de origen'
+          'Sin un usuario creado nadie puede pasar AUTH al activar authz',
+          'Cifra los datos guardados en disco para que el atacante jamás los lea',
+          'Limita las conexiones entrantes según su IP de origen'
         ],
-        correct: 1
+        correct: 0
       }
     },
     {
@@ -41,9 +41,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Por qué activar `security.authorization: enabled` es lo que realmente cierra el bypass?',
         options: [
-          'Porque ralentiza queries de atacantes hasta que se rinden',
-          'Porque registra los accesos al audit log para investigación posterior',
-          'Porque sin --auth, MongoDB aceptaba conexiones anónimas — aún con usuarios creados, las credenciales no se verifican'
+          'Ralentiza tanto las queries del atacante que termina por rendirse solo',
+          'Registra los accesos en el audit log para investigar luego',
+          'Sin authz Mongo acepta conexiones anónimas aunque haya usuarios'
         ],
         correct: 2
       }
@@ -57,9 +57,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué hace exactamente `net.bindIp: 127.0.0.1,10.0.0.0/8`?',
         options: [
-          'Cifra la conexión con TLS para esos rangos',
-          'Restringe el socket de Mongo a interfaces locales/privadas — el puerto deja de aceptar conexiones desde IPs públicas',
-          'Limita el throughput a 10 MB/s por IP'
+          'Cifra con TLS las conexiones que vengan de esos rangos de IP',
+          'Ata el socket de Mongo a interfaces locales o de red privada',
+          'Limita el throughput permitido a cada IP cliente a 10 MB por segundo'
         ],
         correct: 1
       }
@@ -73,11 +73,11 @@ export const DEFENSES = {
       quiz: {
         question: '¿Por qué apagar mongo-express en producción es una defensa real?',
         options: [
-          'Porque consume RAM que necesita el motor principal',
-          'Porque cifra el tráfico administrativo',
-          'Porque mongo-express es una UI sin autenticación nativa — exponerla deja que cualquiera enumere y modifique la base con un browser'
+          'Es una UI sin autenticación nativa: cualquiera enumera la base',
+          'Libera la RAM que necesita el proceso principal de Mongo',
+          'Cifra todo el tráfico administrativo entre el panel web y el motor'
         ],
-        correct: 2
+        correct: 0
       }
     },
     {
@@ -89,11 +89,11 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué aporta RBAC con least privilege como capa adicional?',
         options: [
-          'Acelera findOne porque omite checks de seguridad',
-          'Cifra los datos sensibles automáticamente al leerse',
-          'Si una credencial de aplicación se filtra, el atacante solo puede ejecutar las acciones de ese rol — no toda la base'
+          'Acelera findOne porque se salta los checks de seguridad',
+          'Si una credencial se filtra solo expone las acciones de su rol',
+          'Cifra de forma automática los campos sensibles cada vez que se leen'
         ],
-        correct: 2
+        correct: 1
       }
     },
     {
@@ -106,10 +106,10 @@ export const DEFENSES = {
         question: '¿Por qué el firewall a nivel de SO es valioso aún si Mongo ya tiene bindIp?',
         options: [
           'Comprime el tráfico de Mongo para ahorrar ancho de banda',
-          'Defense in depth: si alguien mal-configura bindIp a 0.0.0.0 por error, el firewall sigue cortando conexiones externas',
-          'Reduce la latencia de queries al filtrar paquetes inválidos'
+          'Reduce la latencia de las queries filtrando antes los paquetes inválidos',
+          'Si bindIp se mal-configura a 0.0.0.0, el firewall aún corta'
         ],
-        correct: 1
+        correct: 2
       }
     },
     {
@@ -121,9 +121,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué ataque específico mitiga TLS en la conexión a Mongo?',
         options: [
-          'Sniffing de red: sin TLS, credenciales y datos viajan en plaintext y un atacante en path los lee directo',
-          'TLS comprime los datos para ahorrar ancho de banda',
-          'TLS añade un segundo factor de autenticación al login'
+          'Sniffing: sin TLS credenciales y datos viajan en plaintext',
+          'Comprime los datos en tránsito para así ahorrar ancho de banda de red',
+          'Agrega un segundo factor de autenticación al hacer login'
         ],
         correct: 0
       }
@@ -137,9 +137,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Por qué auditLog tiene poco peso (low) como defensa?',
         options: [
-          'Porque consume mucho disco y ralentiza el motor',
-          'Porque solo detecta, no previene — pero sin él no sabes que te enumeraron hasta que ya pasó el daño',
-          'Porque solo loggea cambios de schema, no queries'
+          'Consume demasiado disco y por eso termina ralentizando el motor entero',
+          'Solo detecta, no previene: avisa cuando el daño ya ocurrió',
+          'Solo registra cambios de schema, nunca las queries find'
         ],
         correct: 1
       }
@@ -155,9 +155,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué pasa en Redis sin requirepass?',
         options: [
-          'Cifra los valores en memoria con AES por default',
-          'Activa replicación a un nodo secundario',
-          'El servidor acepta cualquier conexión TCP sin autenticar — quien llegue al puerto puede leer/escribir cualquier key'
+          'Cifra los valores en memoria con AES de forma automática',
+          'Activa por defecto la replicación a un nodo secundario',
+          'Acepta cualquier conexión TCP sin autenticar al cliente'
         ],
         correct: 2
       }
@@ -171,8 +171,8 @@ export const DEFENSES = {
       quiz: {
         question: '¿Por qué renombrar FLUSHALL/CONFIG/KEYS a "" es crítico aún teniendo requirepass?',
         options: [
-          'Hace los comandos más rápidos al saltar el parser',
-          'Porque incluso con AUTH válido, un atacante con credenciales (o una app comprometida) puede destruir todo con FLUSHALL — renombrar a "" deshabilita el comando',
+          'Hace que esos comandos sean más rápidos al saltarse el parser RESP',
+          'Una app o credencial comprometida ya no puede destruir todo',
           'Comprime los argumentos del comando para ahorrar bandwidth'
         ],
         correct: 1
@@ -187,11 +187,11 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué hace `protected-mode yes` en Redis 7+?',
         options: [
-          'Cifra los valores en disco con AES',
-          'Limita el número de keys por base de datos',
-          'Bloquea conexiones desde interfaces no-loopback si no hay bind explícito ni password — es el "default seguro" para evitar la catástrofe en localhost expuesto'
+          'Bloquea conexiones no-loopback si no hay bind ni password',
+          'Cifra los valores persistidos en disco usando AES-256',
+          'Limita el número máximo de keys permitidas por cada base de datos'
         ],
-        correct: 2
+        correct: 0
       }
     },
     {
@@ -203,9 +203,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué hace `bind 127.0.0.1 ::1`?',
         options: [
-          'Cifra automáticamente las conexiones locales con TLS',
-          'Activa persistencia AOF a disco',
-          'Restringe el socket de Redis a las interfaces de loopback (IPv4 e IPv6) — el puerto deja de aceptar conexiones de otras IPs'
+          'Cifra automáticamente con TLS las conexiones locales',
+          'Activa la persistencia AOF escribiendo a disco cada op',
+          'Ata el socket de Redis solo a las interfaces loopback'
         ],
         correct: 2
       }
@@ -219,9 +219,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué aporta ACL sobre solo tener requirepass?',
         options: [
-          'Granularidad: cada usuario puede tener un set específico de comandos y patrones de keys permitidos — un servicio readonly no puede ejecutar FLUSHALL',
-          'Acelera los GET porque cachea el resultado del último ACL check',
-          'Reemplaza la necesidad de requirepass'
+          'Cada usuario tiene comandos y patrones de key acotados',
+          'Acelera los GET cacheando el último chequeo de ACL hecho',
+          'Hace innecesario seguir configurando un requirepass'
         ],
         correct: 0
       }
@@ -235,11 +235,11 @@ export const DEFENSES = {
       quiz: {
         question: '¿Por qué el firewall es valioso aún si Redis ya tiene bind + requirepass?',
         options: [
-          'Reduce el RAM consumido por conexiones rechazadas',
-          'Defense in depth: si alguien mal-configura bind a 0.0.0.0 o quita requirepass por accidente, el firewall sigue cortando paquetes externos',
-          'Comprime el protocolo Redis a nivel de red'
+          'Reduce la cantidad de RAM que consumen las conexiones rechazadas',
+          'Comprime el protocolo Redis a nivel de capa de red',
+          'Si bind o requirepass se rompen, aún corta lo externo'
         ],
-        correct: 1
+        correct: 2
       }
     },
     {
@@ -251,9 +251,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Qué problema específico resuelve TLS en Redis?',
         options: [
-          'Hace los comandos más rápidos al usar binario en vez de RESP texto',
-          'Sin TLS, el comando `AUTH <password>` viaja en plaintext en cada conexión — un sniffer en path captura el requirepass',
-          'TLS habilita persistencia AOF cifrada'
+          'Hace que los comandos sean más rápidos al usar binario y no texto',
+          'Sin TLS el AUTH viaja en plaintext y un sniffer lo captura',
+          'Habilita la persistencia AOF cifrada automáticamente'
         ],
         correct: 1
       }
@@ -267,9 +267,9 @@ export const DEFENSES = {
       quiz: {
         question: '¿Por qué MONITOR tiene poco peso (low) como defensa?',
         options: [
-          'Es solo detección — caro de mantener continuamente porque copia cada comando, pero ventanas cortas detectan enumeración con KEYS *',
-          'Bloquea automáticamente las IPs sospechosas',
-          'Cifra el log de comandos para auditoría legal'
+          'Solo detecta y es caro porque copia cada comando entrante',
+          'Bloquea de forma automática las IPs que le parezcan sospechosas',
+          'Cifra el log de comandos para tener evidencia legal'
         ],
         correct: 0
       }

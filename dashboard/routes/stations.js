@@ -73,7 +73,9 @@ Si las coartadas de tus dos sospechosos resultan sólidas, **regresa al expedien
 - Las redes sociales (\`social_posts\`) usan **handles obscuros**, no \`nombre_apellido\`. Para vincular un post con una persona del padrón, cada post tiene un campo \`user_id\` que mapea a \`gym_members.member_id\`.
 - Eso significa que para conseguir el handle del asesino necesitas correlacionar AMBAS colecciones (lookup cruzado o dos queries encadenadas).
 
-**Detalle clave (vulnerabilidad real explotable)**: el servicio MongoDB del campus está corriendo **SIN autenticación**. El equipo de Fiscalía te dio acceso de shell vía la herramienta abajo. Hay **más de 270 personas registradas y cientos de posts** — el scan visual no es viable. Ejecuta queries.
+**¿Dónde se escriben las queries?** En **esta misma página**, más abajo, en la sección **"Shell de MongoDB"** (la caja de texto donde escribes \`db.gym_members.find({...})\` y pulsas *Ejecutar query*). Ahí corres TODAS las consultas de esta estación. El botón "Abrir mongo-express" es opcional y solo sirve para *ojear* las colecciones de forma visual — **no escribas tus queries ahí**, hazlas en la shell de abajo.
+
+**Detalle clave (vulnerabilidad real explotable)**: el servicio MongoDB del campus está corriendo **SIN autenticación**. Por eso tienes shell access directo. Hay **más de 270 personas registradas y cientos de posts** — el scan visual no es viable. Ejecuta queries.
 
 Hay además una colección oculta (fuera del listado público) con chat-logs y reportes que te dan contexto del motivo.
 
