@@ -277,6 +277,23 @@ export const DEFENSES = {
   ]
 };
 
+// Baraja determinística: mismo seed → mismo orden. La usamos para que las
+// cards de defensa salgan en orden distinto por jugador (el aprendizaje sea
+// por contenido, no por memorizar "la 1ª y la 2ª"), pero ESTABLE durante todo
+// el ataque (seed incluye scheduled_at) para que no salten en cada poll.
+function seededShuffle(arr, seed) {
+  let h = 0;
+  for (const c of String(seed)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  let s = h || 1;
+  const rng = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0x100000000; };
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function attackKey(stationId) { return stationId.toLowerCase(); } // 'e2' | 'e3'
 
 function getRawState(playerId, stationId) {
@@ -384,7 +401,11 @@ export async function getAttackStatus(playerId, stationId) {
     quiz_failed: quizFailed,
     score,
     threshold: DEFENSE_THRESHOLD,
-    catalog: DEFENSES[stationId].map(d => ({
+    // Orden barajado por jugador+estación+ataque (estable durante el ataque).
+    catalog: seededShuffle(
+      DEFENSES[stationId],
+      `${playerId}:${stationId}:${raw.scheduled_at || 'noseed'}`
+    ).map(d => ({
       id: d.id, label: d.label, command: d.command, weight: d.weight, points: WEIGHT[d.weight], explanation: d.explanation,
       // Solo enviamos la pregunta y opciones — NUNCA el índice correcto.
       quiz: d.quiz ? { question: d.quiz.question, options: d.quiz.options } : null,
