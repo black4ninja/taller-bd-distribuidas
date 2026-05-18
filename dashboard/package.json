@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Dashboard del taller de bases de datos distribuidas - narrativa, validación y orquestación",
   "scripts": {
     "start": "node server.js"

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Seed datos coherentes cross-DB para el taller de bases de datos distribuidas",
   "scripts": {
     "start": "node index.js"

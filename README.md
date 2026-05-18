@@ -139,20 +139,6 @@ taller-bd-distribuidas/
     └── verify-setup.sh
 ```
 
-## Para instructores
-
-Las notas privadas del instructor (`docs/INSTRUCTOR_NOTES.md`) **no están en el
-repo público** — contienen las soluciones completas del caso y se distribuyen
-por separado a quien va a impartir el taller. Incluyen:
-
-- Cronograma detallado de 2 horas
-- Solución completa por estación
-- Guion para el debrief
-- Checklist de validación pre-clase
-
-Si vas a impartir el taller y necesitas estas notas, contacta directamente al
-mantenedor del repo.
-
 ## Diseño pedagógico
 
 - **Scaffolding agresivo**: UIs gráficas (no CLI), cheatsheets por motor, walkthrough resuelto (E0).
@@ -173,4 +159,13 @@ mantenedor del repo.
 
 ## Licencia
 
-MIT — úsalo y modifícalo para tus propios talleres.
+**Todos los derechos reservados.**
+
+Copyright © 2026 Alejandro Fernández.
+
+Este repositorio se publica únicamente con fines de consulta y demostración.
+No se concede ninguna licencia ni derecho para usar, copiar, modificar,
+fusionar, publicar, distribuir, sublicenciar ni crear obras derivadas de este
+material —total o parcialmente— sin autorización previa y por escrito del
+titular de los derechos. El acceso público al código no implica renuncia a
+ningún derecho de autor.
