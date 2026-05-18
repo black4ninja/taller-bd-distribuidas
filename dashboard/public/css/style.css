@@ -1488,6 +1488,14 @@ pre code { background: transparent; padding: 0; }
 .defense-card__weight--high     { background: #cc6611; color: #fff; }
 .defense-card__weight--medium   { background: #8b6f10; color: #fff; }
 .defense-card__weight--low      { background: #6a6a6a; color: #fff; }
+/* Tag neutral — NO comunica importancia (el tier es spoiler de la respuesta) */
+.defense-card__tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a8270;
+}
 .defense-card__check {
   color: #2e7d32;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;

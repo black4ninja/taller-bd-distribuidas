@@ -406,7 +406,10 @@ export async function getAttackStatus(playerId, stationId) {
       DEFENSES[stationId],
       `${playerId}:${stationId}:${raw.scheduled_at || 'noseed'}`
     ).map(d => ({
-      id: d.id, label: d.label, command: d.command, weight: d.weight, points: WEIGHT[d.weight], explanation: d.explanation,
+      id: d.id, label: d.label, command: d.command, explanation: d.explanation,
+      // weight NUNCA se manda (spoiler de "elige las críticas"). points solo
+      // se revela DESPUÉS de aplicar: aprendizaje por consecuencia, no por tier.
+      ...(defenses.includes(d.id) ? { points: WEIGHT[d.weight] } : {}),
       // Solo enviamos la pregunta y opciones — NUNCA el índice correcto.
       quiz: d.quiz ? { question: d.quiz.question, options: d.quiz.options } : null,
       quiz_locked: quizFailed.includes(d.id)

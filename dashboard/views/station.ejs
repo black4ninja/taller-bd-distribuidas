@@ -431,10 +431,11 @@
       else if (!clickable) footer = '<div class="defense-card__lock-msg">🔒 disponible cuando empiece el ataque</div>';
       else footer = '<div class="defense-card__cta">▶ contestar y aplicar</div>';
       return `
-      <button class="defense-card defense-card--${d.weight} ${isApp ? 'is-applied' : ''} ${isQuizLocked ? 'is-burned' : ''} ${clickable ? '' : 'is-locked'}" data-defense-id="${d.id}" ${disabled ? 'disabled' : ''}>
+      <button class="defense-card ${isApp ? 'is-applied' : ''} ${isQuizLocked ? 'is-burned' : ''} ${clickable ? '' : 'is-locked'}" data-defense-id="${d.id}" ${disabled ? 'disabled' : ''}>
         <div class="defense-card__head">
-          <span class="defense-card__weight defense-card__weight--${d.weight}">${d.weight} · ${d.points}pt</span>
-          ${isApp ? '<span class="defense-card__check">✓ aplicada</span>' : ''}
+          ${isApp
+            ? `<span class="defense-card__check">✓ aplicada${d.points != null ? ` · +${d.points} pts` : ''}</span>`
+            : '<span class="defense-card__tag">defensa propuesta</span>'}
           ${isQuizLocked ? '<span class="defense-card__burned-flag">✗ quemada</span>' : ''}
         </div>
         <div class="defense-card__label">${d.label}</div>
@@ -513,7 +514,7 @@
     $('defense-modal-title').textContent = def.label;
     $('defense-modal-explanation').textContent = def.explanation;
     $('defense-modal-command').textContent = def.command;
-    $('defense-modal-weight').textContent = `Peso: ${def.weight} (${def.points} pt). ${def.weight === 'critical' ? 'Defensa crítica — sin ella las demás son débiles.' : def.weight === 'high' ? 'Defensa importante.' : def.weight === 'medium' ? 'Defensa complementaria.' : 'Defensa de detección / poco peso por sí sola.'}`;
+    $('defense-modal-weight').textContent = 'Lee la explicación y el comando: ¿esta defensa realmente corta el ataque actual, o solo ayuda en parte? Tú decides cuáles aplicar — cuánto suma cada una lo descubrirás al aplicarla.';
 
     const quizWrap = $('defense-quiz');
     const fb = $('defense-quiz-feedback');
